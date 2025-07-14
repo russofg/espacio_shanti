@@ -114,67 +114,61 @@ async function initializeFirebaseData() {
 }
 
 // Función para limpiar datos (usar con cuidado)
-async function clearFirebaseData() {
-  if (
-    !confirm(
-      "⚠️ ¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer."
-    )
-  ) {
-    return;
-  }
+// async function clearFirebaseData() {
+//   if (
+//     !confirm(
+//       "⚠️ ¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer."
+//     )
+//   ) {
+//     return;
+//   }
 
-  try {
-    const { collection, getDocs, deleteDoc } = await import(
-      "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
-    );
+//   try {
+//     const { collection, getDocs, deleteDoc } = await import(
+//       "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+//     );
 
-    // Limpiar servicios
-    const servicesSnapshot = await getDocs(
-      collection(window.firebaseManager.db, "services")
-    );
-    for (const docSnap of servicesSnapshot.docs) {
-      await deleteDoc(docSnap.ref);
-    }
+//     // Limpiar servicios
+//     const servicesSnapshot = await getDocs(
+//       collection(window.firebaseManager.db, "services")
+//     );
+//     for (const docSnap of servicesSnapshot.docs) {
+//       await deleteDoc(docSnap.ref);
+//     }
 
-    // Limpiar terapeutas
-    const therapistsSnapshot = await getDocs(
-      collection(window.firebaseManager.db, "therapists")
-    );
-    for (const docSnap of therapistsSnapshot.docs) {
-      await deleteDoc(docSnap.ref);
-    }
+//     // Limpiar terapeutas
+//     const therapistsSnapshot = await getDocs(
+//       collection(window.firebaseManager.db, "therapists")
+//     );
+//     for (const docSnap of therapistsSnapshot.docs) {
+//       await deleteDoc(docSnap.ref);
+//     }
 
-    // Limpiar reservas
-    const reservationsSnapshot = await getDocs(
-      collection(window.firebaseManager.db, "reservations")
-    );
-    for (const docSnap of reservationsSnapshot.docs) {
-      await deleteDoc(docSnap.ref);
-    }
+//     // Limpiar reservas
+//     const reservationsSnapshot = await getDocs(
+//       collection(window.firebaseManager.db, "reservations")
+//     );
+//     for (const docSnap of reservationsSnapshot.docs) {
+//       await deleteDoc(docSnap.ref);
+//     }
 
-    console.log("🧹 Datos eliminados exitosamente");
-  } catch (error) {
-    console.error("❌ Error eliminando datos:", error);
-  }
-}
+//     console.log("🧹 Datos eliminados exitosamente");
+//   } catch (error) {
+//     console.error("❌ Error eliminando datos:", error);
+//   }
+// }
 
 // Función para verificar conexión
-function checkFirebaseConnection() {
-  if (window.firebaseManager && window.firebaseManager.initialized) {
-    console.log("✅ Firebase está conectado y funcionando");
-    console.log("📊 Config:", window.firebaseManager.app.options);
-  } else {
-    console.log("❌ Firebase no está conectado");
-  }
-}
+// function checkFirebaseConnection() {
+//   if (window.firebaseManager && window.firebaseManager.initialized) {
+//     console.log("✅ Firebase está conectado y funcionando");
+//     console.log("📊 Config:", window.firebaseManager.app.options);
+//   } else {
+//     console.log("❌ Firebase no está conectado");
+//   }
+// }
 
 // Exportar funciones para uso en consola
 window.initializeFirebaseData = initializeFirebaseData;
 window.clearFirebaseData = clearFirebaseData;
 window.checkFirebaseConnection = checkFirebaseConnection;
-
-console.log("🔧 Script de inicialización cargado");
-console.log("📋 Funciones disponibles:");
-console.log("- initializeFirebaseData() - Crea datos iniciales");
-console.log("- checkFirebaseConnection() - Verifica conexión");
-console.log("- clearFirebaseData() - Elimina todos los datos (¡cuidado!)");

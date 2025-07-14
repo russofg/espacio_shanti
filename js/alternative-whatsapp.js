@@ -18,11 +18,6 @@ class CallMeBotService {
   }
 
   async sendNotification(reservationData) {
-    console.log(
-      "📱 CallMeBot: Iniciando envío de notificación...",
-      reservationData
-    );
-
     const apiKey = this.apiKeys[reservationData.therapistId];
     const phone = this.phones[reservationData.therapistId];
 
@@ -42,36 +37,20 @@ class CallMeBotService {
       );
     }
 
-    if (apiKey === "4491919") {
-      console.log("✅ CallMeBot: Usando API key real de Betsabé");
-    }
-
     const message = this.formatMessage(reservationData);
     const encodedMessage = encodeURIComponent(message);
     const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodedMessage}&apikey=${apiKey}`;
-
-    console.log(
-      "📱 CallMeBot: Enviando a",
-      phone,
-      "con API key:",
-      apiKey.substring(0, 3) + "***"
-    );
 
     try {
       // Usar una imagen invisible para evitar CORS
       const img = new Image();
       img.onload = () => {
-        console.log("✅ CallMeBot: Notificación enviada exitosamente");
+        // Mensaje enviado exitosamente
       };
       img.onerror = () => {
-        console.log("✅ CallMeBot: Mensaje enviado (error esperado por CORS)");
+        // Mensaje enviado (error esperado por CORS)
       };
       img.src = url;
-
-      // Simular éxito después de un breve delay
-      setTimeout(() => {
-        console.log("✅ CallMeBot: Procesamiento completado");
-      }, 1000);
 
       return true;
     } catch (error) {
@@ -102,8 +81,6 @@ window.callMeBotService = new CallMeBotService();
 
 // Función de prueba integrada
 window.testWhatsAppNotification = function () {
-  console.log("🧪 Iniciando prueba de CallMeBot...");
-
   // Datos de prueba para Betsabé (tiene configuración real)
   const testReservation = {
     clientName: "Fernando Russo (Prueba)",
@@ -114,10 +91,7 @@ window.testWhatsAppNotification = function () {
     therapistId: "betsabe", // Usando Betsabé que ya está configurada
   };
 
-  console.log("📱 Probando con datos:", testReservation);
-
   if (window.callMeBotService) {
-    console.log("📱 Enviando notificación de prueba a Betsabé...");
     window.callMeBotService
       .sendNotification(testReservation)
       .then((result) => {
@@ -125,7 +99,6 @@ window.testWhatsAppNotification = function () {
           console.log(
             "✅ ¡Prueba exitosa! Betsabé debería recibir el WhatsApp en 1-5 minutos."
           );
-          console.log("📱 Revisa el WhatsApp de Betsabé: +5491161174746");
         } else {
           console.log(
             "❌ Prueba falló. Revisa los logs anteriores para más detalles."
@@ -151,10 +124,5 @@ window.testBetsabe = function () {
     therapistId: "betsabe",
   };
 
-  console.log("🧪 Enviando prueba manual a Betsabé...");
   return window.callMeBotService.sendNotification(testData);
 };
-
-console.log("✅ CallMeBot cargado. Funciones disponibles:");
-console.log("  - testWhatsAppNotification() → Prueba completa");
-console.log("  - testBetsabe() → Prueba rápida");

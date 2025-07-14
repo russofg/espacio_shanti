@@ -72,10 +72,8 @@ class EspacioShantiApp {
 
   setupEventListeners() {
     // Reservation form
-    console.log("🔧 Configurando event listeners...");
     const reservationForm = document.getElementById("reservation-form");
     if (reservationForm) {
-      console.log("🎯 Event listener para reservation-form configurado");
       reservationForm.addEventListener(
         "submit",
         this.handleReservation.bind(this)
@@ -272,8 +270,6 @@ class EspacioShantiApp {
     );
     const reservationForm = document.getElementById("reservation-form");
     if (reservationForm) {
-      console.log("✅ Formulario encontrado, configurando listener");
-
       // Remover listener anterior si existe (guardar la referencia)
       if (this.boundHandler) {
         reservationForm.removeEventListener("submit", this.boundHandler);
@@ -289,7 +285,6 @@ class EspacioShantiApp {
       );
       if (submitButton) {
         submitButton.addEventListener("click", (e) => {
-          console.log("🔘 Click detectado en botón de envío");
           // El formulario debería manejarlo automáticamente
         });
       }
@@ -529,8 +524,6 @@ class EspacioShantiApp {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("📋 Datos del formulario:", formData);
-
     // Validar que todos los campos requeridos estén llenos
     if (
       !formData.clientName ||
@@ -557,10 +550,8 @@ class EspacioShantiApp {
       // Show loading
       this.showNotification("Procesando reserva...", "info");
 
-      console.log("🔄 Llamando a saveReservation...");
       // Here we'll integrate with Firebase
       const reservationId = await this.saveReservation(formData);
-      console.log("✅ Reserva guardada con ID:", reservationId);
 
       // Show success message
       this.showNotification(

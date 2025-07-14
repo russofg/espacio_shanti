@@ -12,8 +12,6 @@ class FirebaseManager {
   // Initialize Firebase with config
   async init(config) {
     try {
-      console.log("🔄 Inicializando Firebase...");
-
       // Import Firebase modules dynamically
       const { initializeApp } = await import(
         "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
@@ -62,7 +60,6 @@ class FirebaseManager {
       };
 
       this.initialized = true;
-      console.log("✅ Firebase initialized successfully");
 
       return true;
     } catch (error) {
@@ -73,11 +70,6 @@ class FirebaseManager {
 
   // Save a new reservation
   async saveReservation(reservationData) {
-    console.log(
-      "🔥 Firebase.saveReservation iniciado con datos:",
-      reservationData
-    );
-
     if (!this.initialized) {
       console.error("❌ Firebase no inicializado");
       throw new Error("Firebase not initialized");
@@ -91,19 +83,14 @@ class FirebaseManager {
         "reservations"
       );
 
-      console.log("📂 Referencia a colección obtenida");
-
       const dataToSave = {
         ...reservationData,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      console.log("📦 Datos finales a guardar:", dataToSave);
-
       const docRef = await this.firestore.addDoc(reservationsRef, dataToSave);
 
-      console.log("✅ Reservation saved with ID:", docRef.id);
       return docRef.id;
     } catch (error) {
       console.error("❌ Error saving reservation:", error);
@@ -113,8 +100,6 @@ class FirebaseManager {
 
   // Get reservations for a specific therapist
   async getReservationsForTherapist(therapistId, startDate, endDate) {
-    console.log("🔍 Firebase.getReservationsForTherapist iniciado");
-    console.log("📋 Parámetros:", { therapistId, startDate, endDate });
 
     if (!this.initialized) {
       console.error("❌ Firebase no inicializado");
