@@ -143,27 +143,13 @@ class ReminderSystem {
 
       console.log(`🔔 Enviando recordatorio ${reminder.type}:`, message);
 
-      // Enviar por WhatsApp si está disponible
-      if (window.callMeBotService && recipient.whatsapp) {
-        const notificationData = {
-          clientName: recipient.name,
-          clientPhone: recipient.phone,
-          ...reminder.reservation,
-          customMessage: message
-        };
-
-        const success = await window.callMeBotService.sendReminderNotification(notificationData, recipient.whatsapp);
-        
-        if (success) {
-          console.log(`✅ Recordatorio ${reminder.type} enviado por WhatsApp`);
-        } else {
-          console.log(`⚠️ Error enviando por WhatsApp, intentando email...`);
-          // Fallback a email si falla WhatsApp
-          this.sendEmailReminder(reminder, message, recipient);
-        }
-      } else {
-        // Fallback a mostrar en UI
-        this.showUINotification(reminder, message);
+      // Determinar método de envío según el tipo de recordatorio
+      if (reminder.type.includes('client')) {
+        // Para clientes: usar EMAIL
+        await this.sendEmailReminder(reminder, message, recipient);
+      } else if (reminder.type.includes('therapist')) {
+        // Para terapeutas: usar WhatsApp (CallMeBot)
+        await this.sendWhatsAppReminder(reminder, message, recipient);
       }
 
       // Guardar en historial
@@ -171,6 +157,55 @@ class ReminderSystem {
 
     } catch (error) {
       console.error(`❌ Error enviando recordatorio ${reminder.type}:`, error);
+    }
+  }
+
+  // Enviar recordatorio por email (para clientes)
+  async sendEmailReminder(reminder, message, recipient) {
+    if (window.emailService) {
+      const reminderType = reminder.type === 'client24h' ? '24h' : '2h';
+      const emailData = {
+        ...reminder.reservation,
+        reminderType: reminderType,
+        customMessage: message
+      };
+      
+      const success = await window.emailService.sendReminderEmail(emailData, reminderType);
+      
+      if (success) {
+        console.log(`✅ Recordatorio ${reminder.type} enviado por EMAIL a ${recipient.email}`);
+      } else {
+        console.log(`⚠️ Error enviando email, mostrando notificación en UI`);
+        this.showUINotification(reminder, message);
+      }
+    } else {
+      console.log(`⚠️ EmailService no disponible, mostrando notificación en UI`);
+      this.showUINotification(reminder, message);
+    }
+  }
+
+  // Enviar recordatorio por WhatsApp (para terapeutas)
+  async sendWhatsAppReminder(reminder, message, recipient) {
+    if (window.callMeBotService && recipient.whatsapp) {
+      const notificationData = {
+        clientName: recipient.name,
+        clientPhone: recipient.phone,
+        ...reminder.reservation,
+        customMessage: message,
+        isTherapistAlert: true
+      };
+
+      const success = await window.callMeBotService.sendNotification(notificationData);
+      
+      if (success) {
+        console.log(`✅ Recordatorio ${reminder.type} enviado por WhatsApp a ${recipient.whatsapp}`);
+      } else {
+        console.log(`⚠️ Error enviando WhatsApp, mostrando notificación en UI`);
+        this.showUINotification(reminder, message);
+      }
+    } else {
+      console.log(`⚠️ CallMeBotService no disponible para terapeuta, mostrando notificación en UI`);
+      this.showUINotification(reminder, message);
     }
   }
 

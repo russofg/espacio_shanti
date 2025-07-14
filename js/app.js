@@ -597,14 +597,34 @@ class EspacioShantiApp {
           if (window.reminderSystem) {
             const reservationWithId = {
               ...completeReservationData,
-              id: reservationId
+              id: reservationId,
             };
             window.reminderSystem.scheduleReminders(reservationWithId);
-            console.log('📅 Recordatorios programados para reserva:', reservationId);
+            console.log(
+              "📅 Recordatorios programados para reserva:",
+              reservationId
+            );
           }
         } catch (error) {
           console.error("❌ Error programando recordatorios:", error);
           // No interrumpir el proceso por error de recordatorios
+        }
+
+        // Enviar email de confirmación al cliente
+        try {
+          if (window.emailService) {
+            const emailSent = await window.emailService.sendConfirmationEmail(
+              completeReservationData
+            );
+            if (emailSent) {
+              console.log("📧 Email de confirmación enviado al cliente");
+            } else {
+              console.log("⚠️ No se pudo enviar email de confirmación");
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error enviando email de confirmación:", error);
+          // No interrumpir el proceso por error de email
         }
 
         // Enviar notificación de WhatsApp al terapeuta

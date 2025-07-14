@@ -55,10 +55,57 @@ class CallMeBotService {
     console.log(`📝 Mensaje: ${message}`);
 
     // Nota: CallMeBot requiere que cada número esté registrado individualmente
-    // Para enviar a clientes, necesitaríamos una API diferente como WhatsApp Business
-    // Por ahora, simulamos el envío
+    // Para enviar a clientes, usamos EMAIL en lugar de WhatsApp
+    
+    // Intentar enviar por email si está disponible
+    if (window.emailService) {
+      const reminderType = reservationData.reminderType || '24h';
+      const emailSent = await window.emailService.sendReminderEmail(reservationData, reminderType);
+      
+      if (emailSent) {
+        console.log('✅ Recordatorio enviado por EMAIL exitosamente');
+        return true;
+      }
+    }
+    
+    // Fallback: mostrar notificación en UI
+    console.log('⚠️ EmailService no disponible, mostrando notificación en UI');
+    this.showClientReminderNotification(reservationData, message);
 
     return true; // Simular éxito
+  }
+
+  // Mostrar notificación visual cuando no se puede enviar email
+  showClientReminderNotification(data, message) {
+    // Crear notificación visual para desarrollo/demo
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 left-4 bg-blue-50 border border-blue-200 rounded-lg shadow-xl p-4 z-50 max-w-sm';
+    notification.innerHTML = `
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <i class="fas fa-envelope text-blue-500 text-lg"></i>
+        </div>
+        <div class="ml-3">
+          <h4 class="text-sm font-semibold text-blue-800">Recordatorio Programado</h4>
+          <p class="text-xs text-blue-600 mt-1">Para: ${data.clientEmail}</p>
+          <p class="text-xs text-blue-600">Cliente: ${data.clientName}</p>
+          <p class="text-xs text-blue-600">Fecha: ${data.date} a las ${data.time}</p>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" 
+                class="ml-auto text-blue-400 hover:text-blue-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remover después de 8 segundos
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 8000);
   }
 
   async sendWhatsAppMessage(phone, message, apiKey) {
@@ -181,33 +228,69 @@ window.testBetsabe = function () {
 };
 
 // Función de prueba para recordatorios
-window.testReminders = function() {
-  console.log('🧪 Probando sistema de recordatorios...');
-  
+window.testReminders = function () {
+  console.log("🧪 Probando sistema de recordatorios...");
+
   if (!window.reminderSystem) {
-    console.error('❌ Sistema de recordatorios no disponible');
+    console.error("❌ Sistema de recordatorios no disponible");
     return;
   }
-  
+
   // Crear una reserva de prueba para mañana
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   const testReservation = {
-    id: 'test-reminder-' + Date.now(),
-    clientName: 'Fernando Russo (Prueba Recordatorios)',
-    clientPhone: '+5491123456789',
-    clientEmail: 'test@ejemplo.com',
-    date: tomorrow.toISOString().split('T')[0], // YYYY-MM-DD
-    time: '14:00',
-    serviceName: 'Reiki - Prueba Recordatorios',
-    serviceId: 'reiki',
-    therapistId: 'betsabe',
-    status: 'confirmed'
+    id: "test-reminder-" + Date.now(),
+    clientName: "Fernando Russo (Prueba Recordatorios)",
+    clientPhone: "+5491123456789",
+    clientEmail: "fernando@ejemplo.com",
+    date: tomorrow.toISOString().split("T")[0], // YYYY-MM-DD
+    time: "14:00",
+    serviceName: "Reiki - Prueba Recordatorios",
+    serviceId: "reiki",
+    therapistId: "betsabe",
+    status: "confirmed",
   };
-  
-  console.log('📅 Programando recordatorios para:', testReservation);
+
+  console.log("📅 Programando recordatorios para:", testReservation);
   window.reminderSystem.scheduleReminders(testReservation);
+
+  console.log(
+    "✅ Recordatorios programados. Sistema híbrido configurado:"
+  );
+  console.log("📧 EMAILS → Clientes (24h y 2h antes)");
+  console.log("📱 WHATSAPP → Terapeutas (30min antes)");
+};
+
+// Función para probar todo el sistema híbrido
+window.testHybridSystem = function() {
+  console.log("🚀 PROBANDO SISTEMA HÍBRIDO COMPLETO");
+  console.log("===================================");
   
-  console.log('✅ Recordatorios programados. Revisa la consola en 24h, 2h y 30min antes de la cita de prueba.');
+  // 1. Probar emails
+  console.log("📧 1. Probando emails para clientes...");
+  if (window.emailService) {
+    window.emailService.testEmail();
+  } else {
+    console.error("❌ EmailService no disponible");
+  }
+  
+  // 2. Probar WhatsApp
+  setTimeout(() => {
+    console.log("📱 2. Probando WhatsApp para terapeutas...");
+    if (window.callMeBotService) {
+      window.testBetsabe();
+    } else {
+      console.error("❌ CallMeBotService no disponible");
+    }
+  }, 2000);
+  
+  // 3. Probar recordatorios
+  setTimeout(() => {
+    console.log("⏰ 3. Probando sistema de recordatorios...");
+    window.testReminders();
+  }, 4000);
+  
+  console.log("🎯 Revisa la consola y las notificaciones en pantalla");
 };
