@@ -1,0 +1,309 @@
+/* Custom styles for Espacio Shanti */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom animations */
+.fade-in {
+    animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Gradient backgrounds */
+.gradient-sage {
+    background: linear-gradient(135deg, #9CAF88 0%, #B8C9A7 100%);
+}
+
+.gradient-earth {
+    background: linear-gradient(135deg, #D4B896 0%, #C8A882 100%);
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Calendar styles */
+.calendar-day {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    background-color: #B8C9A7;
+    color: white;
+}
+
+.calendar-day.selected {
+    background-color: #9CAF88;
+    color: white;
+}
+
+.calendar-day.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.calendar-day.disabled:hover {
+    background-color: transparent;
+    color: inherit;
+}
+
+/* Form styles */
+.form-input {
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #9CAF88;
+    box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.1);
+}
+
+/* Modal styles */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+}
+
+/* Notification styles */
+.notification {
+    animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-100%); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced Notifications */
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+}
+
+/* Notification improvements */
+.notification {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.notification:hover {
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #9CAF88;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive images */
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9CAF88;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #7A8B6C;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Mobile Panel Improvements */
+@media (max-width: 767px) {
+    /* Ensure calendar cells maintain minimum size */
+    #weekly-calendar .grid > div {
+        min-width: 40px;
+    }
+    
+    /* Improve touch targets */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Better text truncation for mobile */
+    .truncate-mobile {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+    
+    /* Sticky mobile header */
+    .mobile-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Improve calendar scroll */
+    #weekly-calendar {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+    
+    /* Better spacing for mobile stats */
+    .mobile-stat {
+        padding: 0.75rem;
+    }
+    
+    /* Compact reservation cards for mobile */
+    .reservation-card-mobile {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .reservation-card-mobile h4 {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+    
+    .reservation-card-mobile p {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+}
+
+/* Tablet improvements */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Optimize for tablet view */
+    .tablet-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Calendar responsive improvements */
+.text-2xs {
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+}
+
+.calendar-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: minmax(50px, auto) repeat(7, minmax(0, 1fr));
+    gap: 2px;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .calendar-grid {
+        grid-template-columns: minmax(60px, auto) repeat(7, minmax(0, 1fr));
+        gap: 4px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .calendar-grid {
+        grid-template-columns: minmax(70px, auto) repeat(7, minmax(0, 1fr));
+        gap: 6px;
+    }
+}
+
+.calendar-cell {
+    overflow: hidden;
+    word-wrap: break-word;
+    hyphens: auto;
+    min-width: 0;
+}
+
+.calendar-reservation {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media (min-width: 640px) {
+    .calendar-reservation {
+        min-height: 48px;
+        white-space: normal;
+    }
+}
+
+.truncate-multiline {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

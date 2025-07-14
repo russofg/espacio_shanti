@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>
+      Espacio Shanti - Terapias Holísticas, Reiki, Masajes y Meditación | Buenos
+      Aires
+    </title>
+    <meta
+      name="description"
+      content="Centro de terapias holísticas en Buenos Aires. Ofrecemos Reiki, masajes terapéuticos, meditación guiada y aromaterapia. Reserva tu sesión con nuestras terapeutas especializadas."
+    />
+    <meta
+      name="keywords"
+      content="terapias holísticas, reiki, masajes terapéuticos, meditación, aromaterapia, bienestar, relajación, Buenos Aires, centro holístico, equilibrio, sanación"
+    />
+    <meta name="author" content="Espacio Shanti" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://espacioshanti.com" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://espacioshanti.com" />
+    <meta
+      property="og:title"
+      content="Espacio Shanti - Terapias Holísticas, Reiki, Masajes y Meditación"
+    />
+    <meta
+      property="og:description"
+      content="Centro de terapias holísticas en Buenos Aires. Encuentra tu equilibrio interior con nuestras sesiones de Reiki, masajes terapéuticos, meditación y aromaterapia."
+    />
+    <meta
+      property="og:image"
+      content="https://espacioshanti.com/images/og-image.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="Espacio Shanti" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://espacioshanti.com" />
+    <meta
+      name="twitter:title"
+      content="Espacio Shanti - Terapias Holísticas, Reiki, Masajes y Meditación"
+    />
+    <meta
+      name="twitter:description"
+      content="Centro de terapias holísticas en Buenos Aires. Encuentra tu equilibrio interior con nuestras sesiones especializadas."
+    />
+    <meta
+      name="twitter:image"
+      content="https://espacioshanti.com/images/twitter-image.jpg"
+    />
+    <meta name="twitter:creator" content="@espacioshanti" />
+
+    <!-- WhatsApp / Telegram -->
+    <meta
+      property="og:image"
+      content="https://espacioshanti.com/images/whatsapp-preview.jpg"
+    />
+
+    <!-- Local Business Schema.org -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Espacio Shanti",
+        "image": "https://espacioshanti.com/images/logo.jpg",
+        "description": "Centro de terapias holísticas especializado en Reiki, masajes terapéuticos, meditación guiada y aromaterapia en Buenos Aires.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Av. Principal 123",
+          "addressLocality": "Buenos Aires",
+          "addressRegion": "CABA",
+          "postalCode": "1000",
+          "addressCountry": "AR"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": -34.6037,
+          "longitude": -58.3816
+        },
+        "telephone": "+54-11-5141-4220",
+        "email": "info@espacioshanti.com",
+        "url": "https://espacioshanti.com",
+        "openingHours": ["Mo-Fr 09:00-20:00", "Sa 09:00-15:00"],
+        "priceRange": "$$$",
+        "servedCuisine": [],
+        "acceptsReservations": true,
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Servicios de Terapias Holísticas",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Reiki",
+                "description": "Terapia energética que promueve la relajación y el equilibrio"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Masajes Terapéuticos",
+                "description": "Masajes relajantes para liberar tensiones"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Meditación Guiada",
+                "description": "Sesiones de meditación para encontrar paz interior"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Aromaterapia",
+                "description": "Terapia con aceites esenciales para el bienestar"
+              }
+            }
+          ]
+        }
+      }
+    </script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts - Fuentes relajantes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Tailwind Config Custom -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              sage: "#9CAF88",
+              "sage-light": "#B8C9A7",
+              "sage-dark": "#7A8B6C",
+              cream: "#F7F5F1",
+              "warm-white": "#FEFCF8",
+              earth: "#D4B896",
+              "earth-dark": "#C8A882",
+              lavender: "#E6E0F8",
+              "soft-gray": "#F8F9FA",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              serif: ["Playfair Display", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-warm-white text-gray-800 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white/95 backdrop-blur-sm fixed w-full top-0 z-50 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            <h1 class="text-2xl font-serif font-semibold text-sage-dark">
+              Espacio Shanti
+            </h1>
+          </div>
+
+          <!-- Desktop Menu -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-8">
+              <a
+                href="#inicio"
+                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                >Inicio</a
+              >
+              <a
+                href="#servicios"
+                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                >Servicios</a
+              >
+              <a
+                href="#terapeutas"
+                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                >Terapeutas</a
+              >
+              <a
+                href="#reservas"
+                class="bg-sage text-white px-4 py-2 rounded-full hover:bg-sage-dark transition-colors duration-200"
+                >Reservar</a
+              >
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button
+              id="mobile-menu-button"
+              class="text-gray-700 hover:text-sage focus:outline-none"
+            >
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <a
+            href="#inicio"
+            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            >Inicio</a
+          >
+          <a
+            href="#servicios"
+            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            >Servicios</a
+          >
+          <a
+            href="#terapeutas"
+            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            >Terapeutas</a
+          >
+          <a
+            href="#reservas"
+            class="block px-3 py-2 bg-sage text-white rounded-md mx-3 text-center"
+            >Reservar</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section
+      id="inicio"
+      class="pt-16 pb-20 bg-gradient-to-br from-warm-white to-cream"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <h1
+            class="text-4xl pt-8 md:text-6xl font-serif font-semibold text-gray-800 mb-6"
+          >
+            Encuentra tu <span class="text-sage">equilibrio</span> interior
+          </h1>
+          <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            En Espacio Shanti ofrecemos
+            <strong>terapias holísticas personalizadas</strong> para reconectar
+            tu mente, cuerpo y espíritu en Buenos Aires
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#reservas"
+              class="bg-sage text-white px-8 py-3 rounded-full hover:bg-sage-dark transition-colors duration-200 font-medium"
+              aria-label="Reservar sesión de terapia holística"
+            >
+              Reserva tu sesión
+            </a>
+            <a
+              href="#servicios"
+              class="border-2 border-sage text-sage px-8 py-3 rounded-full hover:bg-sage hover:text-white transition-colors duration-200 font-medium"
+              aria-label="Ver nuestros servicios de terapias holísticas"
+            >
+              Conoce nuestros servicios
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servicios" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+          >
+            Nuestros Servicios de Terapias Holísticas
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Descubre nuestras <strong>terapias holísticas</strong> diseñadas
+            para restaurar tu equilibrio natural en el corazón de Buenos Aires
+          </p>
+        </header>
+
+        <div
+          id="services-container"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          role="list"
+          aria-label="Lista de servicios de terapias holísticas"
+        >
+          <!-- Services will be generated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Therapists Section -->
+    <section id="terapeutas" class="py-20 bg-cream">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+          >
+            Nuestras Terapeutas Especializadas
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Conoce a nuestro equipo de
+            <strong>profesionales especializadas en terapias holísticas</strong>
+            con años de experiencia en Reiki, masajes terapéuticos y meditación
+          </p>
+        </header>
+
+        <div
+          id="therapists-container"
+          class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
+          role="list"
+          aria-label="Lista de terapeutas profesionales"
+        >
+          <!-- Therapists will be generated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Reservation Section -->
+    <section id="reservas" class="py-20 bg-white">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="text-center mb-12">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+          >
+            Reserva tu Sesión de Terapia Holística
+          </h2>
+          <p class="text-xl text-gray-600">
+            Agenda tu cita de
+            <strong>Reiki, masaje terapéutico o meditación</strong> de manera
+            fácil y rápida en Buenos Aires
+          </p>
+        </header>
+
+        <div
+          id="reservation-form-container"
+          role="main"
+          aria-label="Formulario de reserva de sesiones"
+        >
+          <!-- Reservation form will be generated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section
+      class="py-20 bg-gradient-to-br from-sage-light to-earth-light"
+      itemscope
+      itemtype="https://schema.org/Review"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-white mb-4"
+          >
+            Lo que Dicen Nuestras Clientas sobre las Terapias
+          </h2>
+          <p class="text-xl text-white/90 max-w-3xl mx-auto">
+            <strong>Testimonios reales</strong> de quienes han encontrado su
+            equilibrio en Espacio Shanti con nuestras terapias holísticas
+          </p>
+        </header>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-8"
+          role="list"
+          aria-label="Testimonios de clientes"
+        >
+          <article
+            class="bg-white/95 backdrop-blur-sm rounded-xl p-6 shadow-lg"
+            itemscope
+            itemtype="https://schema.org/Review"
+          >
+            <div class="text-sage mb-4" aria-hidden="true">
+              <i class="fas fa-quote-left text-2xl"></i>
+            </div>
+            <blockquote class="text-gray-700 mb-4 italic" itemprop="reviewBody">
+              "La sesión de reiki con Lorena fue transformadora. Salí
+              sintiéndome renovada y en paz conmigo misma."
+            </blockquote>
+            <div class="flex items-center">
+              <div
+                class="w-12 h-12 bg-sage-light rounded-full flex items-center justify-center mr-3"
+                aria-hidden="true"
+              >
+                <span class="text-sage-dark font-semibold">M</span>
+              </div>
+              <div
+                itemprop="author"
+                itemscope
+                itemtype="https://schema.org/Person"
+              >
+                <p class="font-semibold text-gray-800" itemprop="name">
+                  María González
+                </p>
+                <p class="text-sm text-gray-600">Cliente desde 2023</p>
+              </div>
+            </div>
+            <meta
+              itemprop="itemReviewed"
+              content="Espacio Shanti - Terapias Holísticas"
+            />
+            <meta itemprop="reviewRating" content="5" />
+          </article>
+
+          <article
+            class="bg-white/95 backdrop-blur-sm rounded-xl p-6 shadow-lg"
+            itemscope
+            itemtype="https://schema.org/Review"
+          >
+            <div class="text-sage mb-4" aria-hidden="true">
+              <i class="fas fa-quote-left text-2xl"></i>
+            </div>
+            <blockquote class="text-gray-700 mb-4 italic" itemprop="reviewBody">
+              "Los masajes terapéuticos de Betsabé son increíbles. Realmente
+              sabe cómo trabajar las tensiones del cuerpo."
+            </blockquote>
+            <div class="flex items-center">
+              <div
+                class="w-12 h-12 bg-sage-light rounded-full flex items-center justify-center mr-3"
+                aria-hidden="true"
+              >
+                <span class="text-sage-dark font-semibold">A</span>
+              </div>
+              <div
+                itemprop="author"
+                itemscope
+                itemtype="https://schema.org/Person"
+              >
+                <p class="font-semibold text-gray-800" itemprop="name">
+                  Ana López
+                </p>
+                <p class="text-sm text-gray-600">Cliente desde 2022</p>
+              </div>
+            </div>
+            <meta
+              itemprop="itemReviewed"
+              content="Espacio Shanti - Masajes Terapéuticos"
+            />
+            <meta itemprop="reviewRating" content="5" />
+          </article>
+
+          <article
+            class="bg-white/95 backdrop-blur-sm rounded-xl p-6 shadow-lg"
+            itemscope
+            itemtype="https://schema.org/Review"
+          >
+            <div class="text-sage mb-4" aria-hidden="true">
+              <i class="fas fa-quote-left text-2xl"></i>
+            </div>
+            <blockquote class="text-gray-700 mb-4 italic" itemprop="reviewBody">
+              "Espacio Shanti se ha convertido en mi refugio. Cada sesión es una
+              experiencia única de sanación."
+            </blockquote>
+            <div class="flex items-center">
+              <div
+                class="w-12 h-12 bg-sage-light rounded-full flex items-center justify-center mr-3"
+                aria-hidden="true"
+              >
+                <span class="text-sage-dark font-semibold">C</span>
+              </div>
+              <div
+                itemprop="author"
+                itemscope
+                itemtype="https://schema.org/Person"
+              >
+                <p class="font-semibold text-gray-800" itemprop="name">
+                  Carmen Ruiz
+                </p>
+                <p class="text-sm text-gray-600">Cliente desde 2024</p>
+              </div>
+            </div>
+            <meta
+              itemprop="itemReviewed"
+              content="Espacio Shanti - Terapias Holísticas"
+            />
+            <meta itemprop="reviewRating" content="5" />
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="py-20 bg-soft-gray">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <!-- Contact Info -->
+          <div>
+            <h2 class="text-3xl font-serif font-semibold text-gray-800 mb-8">
+              Contáctanos
+            </h2>
+
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
+                  >
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-lg font-semibold text-gray-800">Dirección</h3>
+                  <p class="text-gray-600">
+                    Av. Principal 123, Centro<br />Ciudad, País
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
+                  >
+                    <i class="fas fa-phone"></i>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-lg font-semibold text-gray-800">Teléfono</h3>
+                  <p class="text-gray-600">+54 11 5141-4220</p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
+                  >
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-lg font-semibold text-gray-800">Email</h3>
+                  <p class="text-gray-600">info@espacioshanti.com</p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
+                  >
+                    <i class="fas fa-clock"></i>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <h3 class="text-lg font-semibold text-gray-800">Horarios</h3>
+                  <p class="text-gray-600">
+                    Lunes a Viernes: 9:00 - 20:00<br />
+                    Sábados: 9:00 - 15:00
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media -->
+            <div class="mt-8">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                Síguenos en Redes Sociales
+              </h3>
+              <div class="flex space-x-4">
+                <a
+                  href="https://facebook.com/espacioshanti"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
+                  aria-label="Seguir a Espacio Shanti en Facebook"
+                  title="Facebook - Espacio Shanti"
+                >
+                  <i class="fab fa-facebook-f"></i>
+                </a>
+                <a
+                  href="https://instagram.com/espacioshanti"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
+                  aria-label="Seguir a Espacio Shanti en Instagram"
+                  title="Instagram - Espacio Shanti"
+                >
+                  <i class="fab fa-instagram"></i>
+                </a>
+                <a
+                  href="https://wa.me/5411514142200?text=Hola%20Espacio%20Shanti,%20me%20gustaría%20consultar%20sobre%20sus%20servicios%20de%20terapias%20holísticas."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
+                  aria-label="Contactar a Espacio Shanti por WhatsApp"
+                  title="WhatsApp - Espacio Shanti"
+                >
+                  <i class="fab fa-whatsapp"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">
+              Envíanos un mensaje
+            </h3>
+
+            <form class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Nombre</label
+                  >
+                  <input
+                    type="text"
+                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Email</label
+                  >
+                  <input
+                    type="email"
+                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Asunto</label
+                >
+                <input
+                  type="text"
+                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Mensaje</label
+                >
+                <textarea
+                  rows="4"
+                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="Cuéntanos cómo podemos ayudarte..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full bg-sage text-white py-3 px-6 rounded-md hover:bg-sage-dark transition-colors duration-200 font-medium"
+              >
+                Enviar Mensaje
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="md:col-span-2">
+            <h3 class="text-2xl font-serif font-semibold mb-4">
+              Espacio Shanti
+            </h3>
+            <p class="text-gray-300 mb-4">
+              Dedicadas a tu bienestar integral a través de terapias holísticas
+              personalizadas. Encuentra tu equilibrio en un espacio de paz y
+              armonía.
+            </p>
+            <a
+              href="panel.html"
+              class="text-sage hover:text-sage-light transition-colors duration-200 text-sm"
+            >
+              <i class="fas fa-user-cog mr-2"></i>Acceso de Terapeutas
+            </a>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Enlaces Rápidos</h4>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#inicio"
+                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  >Inicio</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#servicios"
+                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  >Servicios</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#terapeutas"
+                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  >Terapeutas</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#reservas"
+                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  >Reservar</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-semibold mb-4">Contacto</h4>
+            <ul class="space-y-2 text-gray-300">
+              <li><i class="fas fa-phone mr-2"></i>+54 11 5141-4220</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i>info@espacioshanti.com
+              </li>
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i>Av. Principal 123
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+          <p class="text-gray-300">
+            © 2025 Espacio Shanti. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <a
+        href="https://wa.me/5411514142200?text=Hola%20Espacio%20Shanti,%20me%20gustaría%20consultar%20sobre%20sus%20servicios."
+        target="_blank"
+        rel="noopener noreferrer"
+        class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 pulse-animation"
+        aria-label="Contactar por WhatsApp"
+        title="¡Contáctanos por WhatsApp!"
+      >
+        <i class="fab fa-whatsapp text-2xl"></i>
+      </a>
+    </div>
+
+    <style>
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+      }
+    </style>
+
+    <!-- Scripts -->
+    <script src="js/firebase.js"></script>
+    <script src="js/init-firebase-data.js"></script>
+    <script src="js/alternative-whatsapp.js"></script>
+    <script src="js/test-whatsapp.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/navigation.js"></script>
+
+    <!-- Google Analytics 4 -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "GA_MEASUREMENT_ID", {
+        page_title: "Espacio Shanti - Terapias Holísticas",
+        custom_map: { custom_parameter: "custom_value" },
+      });
+
+      // Track reservation form submissions
+      function trackReservation(therapist, service, date) {
+        gtag("event", "reservation_made", {
+          custom_parameter_1: therapist,
+          custom_parameter_2: service,
+          custom_parameter_3: date,
+        });
+      }
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != "dataLayer" ? "&l=" + l : "";
+        j.async = true;
+        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, "script", "dataLayer", "GTM-XXXXXXX");
+    </script>
+
+    <!-- Meta Pixel (Facebook) -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js"
+      );
+      fbq("init", "YOUR_PIXEL_ID");
+      fbq("track", "PageView");
+    </script>
+  </body>
+</html>

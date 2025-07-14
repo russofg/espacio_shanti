@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /panel.html
+
+# Allow all images
+Allow: /images/
+
+# Allow CSS and JS
+Allow: /css/
+Allow: /js/
+
+# Sitemap
+Sitemap: https://espacioshanti.com/sitemap.xml
+
+# Crawl-delay for bots
+Crawl-delay: 1
+
+# Specific rules for common bots
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1

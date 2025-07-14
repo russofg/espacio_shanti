@@ -1,0 +1,35 @@
+{
+  "name": "espacio-shanti",
+  "version": "1.0.0",
+  "description": "Web app para el estudio de terapias holísticas Espacio Shanti",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "echo 'Ready for deployment'"
+  },
+  "keywords": [
+    "terapias",
+    "holistica",
+    "bienestar",
+    "reiki",
+    "meditacion",
+    "masajes",
+    "aromaterapia",
+    "reservas"
+  ],
+  "author": "Espacio Shanti",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/espacioshanti/webapp.git"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

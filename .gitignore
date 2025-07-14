@@ -1,0 +1,27 @@
+# Espacio Shanti - Sistema de Reservas
+
+## Archivos que NO se deben subir a Git
+node_modules/
+.env
+.env.local
+.DS_Store
+*.log
+.vscode/settings.json
+
+# Archivos temporales
+temp/
+tmp/
+*.tmp
+
+# Respaldos
+backup/
+*.backup
+
+# Archivos de sistema macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archivos de configuración personal
+config.local.js
+secrets.js
