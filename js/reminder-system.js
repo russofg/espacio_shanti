@@ -4,54 +4,61 @@ class ReminderSystem {
     this.reminders = new Map(); // Store active reminders
     this.checkInterval = null;
     this.isActive = false;
-    
+
     // Configuración de recordatorios
     this.reminderConfig = {
       // Para clientes
       client24h: {
         offset: 24 * 60 * 60 * 1000, // 24 horas en milliseconds
         enabled: true,
-        template: 'client24h'
+        template: "client24h",
       },
       client2h: {
         offset: 2 * 60 * 60 * 1000, // 2 horas
         enabled: true,
-        template: 'client2h'
+        template: "client2h",
       },
       // Para terapeutas
       therapist30min: {
         offset: 30 * 60 * 1000, // 30 minutos
         enabled: true,
-        template: 'therapist30min'
-      }
+        template: "therapist30min",
+      },
     };
 
     this.init();
   }
 
   init() {
-    console.log('🔔 Inicializando Sistema de Recordatorios...');
+    console.log("🔔 Inicializando Sistema de Recordatorios...");
     this.startReminderChecker();
   }
 
   // Programar recordatorios para una nueva reserva
   scheduleReminders(reservation) {
     try {
-      const appointmentDateTime = this.parseAppointmentDateTime(reservation.date, reservation.time);
-      
+      const appointmentDateTime = this.parseAppointmentDateTime(
+        reservation.date,
+        reservation.time
+      );
+
       if (!appointmentDateTime || appointmentDateTime <= new Date()) {
-        console.log('⚠️ Cita en el pasado o fecha inválida, no se programan recordatorios');
+        console.log(
+          "⚠️ Cita en el pasado o fecha inválida, no se programan recordatorios"
+        );
         return;
       }
 
       // Programar cada tipo de recordatorio
       Object.entries(this.reminderConfig).forEach(([type, config]) => {
         if (config.enabled) {
-          const reminderTime = new Date(appointmentDateTime.getTime() - config.offset);
-          
+          const reminderTime = new Date(
+            appointmentDateTime.getTime() - config.offset
+          );
+
           if (reminderTime > new Date()) {
             const reminderId = `${reservation.id}_${type}`;
-            
+
             this.reminders.set(reminderId, {
               id: reminderId,
               reservationId: reservation.id,
@@ -59,48 +66,52 @@ class ReminderSystem {
               scheduledTime: reminderTime,
               appointmentTime: appointmentDateTime,
               reservation: reservation,
-              sent: false
+              sent: false,
             });
 
-            console.log(`📅 Recordatorio ${type} programado para ${reminderTime.toLocaleString()}`);
+            console.log(
+              `📅 Recordatorio ${type} programado para ${reminderTime.toLocaleString()}`
+            );
           }
         }
       });
 
       console.log(`✅ ${this.reminders.size} recordatorios activos en total`);
     } catch (error) {
-      console.error('❌ Error programando recordatorios:', error);
+      console.error("❌ Error programando recordatorios:", error);
     }
   }
 
   // Cancelar recordatorios de una reserva
   cancelReminders(reservationId) {
     let cancelled = 0;
-    
+
     for (const [key, reminder] of this.reminders.entries()) {
       if (reminder.reservationId === reservationId) {
         this.reminders.delete(key);
         cancelled++;
       }
     }
-    
+
     if (cancelled > 0) {
-      console.log(`🗑️ Cancelados ${cancelled} recordatorios para reserva ${reservationId}`);
+      console.log(
+        `🗑️ Cancelados ${cancelled} recordatorios para reserva ${reservationId}`
+      );
     }
   }
 
   // Verificador continuo de recordatorios pendientes
   startReminderChecker() {
     if (this.isActive) return;
-    
+
     this.isActive = true;
-    
+
     // Verificar cada 30 segundos
     this.checkInterval = setInterval(() => {
       this.checkPendingReminders();
     }, 30000);
 
-    console.log('🔄 Verificador de recordatorios iniciado (cada 30s)');
+    console.log("🔄 Verificador de recordatorios iniciado (cada 30s)");
   }
 
   stopReminderChecker() {
@@ -108,7 +119,7 @@ class ReminderSystem {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
       this.isActive = false;
-      console.log('⏹️ Verificador de recordatorios detenido');
+      console.log("⏹️ Verificador de recordatorios detenido");
     }
   }
 
@@ -126,7 +137,7 @@ class ReminderSystem {
     }
 
     // Limpiar recordatorios ya enviados
-    remindersSent.forEach(key => {
+    remindersSent.forEach((key) => {
       this.reminders.delete(key);
     });
 
@@ -144,17 +155,16 @@ class ReminderSystem {
       console.log(`🔔 Enviando recordatorio ${reminder.type}:`, message);
 
       // Determinar método de envío según el tipo de recordatorio
-      if (reminder.type.includes('client')) {
+      if (reminder.type.includes("client")) {
         // Para clientes: usar EMAIL
         await this.sendEmailReminder(reminder, message, recipient);
-      } else if (reminder.type.includes('therapist')) {
+      } else if (reminder.type.includes("therapist")) {
         // Para terapeutas: usar WhatsApp (CallMeBot)
         await this.sendWhatsAppReminder(reminder, message, recipient);
       }
 
       // Guardar en historial
       this.logReminderSent(reminder, message);
-
     } catch (error) {
       console.error(`❌ Error enviando recordatorio ${reminder.type}:`, error);
     }
@@ -163,23 +173,43 @@ class ReminderSystem {
   // Enviar recordatorio por email (para clientes)
   async sendEmailReminder(reminder, message, recipient) {
     if (window.emailService) {
-      const reminderType = reminder.type === 'client24h' ? '24h' : '2h';
+      // Mapear correctamente el tipo de recordatorio
+      let reminderType;
+      if (reminder.type === "client24h") {
+        reminderType = "24h";
+      } else if (reminder.type === "client2h") {
+        reminderType = "2h";
+      } else {
+        // Para otros tipos (como therapist30min), usar tipo por defecto
+        console.log(
+          `⚠️ Tipo de recordatorio ${reminder.type} no es para email, usando fallback`
+        );
+        reminderType = "2h";
+      }
+
       const emailData = {
         ...reminder.reservation,
         reminderType: reminderType,
-        customMessage: message
+        customMessage: message,
       };
-      
-      const success = await window.emailService.sendReminderEmail(emailData, reminderType);
-      
+
+      const success = await window.emailService.sendReminderEmail(
+        emailData,
+        reminderType
+      );
+
       if (success) {
-        console.log(`✅ Recordatorio ${reminder.type} enviado por EMAIL a ${recipient.email}`);
+        console.log(
+          `✅ Recordatorio ${reminder.type} enviado por EMAIL a ${recipient.email}`
+        );
       } else {
         console.log(`⚠️ Error enviando email, mostrando notificación en UI`);
         this.showUINotification(reminder, message);
       }
     } else {
-      console.log(`⚠️ EmailService no disponible, mostrando notificación en UI`);
+      console.log(
+        `⚠️ EmailService no disponible, mostrando notificación en UI`
+      );
       this.showUINotification(reminder, message);
     }
   }
@@ -192,19 +222,25 @@ class ReminderSystem {
         clientPhone: recipient.phone,
         ...reminder.reservation,
         customMessage: message,
-        isTherapistAlert: true
+        isTherapistAlert: true,
       };
 
-      const success = await window.callMeBotService.sendNotification(notificationData);
-      
+      const success = await window.callMeBotService.sendNotification(
+        notificationData
+      );
+
       if (success) {
-        console.log(`✅ Recordatorio ${reminder.type} enviado por WhatsApp a ${recipient.whatsapp}`);
+        console.log(
+          `✅ Recordatorio ${reminder.type} enviado por WhatsApp a ${recipient.whatsapp}`
+        );
       } else {
         console.log(`⚠️ Error enviando WhatsApp, mostrando notificación en UI`);
         this.showUINotification(reminder, message);
       }
     } else {
-      console.log(`⚠️ CallMeBotService no disponible para terapeuta, mostrando notificación en UI`);
+      console.log(
+        `⚠️ CallMeBotService no disponible para terapeuta, mostrando notificación en UI`
+      );
       this.showUINotification(reminder, message);
     }
   }
@@ -258,32 +294,35 @@ Tu próxima cita es en *30 minutos*:
 💆‍♀️ *Servicio:* ${reservation.serviceName || reservation.service}
 ⏰ *Hora:* ${appointmentTime}
 
-${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ''}
+${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
 
-¡Prepárate para la sesión! 🙏`
+¡Prepárate para la sesión! 🙏`,
     };
 
-    return templates[type] || `Recordatorio: Tienes una cita programada para ${appointmentDate} a las ${appointmentTime}`;
+    return (
+      templates[type] ||
+      `Recordatorio: Tienes una cita programada para ${appointmentDate} a las ${appointmentTime}`
+    );
   }
 
   // Obtener destinatario del recordatorio
   getReminderRecipient(reminder) {
     const { reservation, type } = reminder;
 
-    if (type.startsWith('client')) {
+    if (type.startsWith("client")) {
       return {
         name: reservation.clientName,
         phone: reservation.clientPhone,
         email: reservation.clientEmail,
-        whatsapp: reservation.clientPhone // Usar teléfono del cliente
+        whatsapp: reservation.clientPhone, // Usar teléfono del cliente
       };
-    } else if (type.startsWith('therapist')) {
+    } else if (type.startsWith("therapist")) {
       const therapistData = this.getTherapistData(reservation.therapistId);
       return {
         name: therapistData.name,
         phone: therapistData.phone,
         email: therapistData.email,
-        whatsapp: therapistData.apiKey // Usar configuración de terapeuta
+        whatsapp: therapistData.apiKey, // Usar configuración de terapeuta
       };
     }
 
@@ -294,20 +333,27 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ''}
   getTherapistData(therapistId) {
     const therapists = {
       lorena: {
-        name: 'Lorena Murua Bosquero',
-        phone: '+5491123456789',
-        email: 'lorena@espacioshanti.com',
-        apiKey: 'lorena'
+        name: "Lorena Murua Bosquero",
+        phone: "+5491123456789",
+        email: "lorena@espacioshanti.com",
+        apiKey: "lorena",
       },
       betsabe: {
-        name: 'Betsabé Murua Bosquero',
-        phone: '+5491151414220',
-        email: 'betsabe@espacioshanti.com',
-        apiKey: 'betsabe'
-      }
+        name: "Betsabé Murua Bosquero",
+        phone: "+5491151414220",
+        email: "betsabe@espacioshanti.com",
+        apiKey: "betsabe",
+      },
     };
 
-    return therapists[therapistId] || { name: 'Terapeuta', phone: '', email: '', apiKey: '' };
+    return (
+      therapists[therapistId] || {
+        name: "Terapeuta",
+        phone: "",
+        email: "",
+        apiKey: "",
+      }
+    );
   }
 
   getTherapistName(therapistId) {
@@ -316,23 +362,26 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ''}
 
   // Mostrar notificación en UI como fallback
   showUINotification(reminder, message) {
-    console.log('💬 Mostrando notificación en UI:', message);
-    
+    console.log("💬 Mostrando notificación en UI:", message);
+
     // Si estamos en el panel de terapeuta, mostrar notificación
-    if (window.therapistPanel && typeof window.therapistPanel.showNotification === 'function') {
+    if (
+      window.therapistPanel &&
+      typeof window.therapistPanel.showNotification === "function"
+    ) {
       window.therapistPanel.showNotification(
         `Recordatorio enviado: ${reminder.type}`,
-        'info'
+        "info"
       );
     }
   }
 
   // Enviar por email como fallback
   sendEmailReminder(reminder, message, recipient) {
-    console.log('📧 Fallback a email (simulado):', {
+    console.log("📧 Fallback a email (simulado):", {
       to: recipient.email,
-      subject: 'Recordatorio de Cita - Espacio Shanti',
-      message: message
+      subject: "Recordatorio de Cita - Espacio Shanti",
+      message: message,
     });
   }
 
@@ -343,47 +392,47 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ''}
       reservationId: reminder.reservationId,
       type: reminder.type,
       recipient: reminder.reservation.clientName,
-      messageSent: message.substring(0, 100) + '...'
+      messageSent: message.substring(0, 100) + "...",
     };
 
     // Guardar en localStorage para historial
-    const logs = JSON.parse(localStorage.getItem('reminderLogs') || '[]');
+    const logs = JSON.parse(localStorage.getItem("reminderLogs") || "[]");
     logs.push(logEntry);
-    
+
     // Mantener solo los últimos 100 logs
     if (logs.length > 100) {
       logs.splice(0, logs.length - 100);
     }
-    
-    localStorage.setItem('reminderLogs', JSON.stringify(logs));
+
+    localStorage.setItem("reminderLogs", JSON.stringify(logs));
   }
 
   // Utilidades de fecha y hora
   parseAppointmentDateTime(dateStr, timeStr) {
     try {
       // Convertir fecha YYYY-MM-DD y hora HH:MM a Date object
-      const [year, month, day] = dateStr.split('-').map(Number);
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      
+      const [year, month, day] = dateStr.split("-").map(Number);
+      const [hours, minutes] = timeStr.split(":").map(Number);
+
       return new Date(year, month - 1, day, hours, minutes);
     } catch (error) {
-      console.error('Error parseando fecha/hora:', error);
+      console.error("Error parseando fecha/hora:", error);
       return null;
     }
   }
 
   formatDate(date) {
-    return date.toLocaleDateString('es-AR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long'
+    return date.toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
     });
   }
 
   formatTime(date) {
-    return date.toLocaleTimeString('es-AR', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
@@ -393,34 +442,39 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ''}
   }
 
   getReminderStats() {
-    const logs = JSON.parse(localStorage.getItem('reminderLogs') || '[]');
+    const logs = JSON.parse(localStorage.getItem("reminderLogs") || "[]");
     const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    
-    const recentLogs = logs.filter(log => new Date(log.timestamp) > last7Days);
-    
+
+    const recentLogs = logs.filter(
+      (log) => new Date(log.timestamp) > last7Days
+    );
+
     return {
       totalSent: logs.length,
       last7Days: recentLogs.length,
       byType: recentLogs.reduce((acc, log) => {
         acc[log.type] = (acc[log.type] || 0) + 1;
         return acc;
-      }, {})
+      }, {}),
     };
   }
 
   // Configuración
   updateConfig(newConfig) {
     this.reminderConfig = { ...this.reminderConfig, ...newConfig };
-    console.log('⚙️ Configuración de recordatorios actualizada');
+    console.log("⚙️ Configuración de recordatorios actualizada");
   }
 }
 
 // Extender CallMeBotService para recordatorios
 if (window.callMeBotService) {
-  window.callMeBotService.sendReminderNotification = function(data, therapistKey) {
+  window.callMeBotService.sendReminderNotification = function (
+    data,
+    therapistKey
+  ) {
     // Usar mensaje personalizado si existe
     const originalMessage = this.formatMessage;
-    
+
     if (data.customMessage) {
       // Temporalmente reemplazar el formateador de mensajes
       this.formatMessage = () => data.customMessage;
@@ -429,12 +483,12 @@ if (window.callMeBotService) {
     // Enviar con la configuración del destinatario correcto
     const result = this.sendNotification({
       ...data,
-      therapistId: therapistKey
+      therapistId: therapistKey,
     });
 
     // Restaurar el formateador original
     this.formatMessage = originalMessage;
-    
+
     return result;
   };
 }
@@ -443,21 +497,43 @@ if (window.callMeBotService) {
 window.reminderSystem = new ReminderSystem();
 
 // Función de prueba
-window.testReminderSystem = function() {
+window.testReminderSystem = function () {
   const testReservation = {
-    id: 'test-' + Date.now(),
-    clientName: 'Cliente Prueba',
-    clientPhone: '+5491123456789',
-    clientEmail: 'cliente@test.com',
-    date: new Date(Date.now() + 60000).toISOString().split('T')[0], // En 1 minuto
+    id: "test-" + Date.now(),
+    clientName: "Fernando Russo",
+    clientPhone: "+5491123456789",
+    clientEmail: "russofg@gmail.com", // Email real para pruebas
+    date: new Date(Date.now() + 60000).toISOString().split("T")[0], // En 1 minuto
     time: new Date(Date.now() + 60000).toTimeString().slice(0, 5),
-    serviceName: 'Reiki de Prueba',
-    therapistId: 'betsabe',
-    status: 'confirmed'
+    serviceName: "Reiki de Prueba",
+    therapistId: "betsabe",
+    status: "confirmed",
   };
 
   window.reminderSystem.scheduleReminders(testReservation);
-  console.log('🧪 Recordatorio de prueba programado para 1 minuto');
+  console.log("🧪 Recordatorio de prueba programado para 1 minuto");
+  console.log("📧 Email de prueba: russofg@gmail.com");
 };
 
-console.log('✅ Sistema de Recordatorios cargado exitosamente');
+// Función de prueba con recordatorios visibles (cita en 3 horas)
+window.testReminderSystemFull = function () {
+  const futureTime = new Date(Date.now() + 3 * 60 * 60 * 1000); // En 3 horas
+  const testReservation = {
+    id: "test-full-" + Date.now(),
+    clientName: "Fernando Russo",
+    clientPhone: "+5491123456789",
+    clientEmail: "russofg@gmail.com",
+    date: futureTime.toISOString().split("T")[0],
+    time: futureTime.toTimeString().slice(0, 5),
+    serviceName: "Reiki de Prueba Completa",
+    therapistId: "betsabe",
+    status: "confirmed",
+  };
+
+  window.reminderSystem.scheduleReminders(testReservation);
+  console.log("🧪 Recordatorio COMPLETO programado para 3 horas");
+  console.log("📧 Email de prueba: russofg@gmail.com");
+  console.log("⏰ Se programarán recordatorios de 2h y 30min antes");
+};
+
+console.log("✅ Sistema de Recordatorios cargado exitosamente");

@@ -56,20 +56,23 @@ class CallMeBotService {
 
     // Nota: CallMeBot requiere que cada número esté registrado individualmente
     // Para enviar a clientes, usamos EMAIL en lugar de WhatsApp
-    
+
     // Intentar enviar por email si está disponible
     if (window.emailService) {
-      const reminderType = reservationData.reminderType || '24h';
-      const emailSent = await window.emailService.sendReminderEmail(reservationData, reminderType);
-      
+      const reminderType = reservationData.reminderType || "24h";
+      const emailSent = await window.emailService.sendReminderEmail(
+        reservationData,
+        reminderType
+      );
+
       if (emailSent) {
-        console.log('✅ Recordatorio enviado por EMAIL exitosamente');
+        console.log("✅ Recordatorio enviado por EMAIL exitosamente");
         return true;
       }
     }
-    
+
     // Fallback: mostrar notificación en UI
-    console.log('⚠️ EmailService no disponible, mostrando notificación en UI');
+    console.log("⚠️ EmailService no disponible, mostrando notificación en UI");
     this.showClientReminderNotification(reservationData, message);
 
     return true; // Simular éxito
@@ -78,8 +81,9 @@ class CallMeBotService {
   // Mostrar notificación visual cuando no se puede enviar email
   showClientReminderNotification(data, message) {
     // Crear notificación visual para desarrollo/demo
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 left-4 bg-blue-50 border border-blue-200 rounded-lg shadow-xl p-4 z-50 max-w-sm';
+    const notification = document.createElement("div");
+    notification.className =
+      "fixed top-4 left-4 bg-blue-50 border border-blue-200 rounded-lg shadow-xl p-4 z-50 max-w-sm";
     notification.innerHTML = `
       <div class="flex items-start">
         <div class="flex-shrink-0">
@@ -97,9 +101,9 @@ class CallMeBotService {
         </button>
       </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto-remover después de 8 segundos
     setTimeout(() => {
       if (notification.parentElement) {
@@ -256,18 +260,16 @@ window.testReminders = function () {
   console.log("📅 Programando recordatorios para:", testReservation);
   window.reminderSystem.scheduleReminders(testReservation);
 
-  console.log(
-    "✅ Recordatorios programados. Sistema híbrido configurado:"
-  );
+  console.log("✅ Recordatorios programados. Sistema híbrido configurado:");
   console.log("📧 EMAILS → Clientes (24h y 2h antes)");
   console.log("📱 WHATSAPP → Terapeutas (30min antes)");
 };
 
 // Función para probar todo el sistema híbrido
-window.testHybridSystem = function() {
+window.testHybridSystem = function () {
   console.log("🚀 PROBANDO SISTEMA HÍBRIDO COMPLETO");
   console.log("===================================");
-  
+
   // 1. Probar emails
   console.log("📧 1. Probando emails para clientes...");
   if (window.emailService) {
@@ -275,7 +277,7 @@ window.testHybridSystem = function() {
   } else {
     console.error("❌ EmailService no disponible");
   }
-  
+
   // 2. Probar WhatsApp
   setTimeout(() => {
     console.log("📱 2. Probando WhatsApp para terapeutas...");
@@ -285,12 +287,12 @@ window.testHybridSystem = function() {
       console.error("❌ CallMeBotService no disponible");
     }
   }, 2000);
-  
+
   // 3. Probar recordatorios
   setTimeout(() => {
     console.log("⏰ 3. Probando sistema de recordatorios...");
     window.testReminders();
   }, 4000);
-  
+
   console.log("🎯 Revisa la consola y las notificaciones en pantalla");
 };
