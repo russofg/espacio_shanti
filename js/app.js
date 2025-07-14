@@ -592,6 +592,21 @@ class EspacioShantiApp {
           completeReservationData
         );
 
+        // Programar recordatorios automáticos
+        try {
+          if (window.reminderSystem) {
+            const reservationWithId = {
+              ...completeReservationData,
+              id: reservationId
+            };
+            window.reminderSystem.scheduleReminders(reservationWithId);
+            console.log('📅 Recordatorios programados para reserva:', reservationId);
+          }
+        } catch (error) {
+          console.error("❌ Error programando recordatorios:", error);
+          // No interrumpir el proceso por error de recordatorios
+        }
+
         // Enviar notificación de WhatsApp al terapeuta
         try {
           if (window.callMeBotService) {
