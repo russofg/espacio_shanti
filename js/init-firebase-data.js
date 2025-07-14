@@ -8,8 +8,6 @@ async function initializeFirebaseData() {
   }
 
   try {
-    console.log("🔄 Inicializando datos en Firebase...");
-
     // Datos de servicios
     const services = [
       {
@@ -83,31 +81,16 @@ async function initializeFirebaseData() {
     );
 
     // Crear servicios
-    console.log("📋 Creando servicios...");
     for (const service of services) {
       const docRef = doc(window.firebaseManager.db, "services", service.id);
       await setDoc(docRef, service);
-      console.log(`✅ Servicio creado: ${service.name}`);
     }
 
     // Crear terapeutas
-    console.log("👩‍⚕️ Creando terapeutas...");
     for (const therapist of therapists) {
       const docRef = doc(window.firebaseManager.db, "therapists", therapist.id);
       await setDoc(docRef, therapist);
-      console.log(`✅ Terapeuta creada: ${therapist.name}`);
     }
-
-    console.log("🎉 ¡Datos iniciales creados exitosamente!");
-    console.log("📝 Próximos pasos:");
-    console.log("1. Ve a Firebase Console > Authentication > Users");
-    console.log(
-      "2. Crea usuarios con emails: lorena@espacioshanti.com y betsabe@espacioshanti.com"
-    );
-    console.log("3. Prueba hacer una reserva desde la página principal");
-    console.log(
-      "4. Accede al panel de terapeutas con las credenciales creadas"
-    );
   } catch (error) {
     console.error("❌ Error inicializando datos:", error);
   }
@@ -170,5 +153,5 @@ async function initializeFirebaseData() {
 
 // Exportar funciones para uso en consola
 window.initializeFirebaseData = initializeFirebaseData;
-window.clearFirebaseData = clearFirebaseData;
-window.checkFirebaseConnection = checkFirebaseConnection;
+// window.clearFirebaseData = clearFirebaseData;
+// window.checkFirebaseConnection = checkFirebaseConnection;

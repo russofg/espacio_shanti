@@ -140,10 +140,6 @@ class TherapistPanel {
           );
           this.loadReservationsFromFirebase();
         } catch (firebaseError) {
-          console.log(
-            "Firebase auth failed, trying local auth:",
-            firebaseError.message
-          );
           // Fallback to local authentication
           this.tryLocalAuth(email, password);
         }
@@ -402,11 +398,7 @@ class TherapistPanel {
   }
 
   async loadReservationsFromFirebase() {
-    console.log("🔍 Iniciando carga de reservas desde Firebase...");
-    console.log("🧑‍⚕️ Usuario actual:", this.currentUser);
-
     if (!window.firebaseManager || !window.firebaseManager.initialized) {
-      console.log("⚠️ Firebase no disponible, cargando datos locales");
       this.loadReservations(); // Cargar datos de ejemplo como fallback
       return;
     }
@@ -428,12 +420,6 @@ class TherapistPanel {
       const startDateStr = this.getLocalDateString(startOfWeek);
       const endDateStr = this.getLocalDateString(endOfRange);
 
-      console.log("📅 Rango de fechas (2 semanas):", {
-        startDateStr,
-        endDateStr,
-      });
-      console.log("👩‍⚕️ ID terapeuta:", this.currentUser.id);
-
       // Load reservations from Firebase (initial load)
       const firebaseReservations =
         await window.firebaseManager.getReservationsForTherapist(
@@ -442,17 +428,11 @@ class TherapistPanel {
           endDateStr
         );
 
-      console.log("📋 Reservas obtenidas de Firebase:", firebaseReservations);
-
       // Update local reservations array
       this.reservations = firebaseReservations;
 
       // Clean up any potential duplicates
       this.removeDuplicateReservations();
-
-      console.log(
-        `📅 Cargadas ${this.reservations.length} reservas desde Firebase (después de limpieza)`
-      );
 
       // Update UI
       this.generateWeeklyCalendar();
@@ -471,11 +451,8 @@ class TherapistPanel {
 
   setupRealtimeListener() {
     if (!window.firebaseManager || !window.firebaseManager.initialized) {
-      console.log("⚠️ Firebase no disponible para listener en tiempo real");
       return;
     }
-
-    console.log("🔄 Configurando listener en tiempo real para reservas...");
 
     try {
       // Listen for new reservations for this therapist
@@ -502,15 +479,9 @@ class TherapistPanel {
         (snapshot) => {
           if (!initialLoadComplete) {
             // Skip notifications on initial load
-            console.log("🔄 Carga inicial del listener completada");
             initialLoadComplete = true;
             return;
           }
-
-          console.log(
-            "📡 Cambios detectados en Firebase:",
-            snapshot.docChanges().length
-          );
 
           snapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
@@ -518,8 +489,6 @@ class TherapistPanel {
                 id: change.doc.id,
                 ...change.doc.data(),
               };
-
-              console.log("🔔 Nueva reserva detectada:", newReservation);
 
               // Check if this reservation already exists in our local array
               const existingReservation = this.reservations.find(
@@ -540,7 +509,6 @@ class TherapistPanel {
                 if (!isDuplicate) {
                   // Add to local reservations
                   this.reservations.push(newReservation);
-                  console.log("✅ Reserva agregada al array local");
 
                   // Show enhanced notification only for truly new reservations
                   this.showNotification(
@@ -561,16 +529,8 @@ class TherapistPanel {
                   // Play notification sound
                   this.playNotificationSound();
                 } else {
-                  console.log(
-                    "⚠️ Reserva duplicada detectada y evitada:",
-                    newReservation
-                  );
                 }
               } else {
-                console.log(
-                  "⚠️ Reserva ya existe en array local:",
-                  newReservation.id
-                );
               }
             }
 
@@ -579,8 +539,6 @@ class TherapistPanel {
                 id: change.doc.id,
                 ...change.doc.data(),
               };
-
-              console.log("📝 Reserva modificada:", updatedReservation);
 
               // Update in local array
               const index = this.reservations.findIndex(
@@ -609,8 +567,6 @@ class TherapistPanel {
                 ...change.doc.data(),
               };
 
-              console.log("🗑️ Reserva eliminada:", removedReservation);
-
               // Remove from local array
               this.reservations = this.reservations.filter(
                 (res) => res.id !== removedReservation.id
@@ -630,8 +586,6 @@ class TherapistPanel {
           });
         }
       );
-
-      console.log("✅ Listener en tiempo real configurado correctamente");
     } catch (error) {
       console.error("❌ Error configurando listener en tiempo real:", error);
     }
@@ -684,7 +638,7 @@ class TherapistPanel {
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
     } catch (error) {
-      console.log("No se pudo reproducir sonido de notificación:", error);
+      console.error("❌ Error reproduciendo sonido de notificación:", error);
     }
   }
 
@@ -692,7 +646,6 @@ class TherapistPanel {
   handleLogout() {
     // Remove real-time listener if it exists
     if (this.unsubscribe) {
-      console.log("🔄 Desconectando listener en tiempo real...");
       this.unsubscribe();
       this.unsubscribe = null;
     }
@@ -1813,10 +1766,6 @@ class TherapistPanel {
 
         // DON'T add to local array here - let the real-time listener handle it
         // This prevents duplicates from manual addition + listener addition
-        console.log(
-          "✅ Reserva guardada en Firebase, ID:",
-          reservationResult.id
-        );
       } else {
         // Create locally with temporary ID (only when Firebase is not available)
         const tempId = "temp_" + Date.now();
@@ -2432,7 +2381,6 @@ class TherapistPanel {
         seenKeys.add(key);
         uniqueReservations.push(reservation);
       } else {
-        console.log("🗑️ Reserva duplicada removida:", reservation);
         duplicatesFound++;
       }
     });
@@ -2442,9 +2390,6 @@ class TherapistPanel {
     const newCount = this.reservations.length;
 
     if (originalCount !== newCount) {
-      console.log(
-        `🧹 Limpieza de duplicados: ${duplicatesFound} reservas duplicadas removidas`
-      );
       this.showNotification(
         `Se eliminaron ${duplicatesFound} reservas duplicadas`,
         "success"
@@ -2471,7 +2416,6 @@ window.addEventListener("error", function (event) {
       event.message.includes("Extension context invalidated") ||
       event.message.includes("Could not establish connection"))
   ) {
-    console.log("🔧 Chrome extension error ignored:", event.message);
     event.preventDefault();
     return false;
   }
@@ -2489,10 +2433,6 @@ window.addEventListener("unhandledrejection", function (event) {
       event.reason.message.includes("Extension context invalidated") ||
       event.reason.message.includes("Could not establish connection"))
   ) {
-    console.log(
-      "🔧 Chrome extension promise rejection ignored:",
-      event.reason.message
-    );
     event.preventDefault();
     return false;
   }

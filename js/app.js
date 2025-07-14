@@ -265,9 +265,7 @@ class EspacioShantiApp {
     formContainer.innerHTML = formHTML;
 
     // Configurar event listener después de crear el formulario
-    console.log(
-      "📝 Configurando event listener después de renderizar formulario..."
-    );
+
     const reservationForm = document.getElementById("reservation-form");
     if (reservationForm) {
       // Remover listener anterior si existe (guardar la referencia)
@@ -309,10 +307,6 @@ class EspacioShantiApp {
       const selectedDate = dateInput.value;
       const selectedTime = timeInput.value;
 
-      console.log(
-        `🔄 Actualizando disponibilidad para ${selectedDate} ${selectedTime}`
-      );
-
       if (!selectedDate || !selectedTime) {
         therapistSelect.innerHTML =
           '<option value="">Primero selecciona fecha y hora</option>';
@@ -330,11 +324,6 @@ class EspacioShantiApp {
           selectedDate,
           selectedTime
         );
-        console.log(
-          `👩‍⚕️ ${therapist.name} (${therapist.id}): ${
-            isAvailable ? "DISPONIBLE" : "NO DISPONIBLE"
-          }`
-        );
 
         if (isAvailable) {
           availableTherapists.push(therapist);
@@ -342,15 +331,6 @@ class EspacioShantiApp {
           unavailableTherapists.push(therapist);
         }
       });
-
-      console.log(
-        `✅ Disponibles: ${availableTherapists.map((t) => t.name).join(", ")}`
-      );
-      console.log(
-        `❌ No disponibles: ${unavailableTherapists
-          .map((t) => t.name)
-          .join(", ")}`
-      );
 
       // Update therapist select options
       let options = '<option value="">Selecciona un terapeuta</option>';
@@ -509,8 +489,6 @@ class EspacioShantiApp {
   async handleReservation(e) {
     e.preventDefault();
 
-    console.log("📝 Iniciando proceso de reserva...");
-
     const formData = {
       clientName: document.getElementById("client-name").value,
       clientEmail: document.getElementById("client-email").value,
@@ -541,10 +519,6 @@ class EspacioShantiApp {
       );
       return;
     }
-
-    console.log("🔄 Verificando Firebase disponibilidad...");
-    console.log("Firebase Manager disponible:", !!window.firebaseManager);
-    console.log("Firebase inicializado:", window.firebaseManager?.initialized);
 
     try {
       // Show loading
@@ -593,26 +567,10 @@ class EspacioShantiApp {
   }
 
   async saveReservation(reservationData) {
-    console.log(
-      "💾 Función saveReservation iniciada con datos:",
-      reservationData
-    );
-
     try {
       // Check if Firebase is available
-      console.log("🔍 Verificando Firebase...");
-      console.log(
-        "  - window.firebaseManager existe:",
-        !!window.firebaseManager
-      );
-      console.log(
-        "  - firebaseManager.initialized:",
-        window.firebaseManager?.initialized
-      );
 
       if (window.firebaseManager && window.firebaseManager.initialized) {
-        console.log("🔥 Firebase disponible, guardando en Firestore...");
-
         const completeReservationData = {
           ...reservationData,
           serviceName:
@@ -629,30 +587,20 @@ class EspacioShantiApp {
               ?.price || 0,
         };
 
-        console.log(
-          "📦 Datos completos para Firebase:",
-          completeReservationData
-        );
-
         // Save to Firebase
         const reservationId = await window.firebaseManager.saveReservation(
           completeReservationData
         );
 
-        console.log("✅ Reserva guardada en Firebase con ID:", reservationId);
-
         // Enviar notificación de WhatsApp al terapeuta
         try {
           if (window.callMeBotService) {
-            console.log("📱 Enviando notificación de WhatsApp...");
             const notificationSent =
               await window.callMeBotService.sendNotification(
                 completeReservationData
               );
             if (notificationSent) {
-              console.log("✅ Notificación de WhatsApp enviada al terapeuta");
             } else {
-              console.log("⚠️ No se pudo enviar la notificación de WhatsApp");
             }
           }
         } catch (error) {
@@ -663,10 +611,7 @@ class EspacioShantiApp {
         return reservationId;
       } else {
         // Fallback: simulate saving locally
-        console.log(
-          "⚠️ Firebase no disponible, simulando guardado:",
-          reservationData
-        );
+
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve("local-" + Date.now());
@@ -688,19 +633,13 @@ class EspacioShantiApp {
         (!window.firebaseManager || !window.firebaseManager.initialized) &&
         retries < 10
       ) {
-        console.log(`⏳ Esperando Firebase... intento ${retries + 1}`);
         await new Promise((resolve) => setTimeout(resolve, 500));
         retries++;
       }
 
       if (!window.firebaseManager || !window.firebaseManager.initialized) {
-        console.log("⚠️ Firebase no disponible después de esperar");
         return;
       }
-
-      console.log(
-        "📋 Cargando reservas existentes para verificar disponibilidad..."
-      );
 
       // Get current date range (today + next 30 days)
       const today = new Date();
@@ -718,9 +657,6 @@ class EspacioShantiApp {
         );
 
       this.reservations = allReservations || [];
-      console.log(
-        `📅 Cargadas ${this.reservations.length} reservas existentes`
-      );
 
       // Update available times after loading reservations
       this.filterAvailableTimes();
@@ -736,19 +672,13 @@ class EspacioShantiApp {
   // Set up real-time listener for reservation changes
   setupRealtimeListener() {
     if (!window.firebaseManager || !window.firebaseManager.initialized) {
-      console.log("⚠️ Firebase no disponible para listener en tiempo real");
       return;
     }
 
     // Don't set up multiple listeners
     if (this.unsubscribeReservations) {
-      console.log("🔄 Listener ya existe, no se duplicará");
       return;
     }
-
-    console.log(
-      "🔄 Configurando listener en tiempo real para cambios de reservas..."
-    );
 
     try {
       // Listen for changes in all reservations
@@ -766,30 +696,23 @@ class EspacioShantiApp {
           reservationsRef,
           (snapshot) => {
             if (initialLoad) {
-              console.log("� Listener iniciado - ignorando carga inicial");
               initialLoad = false;
               return;
             }
-
-            console.log("�🔔 Cambios detectados en reservas");
 
             let hasChanges = false;
             snapshot.docChanges().forEach((change) => {
               hasChanges = true;
               if (change.type === "added") {
-                console.log("➕ Nueva reserva agregada:", change.doc.data());
               }
               if (change.type === "modified") {
-                console.log("📝 Reserva modificada:", change.doc.data());
               }
               if (change.type === "removed") {
-                console.log("🗑️ Reserva eliminada:", change.doc.data());
               }
             });
 
             // Only reload if there were actual changes
             if (hasChanges) {
-              console.log("🔄 Actualizando disponibilidad de horarios...");
               this.reloadReservationsForAvailability();
             }
           },
@@ -797,8 +720,6 @@ class EspacioShantiApp {
             console.error("❌ Error en listener de reservas:", error);
           }
         );
-
-      console.log("✅ Listener en tiempo real configurado");
     } catch (error) {
       console.error("❌ Error configurando listener:", error);
     }
@@ -807,8 +728,6 @@ class EspacioShantiApp {
   // Reload reservations for availability check only (without setting up listener again)
   async reloadReservationsForAvailability() {
     try {
-      console.log("🔄 Recargando reservas para actualizar disponibilidad...");
-
       // Get current date range (today + next 30 days)
       const today = new Date();
       const futureDate = new Date();
@@ -825,9 +744,6 @@ class EspacioShantiApp {
         );
 
       this.reservations = allReservations || [];
-      console.log(
-        `🔄 Reservas actualizadas: ${this.reservations.length} total`
-      );
 
       // Update available times
       this.filterAvailableTimes();
@@ -871,7 +787,6 @@ class EspacioShantiApp {
   cleanupListeners() {
     if (this.unsubscribeReservations) {
       this.unsubscribeReservations();
-      console.log("🧹 Listener de reservas desconectado");
     }
   }
 
@@ -890,12 +805,6 @@ class EspacioShantiApp {
       );
     });
 
-    console.log(
-      `🔍 Horario completo para ${dateString} ${time}:`,
-      busyTherapists.length === allTherapists.length
-    );
-    console.log(`👥 Terapeutas ocupadas:`, busyTherapists);
-
     // If both therapists are busy, the time slot is completely booked
     return busyTherapists.length === allTherapists.length;
   }
@@ -910,15 +819,6 @@ class EspacioShantiApp {
         reservation.therapistId === therapistId
       );
     });
-
-    console.log(
-      `🔍 Verificando disponibilidad para ${therapistId} en ${date} ${time}:`,
-      !therapistHasBooking
-    );
-    console.log(
-      `📋 Reservas encontradas:`,
-      this.reservations.filter((r) => r.date === date && r.time === time)
-    );
 
     return !therapistHasBooking;
   }

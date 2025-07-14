@@ -75,8 +75,6 @@ class FirebaseManager {
       throw new Error("Firebase not initialized");
     }
 
-    console.log("✅ Firebase inicializado, procediendo a guardar...");
-
     try {
       const reservationsRef = this.firestore.collection(
         this.db,
@@ -100,7 +98,6 @@ class FirebaseManager {
 
   // Get reservations for a specific therapist
   async getReservationsForTherapist(therapistId, startDate, endDate) {
-
     if (!this.initialized) {
       console.error("❌ Firebase no inicializado");
       throw new Error("Firebase not initialized");
@@ -112,7 +109,6 @@ class FirebaseManager {
         "reservations"
       );
 
-      console.log("📂 Creando query con filtros...");
       const q = this.firestore.query(
         reservationsRef,
         this.firestore.where("therapistId", "==", therapistId),
@@ -122,22 +118,17 @@ class FirebaseManager {
         this.firestore.orderBy("time")
       );
 
-      console.log("🔄 Ejecutando query...");
       const querySnapshot = await this.firestore.getDocs(q);
       const reservations = [];
-
-      console.log("📊 Documentos encontrados:", querySnapshot.size);
 
       querySnapshot.forEach((doc) => {
         const data = {
           id: doc.id,
           ...doc.data(),
         };
-        console.log("📄 Documento:", data);
         reservations.push(data);
       });
 
-      console.log("✅ Reservas retornadas:", reservations);
       return reservations;
     } catch (error) {
       console.error("❌ Error getting reservations:", error);
@@ -224,8 +215,6 @@ class FirebaseManager {
 
   // Update an existing reservation
   async updateReservation(reservationId, updatedData) {
-    console.log("🔄 Actualizando reserva:", reservationId, updatedData);
-
     if (!this.initialized) {
       throw new Error("Firebase not initialized");
     }
@@ -244,7 +233,6 @@ class FirebaseManager {
 
       await this.firestore.updateDoc(reservationRef, dataToUpdate);
 
-      console.log("✅ Reserva actualizada exitosamente:", reservationId);
       return reservationId;
     } catch (error) {
       console.error("❌ Error updating reservation:", error);
@@ -254,8 +242,6 @@ class FirebaseManager {
 
   // Delete a reservation
   async deleteReservation(reservationId) {
-    console.log("🗑️ Eliminando reserva:", reservationId);
-
     if (!this.initialized) {
       throw new Error("Firebase not initialized");
     }
@@ -268,7 +254,6 @@ class FirebaseManager {
       );
       await this.firestore.deleteDoc(reservationRef);
 
-      console.log("✅ Reserva eliminada exitosamente:", reservationId);
       return true;
     } catch (error) {
       console.error("❌ Error deleting reservation:", error);
@@ -278,9 +263,6 @@ class FirebaseManager {
 
   // Get all reservations in a date range (for all therapists)
   async getReservationsInDateRange(startDate, endDate) {
-    console.log("🔍 Firebase.getReservationsInDateRange iniciado");
-    console.log("📋 Parámetros:", { startDate, endDate });
-
     if (!this.initialized) {
       console.error("❌ Firebase no inicializado");
       throw new Error("Firebase not initialized");
@@ -292,9 +274,6 @@ class FirebaseManager {
         "reservations"
       );
 
-      console.log(
-        "📂 Creando query para todas las reservas en rango de fechas..."
-      );
       const q = this.firestore.query(
         reservationsRef,
         this.firestore.where("date", ">=", startDate),
@@ -303,11 +282,8 @@ class FirebaseManager {
         this.firestore.orderBy("time")
       );
 
-      console.log("🔄 Ejecutando query...");
       const querySnapshot = await this.firestore.getDocs(q);
       const reservations = [];
-
-      console.log("📊 Documentos encontrados:", querySnapshot.size);
 
       querySnapshot.forEach((doc) => {
         const data = {
@@ -315,11 +291,9 @@ class FirebaseManager {
           ...doc.data(),
         };
 
-        console.log("📄 Reserva encontrada:", data);
         reservations.push(data);
       });
 
-      console.log("✅ Reservas cargadas:", reservations.length);
       return reservations;
     } catch (error) {
       console.error("❌ Error en getReservationsInDateRange:", error);
@@ -344,13 +318,9 @@ const FIREBASE_CONFIG = {
 
 // Auto-initialize Firebase
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("🔄 Página cargada, inicializando Firebase...");
-
   // Initialize Firebase with the real config
   const initialized = await window.firebaseManager.init(FIREBASE_CONFIG);
   if (initialized) {
-    console.log("🔥 Firebase conectado exitosamente!");
   } else {
-    console.error("❌ Error conectando Firebase");
   }
 });
