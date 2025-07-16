@@ -318,7 +318,7 @@ class TherapistPanel {
                       "Servicio";
 
                     return `
-                            <div class="calendar-reservation bg-sage-light text-sage-dark rounded border-l-4 border-sage text-xs cursor-pointer hover:bg-sage-light/70 transition-colors p-1" 
+                            <div class="calendar-reservation bg-sage-light text-sage-dark rounded border-l-4 border-sage text-xs cursor-pointer hover:bg-sage-light/70 transition-colors p-1 relative" 
                                  onclick="window.therapistPanel.showReservationActions('${
                                    reservation.id
                                  }')"
@@ -332,12 +332,15 @@ class TherapistPanel {
                                         0,
                                         isTablet ? 12 : 20
                                       )}</div>`
-                                    : ""
+                                    : `<div class="truncate text-xs opacity-75 leading-tight">${serviceShort.substring(
+                                        0,
+                                        8
+                                      )}</div>`
                                 }
                                 ${
-                                  !isMobile
-                                    ? '<div class="text-xs opacity-60 mt-0.5">Click</div>'
-                                    : ""
+                                  isMobile
+                                    ? '<div class="absolute top-0 right-0 text-xs opacity-60 text-sage-dark">⚡</div>'
+                                    : '<div class="text-xs opacity-60 mt-0.5">Click</div>'
                                 }
                             </div>
                         `;
@@ -903,47 +906,49 @@ class TherapistPanel {
 
     const actionsHTML = `
       <div id="reservation-actions-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-          <div class="p-6">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+          <div class="p-4 sm:p-6">
             <div class="flex justify-between items-start mb-4">
-              <h3 class="text-lg font-semibold text-gray-800">Opciones de Reserva</h3>
-              <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times"></i>
+              <h3 class="text-lg font-semibold text-gray-800">Acciones Rápidas</h3>
+              <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600 p-1">
+                <i class="fas fa-times text-xl"></i>
               </button>
             </div>
             
-            <div class="space-y-3 mb-6">
-              <div class="text-sm text-gray-600">
-                <strong>Cliente:</strong> ${reservation.clientName}
-              </div>
-              <div class="text-sm text-gray-600">
-                <strong>Fecha:</strong> ${this.formatDate(reservation.date)}
-              </div>
-              <div class="text-sm text-gray-600">
-                <strong>Hora:</strong> ${reservation.time}
-              </div>
-              <div class="text-sm text-gray-600">
-                <strong>Servicio:</strong> ${
+            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+              <div class="text-sm text-gray-600 space-y-1">
+                <div><strong>Cliente:</strong> ${reservation.clientName}</div>
+                <div><strong>Fecha:</strong> ${this.formatDate(reservation.date)}</div>
+                <div><strong>Hora:</strong> ${reservation.time}</div>
+                <div><strong>Servicio:</strong> ${
                   reservation.serviceName || reservation.service
-                }
+                }</div>
+                <div><strong>Estado:</strong> <span class="inline-block px-2 py-1 text-xs rounded-full ${
+                  reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
+                  reservation.status === 'cancelled' ? 'bg-red-100 text-red-800' : 
+                  'bg-yellow-100 text-yellow-800'
+                }">${reservation.status === 'confirmed' ? 'Confirmada' : 
+                     reservation.status === 'cancelled' ? 'Cancelada' : 'Pendiente'}</span></div>
               </div>
             </div>
             
-            <div class="flex flex-col space-y-2">
-              <button onclick="window.therapistPanel.viewReservationDetails('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-sage text-white py-2 px-4 rounded hover:bg-sage-dark transition-colors">
+            <div class="grid grid-cols-1 gap-2 sm:gap-3">
+              <button onclick="window.therapistPanel.viewReservationDetails('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-sage text-white py-3 px-4 rounded-lg hover:bg-sage-dark transition-colors text-sm font-medium">
                 <i class="fas fa-eye mr-2"></i>Ver Detalles Completos
               </button>
-              <button onclick="window.therapistPanel.editReservation('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+              <button onclick="window.therapistPanel.editReservation('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium">
                 <i class="fas fa-edit mr-2"></i>Editar Reserva
               </button>
-              <button onclick="window.therapistPanel.cancelReservation('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors">
-                <i class="fas fa-times-circle mr-2"></i>Cancelar Reserva
-              </button>
-              <a href="tel:${
-                reservation.clientPhone
-              }" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition-colors text-center">
-                <i class="fas fa-phone mr-2"></i>Llamar Cliente
-              </a>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="window.therapistPanel.cancelReservation('${reservationId}'); document.getElementById('reservation-actions-modal').remove();" class="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+                  <i class="fas fa-times-circle mr-1"></i>Cancelar
+                </button>
+                <a href="tel:${
+                  reservation.clientPhone
+                }" class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors text-center text-sm font-medium">
+                  <i class="fas fa-phone mr-1"></i>Llamar
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -1251,7 +1256,7 @@ class TherapistPanel {
         )
       );
 
-      const currentTime = "${reservation.time}";
+      const currentTime = reservation.time;
       timeSelect.innerHTML = "";
 
       availableHours.forEach((hour) => {
