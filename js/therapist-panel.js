@@ -69,13 +69,9 @@ class TherapistPanel {
     const loginForm = document.getElementById("login-form");
     loginForm.addEventListener("submit", this.handleLogin.bind(this));
 
-    // Logout buttons (desktop and mobile)
-    const logoutBtn = document.getElementById("logout-btn");
+    // Logout button
     const logoutBtnMobile = document.getElementById("logout-btn-mobile");
 
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", this.handleLogout.bind(this));
-    }
     if (logoutBtnMobile) {
       logoutBtnMobile.addEventListener("click", this.handleLogout.bind(this));
     }
@@ -224,13 +220,9 @@ class TherapistPanel {
     if (this.currentUser) {
       const userName = this.currentUser.name.split(" ")[0];
 
-      // Update both desktop and mobile user info
-      const userInfo = document.getElementById("user-info");
+      // Update user info
       const userInfoMobile = document.getElementById("user-info-mobile");
 
-      if (userInfo) {
-        userInfo.textContent = `Bienvenida, ${userName}`;
-      }
       if (userInfoMobile) {
         userInfoMobile.textContent = `Bienvenida, ${userName}`;
       }
@@ -918,17 +910,26 @@ class TherapistPanel {
             <div class="bg-gray-50 rounded-lg p-3 mb-4">
               <div class="text-sm text-gray-600 space-y-1">
                 <div><strong>Cliente:</strong> ${reservation.clientName}</div>
-                <div><strong>Fecha:</strong> ${this.formatDate(reservation.date)}</div>
+                <div><strong>Fecha:</strong> ${this.formatDate(
+                  reservation.date
+                )}</div>
                 <div><strong>Hora:</strong> ${reservation.time}</div>
                 <div><strong>Servicio:</strong> ${
                   reservation.serviceName || reservation.service
                 }</div>
                 <div><strong>Estado:</strong> <span class="inline-block px-2 py-1 text-xs rounded-full ${
-                  reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
-                  reservation.status === 'cancelled' ? 'bg-red-100 text-red-800' : 
-                  'bg-yellow-100 text-yellow-800'
-                }">${reservation.status === 'confirmed' ? 'Confirmada' : 
-                     reservation.status === 'cancelled' ? 'Cancelada' : 'Pendiente'}</span></div>
+                  reservation.status === "confirmed"
+                    ? "bg-green-100 text-green-800"
+                    : reservation.status === "cancelled"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }">${
+      reservation.status === "confirmed"
+        ? "Confirmada"
+        : reservation.status === "cancelled"
+        ? "Cancelada"
+        : "Pendiente"
+    }</span></div>
               </div>
             </div>
             

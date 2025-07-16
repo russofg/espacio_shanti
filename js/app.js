@@ -557,6 +557,11 @@ class EspacioShantiApp {
       if (dateInput) {
         dateInput.value = this.getTodayDateString();
       }
+
+      // Programar recordatorios automáticos
+      if (window.reminderSystem) {
+        window.reminderSystem.scheduleReminders(reservation);
+      }
     } catch (error) {
       console.error("Error saving reservation:", error);
       this.showNotification(
@@ -591,41 +596,6 @@ class EspacioShantiApp {
         const reservationId = await window.firebaseManager.saveReservation(
           completeReservationData
         );
-
-        // Programar recordatorios automáticos
-        try {
-          if (window.reminderSystem) {
-            const reservationWithId = {
-              ...completeReservationData,
-              id: reservationId,
-            };
-            window.reminderSystem.scheduleReminders(reservationWithId);
-            console.log(
-              "📅 Recordatorios programados para reserva:",
-              reservationId
-            );
-          }
-        } catch (error) {
-          console.error("❌ Error programando recordatorios:", error);
-          // No interrumpir el proceso por error de recordatorios
-        }
-
-        // Enviar email de confirmación al cliente
-        try {
-          if (window.emailService) {
-            const emailSent = await window.emailService.sendConfirmationEmail(
-              completeReservationData
-            );
-            if (emailSent) {
-              console.log("📧 Email de confirmación enviado al cliente");
-            } else {
-              console.log("⚠️ No se pudo enviar email de confirmación");
-            }
-          }
-        } catch (error) {
-          console.error("❌ Error enviando email de confirmación:", error);
-          // No interrumpir el proceso por error de email
-        }
 
         // Enviar notificación de WhatsApp al terapeuta
         try {
