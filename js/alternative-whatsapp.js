@@ -6,15 +6,33 @@ class CallMeBotService {
     // 2. Enviar: "I allow callmebot to send me messages"
     // 3. Recibirán un API key personal
 
+    // SEGURIDAD: Configuración movida a variables de entorno
+    // Para configurar: Crear archivo .env o usar Firebase Remote Config
     this.apiKeys = {
-      lorena: "9569005", // API key real de Betsabé (funciona)
-      betsabe: "9569005", // ⚠️ API key real de Betsabé
+      lorena: this.getSecureConfig('CALLMEBOT_API_KEY_LORENA', '123456'), // API key de desarrollo por defecto
+      betsabe: this.getSecureConfig('CALLMEBOT_API_KEY_BETSABE', '123456'), // API key de desarrollo por defecto
     };
 
     this.phones = {
-      lorena: "+5491151414220", // Teléfono real de Betsabé (funciona)
-      betsabe: "+5491151414220", // ⚠️ Teléfono real de Betsabé
+      lorena: this.getSecureConfig('THERAPIST_PHONE_LORENA', '+5491151414220'), // Teléfono por defecto
+      betsabe: this.getSecureConfig('THERAPIST_PHONE_BETSABE', '+5491151414220'), // Teléfono por defecto
     };
+  }
+
+  // Método para obtener configuración segura
+  getSecureConfig(key, defaultValue) {
+    // Prioridad: Variables de entorno > Firebase Remote Config > Valor por defecto
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+      return process.env[key];
+    }
+    
+    // TODO: Implementar Firebase Remote Config para producción
+    // if (window.firebaseRemoteConfig) {
+    //   return firebase.remoteConfig().getValue(key);
+    // }
+    
+    window.secureLogger?.warn(`⚠️ Usando configuración por defecto para ${key}`);
+    return defaultValue;
   }
 
   async sendNotification(reservationData) {

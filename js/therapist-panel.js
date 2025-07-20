@@ -114,14 +114,14 @@ class TherapistPanel {
 
     try {
       // 1. Verificar therapist_session (usado por therapist-auth.js)
-      const therapistSession = localStorage.getItem("therapist_session");
+      const therapistSession = window.secureStorage?.getSecureItem("therapist_session") || localStorage.getItem("therapist_session");
       window.secureLogger?.debug(
         "🔍 therapist_session disponible:",
         !!therapistSession
       );
 
       // 2. Verificar currentTherapist (usado antes)
-      const currentTherapist = localStorage.getItem("currentTherapist");
+      const currentTherapist = window.secureStorage?.getSecureItem("currentTherapist") || localStorage.getItem("currentTherapist");
       window.secureLogger?.debug(
         "🔍 currentTherapist disponible:",
         !!currentTherapist
@@ -187,18 +187,27 @@ class TherapistPanel {
 
       window.secureLogger?.debug("✅ currentUser establecido correctamente");
 
-      // Sincronizar con localStorage usando ambas claves
-      localStorage.setItem(
-        "currentTherapist",
-        JSON.stringify(this.currentUser)
-      );
-      localStorage.setItem(
-        "therapist_session",
-        JSON.stringify({
+      // Sincronizar con localStorage seguro usando ambas claves
+      if (window.secureStorage) {
+        window.secureStorage.setSecureItem("currentTherapist", this.currentUser);
+        window.secureStorage.setSecureItem("therapist_session", {
           email: firebaseUser.email,
           uid: firebaseUser.uid,
-        })
-      );
+        });
+      } else {
+        // Fallback a localStorage normal si secureStorage no está disponible
+        localStorage.setItem(
+          "currentTherapist",
+          JSON.stringify(this.currentUser)
+        );
+        localStorage.setItem(
+          "therapist_session",
+          JSON.stringify({
+            email: firebaseUser.email,
+            uid: firebaseUser.uid,
+          })
+        );
+      }
 
       this.showMainContent();
       this.loadReservationsFromFirebase();
@@ -222,13 +231,17 @@ class TherapistPanel {
         uid: sessionData.uid,
       };
 
-      console.log("✅ currentUser set from session:", this.currentUser);
+      window.secureLogger?.info("✅ currentUser set from session:", this.currentUser.name);
 
-      // Sincronizar localStorage
-      localStorage.setItem(
-        "currentTherapist",
-        JSON.stringify(this.currentUser)
-      );
+      // Sincronizar localStorage de forma segura
+      if (window.secureStorage) {
+        window.secureStorage.setSecureItem("currentTherapist", this.currentUser);
+      } else {
+        localStorage.setItem(
+          "currentTherapist",
+          JSON.stringify(this.currentUser)
+        );
+      }
 
       this.showMainContent();
       this.loadReservationsFromFirebase();
@@ -387,47 +400,40 @@ class TherapistPanel {
   }
 
   tryLocalAuth(email, password) {
-    console.log("🔧 Intentando autenticación local para:", email);
-    // Simple local authentication for development
-    const validCredentials = [
+    window.secureLogger?.debug("🔧 Verificando autenticación Firebase");
+    
+    // SEGURIDAD: Removidas credenciales hardcodeadas por seguridad
+    // Solo se permite autenticación a través de Firebase Auth
+    // Para desarrollo, usar Firebase Console para crear usuarios
+    
+    // Verificar si el email está en la lista de terapeutas autorizados
+    const authorizedTherapists = [
       {
         email: "lorena@espacioshanti.com",
-        password: "lorena123",
         name: "Lorena Murua Bosquero",
         id: "lorena",
       },
       {
-        email: "betsabe@espacioshanti.com",
-        password: "betsabe123",
+        email: "betsabe@espacioshanti.com", 
         name: "Betsabé Murua Bosquero",
         id: "betsabe",
       },
     ];
 
-    const user = validCredentials.find(
-      (cred) => cred.email === email && cred.password === password
+    const therapist = authorizedTherapists.find(
+      (therapist) => therapist.email === email
     );
 
-    if (user) {
-      console.log("✅ Autenticación local exitosa para:", user.name);
-      this.currentUser = user;
-      localStorage.setItem("currentTherapist", JSON.stringify(user));
-      this.showMainContent();
-      this.showNotification(
-        "¡Bienvenida " + user.name.split(" ")[0] + "! (Modo local)",
-        "success"
-      );
-
-      // Try to load reservations from Firebase even in local mode
-      if (window.firebaseManager && window.firebaseManager.initialized) {
-        this.loadReservationsFromFirebase();
-      } else {
-        this.loadReservations();
-      }
-    } else {
-      console.log("❌ Credenciales incorrectas en autenticación local");
-      throw new Error("Credenciales incorrectas");
+    if (!therapist) {
+      window.secureLogger?.error("❌ Email no autorizado:", email);
+      alert("Email no autorizado para acceder al panel de administración");
+      return false;
     }
+
+    // Solo mostrar mensaje - la autenticación real debe ser por Firebase
+    window.secureLogger?.error("❌ Para seguridad, use Firebase Authentication");
+    alert("Por favor, use la autenticación de Firebase para acceder al panel");
+    return false;
   }
 
   getTherapistByEmail(email) {
@@ -445,17 +451,24 @@ class TherapistPanel {
   }
 
   handleLogout() {
-    console.log("🔓 handleLogout called");
+    window.secureLogger?.info("🔓 Cerrando sesión de terapeuta");
 
-    // Limpiar todas las fuentes de autenticación
+    // Limpiar todas las fuentes de autenticación de forma segura
+    if (window.secureStorage) {
+      window.secureStorage.removeItem("currentTherapist");
+      window.secureStorage.removeItem("therapist_session");
+    }
+    
+    // También limpiar localStorage tradicional por compatibilidad
     localStorage.removeItem("currentTherapist");
     localStorage.removeItem("therapist_session");
+    
     this.currentUser = null;
 
     // También cerrar sesión de Firebase si está disponible
     if (window.firebaseManager && window.firebaseManager.auth) {
       window.firebaseManager.signOut().catch((err) => {
-        console.log("Error al cerrar sesión de Firebase:", err);
+        window.secureLogger?.error("Error al cerrar sesión de Firebase:", err.message);
       });
     }
 
