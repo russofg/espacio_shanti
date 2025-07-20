@@ -28,9 +28,9 @@ class TherapistAuth {
       this.currentUser = user;
       this.isAuthenticated = !!user;
 
-      console.log(
+      window.secureLogger?.debug(
         "🔐 Auth state changed:",
-        user ? `Logged in as ${user.email}` : "Logged out"
+        user ? "Usuario autenticado" : "Usuario desconectado"
       );
 
       // Actualizar UI

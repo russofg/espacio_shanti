@@ -115,11 +115,17 @@ class TherapistPanel {
     try {
       // 1. Verificar therapist_session (usado por therapist-auth.js)
       const therapistSession = localStorage.getItem("therapist_session");
-      console.log("🔍 therapist_session from localStorage:", therapistSession);
+      window.secureLogger?.debug(
+        "🔍 therapist_session disponible:",
+        !!therapistSession
+      );
 
       // 2. Verificar currentTherapist (usado antes)
       const currentTherapist = localStorage.getItem("currentTherapist");
-      console.log("🔍 currentTherapist from localStorage:", currentTherapist);
+      window.secureLogger?.debug(
+        "🔍 currentTherapist disponible:",
+        !!currentTherapist
+      );
 
       // 3. Verificar Firebase Auth actual (solo si Firebase está inicializado)
       if (
@@ -129,7 +135,7 @@ class TherapistPanel {
         window.firebaseManager.auth.currentUser
       ) {
         const firebaseUser = window.firebaseManager.auth.currentUser;
-        console.log("🔍 Firebase currentUser:", firebaseUser.email);
+        window.secureLogger?.debug("🔍 Firebase currentUser authenticated");
         this.handleAuthSuccess(firebaseUser);
         return;
       }
@@ -141,7 +147,7 @@ class TherapistPanel {
     if (therapistSession) {
       try {
         const sessionData = JSON.parse(therapistSession);
-        console.log("✅ Usando therapist_session:", sessionData);
+        window.secureLogger?.debug("✅ Usando therapist_session");
         this.handleAuthFromSession(sessionData);
         return;
       } catch (error) {
@@ -153,7 +159,7 @@ class TherapistPanel {
     if (currentTherapist) {
       try {
         const userData = JSON.parse(currentTherapist);
-        console.log("✅ Usando currentTherapist:", userData);
+        window.secureLogger?.debug("✅ Usando currentTherapist");
         this.currentUser = userData;
         this.showMainContent();
         this.loadReservationsFromFirebase();
@@ -168,7 +174,7 @@ class TherapistPanel {
   }
 
   handleAuthSuccess(firebaseUser) {
-    console.log("✅ handleAuthSuccess called with:", firebaseUser.email);
+    window.secureLogger?.debug("✅ handleAuthSuccess called");
 
     // Convertir usuario de Firebase a formato local
     const therapistData = this.getTherapistByEmail(firebaseUser.email);
@@ -179,7 +185,7 @@ class TherapistPanel {
         uid: firebaseUser.uid,
       };
 
-      console.log("✅ currentUser set:", this.currentUser);
+      window.secureLogger?.debug("✅ currentUser establecido correctamente");
 
       // Sincronizar con localStorage usando ambas claves
       localStorage.setItem(

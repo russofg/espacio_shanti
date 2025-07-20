@@ -62,7 +62,7 @@ class EmailService {
   async sendConfirmationEmail(reservationData) {
     // FORZAR ENVÍO REAL - Bypass del modo simulación
     console.log("🚀 ENVIANDO CONFIRMACIÓN REAL...");
-    console.log(`📧 Destinatario: ${reservationData.clientEmail}`);
+    window.secureLogger?.debug("📧 Preparando envío de confirmación");
     console.log(`📧 EmailJS disponible: ${!!window.emailjs}`);
 
     const templateParams = {
@@ -101,7 +101,7 @@ class EmailService {
   async sendReminderEmail(reservationData, reminderType = "24h") {
     // FORZAR ENVÍO REAL - Bypass del modo simulación
     console.log("🚀 ENVIANDO RECORDATORIO REAL...");
-    console.log(`📧 Destinatario: ${reservationData.clientEmail}`);
+    window.secureLogger?.debug("📧 Preparando recordatorio");
     console.log(`📧 Tipo: ${reminderType}`);
     console.log(`📧 EmailJS disponible: ${!!window.emailjs}`);
 
