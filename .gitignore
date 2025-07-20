@@ -25,3 +25,5 @@ backup/
 # Archivos de configuración personal
 config.local.js
 secrets.js
+NETLIFY-KEYS-PRIVATE.txt
+*-PRIVATE.*
