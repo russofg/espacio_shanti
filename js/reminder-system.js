@@ -30,7 +30,9 @@ class ReminderSystem {
   }
 
   init() {
-    console.log("🔔 Inicializando Sistema de Recordatorios...");
+    if (window.logger) {
+      window.logger.system("Inicializando Sistema de Recordatorios...");
+    }
     this.startReminderChecker();
   }
 
@@ -43,9 +45,11 @@ class ReminderSystem {
       );
 
       if (!appointmentDateTime || appointmentDateTime <= new Date()) {
-        console.log(
-          "⚠️ Cita en el pasado o fecha inválida, no se programan recordatorios"
-        );
+        if (window.logger) {
+          window.logger.warn(
+            "Cita en el pasado o fecha inválida, no se programan recordatorios"
+          );
+        }
         return;
       }
 
@@ -69,16 +73,24 @@ class ReminderSystem {
               sent: false,
             });
 
-            console.log(
-              `📅 Recordatorio ${type} programado para ${reminderTime.toLocaleString()}`
-            );
+            if (window.logger) {
+              window.logger.reminder(
+                `Recordatorio ${type} programado para ${reminderTime.toLocaleString()}`
+              );
+            }
           }
         }
       });
 
-      console.log(`✅ ${this.reminders.size} recordatorios activos en total`);
+      if (window.logger) {
+        window.logger.debug(
+          `${this.reminders.size} recordatorios activos en total`
+        );
+      }
     } catch (error) {
-      console.error("❌ Error programando recordatorios:", error);
+      if (window.logger) {
+        window.logger.error("Error programando recordatorios:", error);
+      }
     }
   }
 
@@ -94,9 +106,11 @@ class ReminderSystem {
     }
 
     if (cancelled > 0) {
-      console.log(
-        `🗑️ Cancelados ${cancelled} recordatorios para reserva ${reservationId}`
-      );
+      if (window.logger) {
+        window.logger.info(
+          `Cancelados ${cancelled} recordatorios para reserva ${reservationId}`
+        );
+      }
     }
   }
 
@@ -111,7 +125,9 @@ class ReminderSystem {
       this.checkPendingReminders();
     }, 30000);
 
-    console.log("🔄 Verificador de recordatorios iniciado (cada 30s)");
+    if (window.logger) {
+      window.logger.system("Verificador de recordatorios iniciado (cada 30s)");
+    }
   }
 
   stopReminderChecker() {
@@ -119,7 +135,9 @@ class ReminderSystem {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
       this.isActive = false;
-      console.log("⏹️ Verificador de recordatorios detenido");
+      if (window.logger) {
+        window.logger.system("Verificador de recordatorios detenido");
+      }
     }
   }
 
@@ -142,7 +160,9 @@ class ReminderSystem {
     });
 
     if (remindersSent.length > 0) {
-      console.log(`📤 Enviados ${remindersSent.length} recordatorios`);
+      if (window.logger) {
+        window.logger.info(`Enviados ${remindersSent.length} recordatorios`);
+      }
     }
   }
 
@@ -152,27 +172,58 @@ class ReminderSystem {
       const message = this.generateReminderMessage(reminder);
       const recipient = this.getReminderRecipient(reminder);
 
-      console.log(`🔔 Enviando recordatorio ${reminder.type}:`, message);
+      if (window.logger) {
+        window.logger.reminder(`Enviando recordatorio ${reminder.type}`);
+      }
+
+      let success = false;
 
       // Determinar método de envío según el tipo de recordatorio
       if (reminder.type.includes("client")) {
         // Para clientes: usar EMAIL
-        await this.sendEmailReminder(reminder, message, recipient);
+        success = await this.sendEmailReminder(reminder, message, recipient);
+
+        if (!success) {
+          if (window.logger) {
+            window.logger.warn("Email falló, usando fallback simulado");
+          }
+          this.sendEmailFallback(reminder, message, recipient);
+        }
       } else if (reminder.type.includes("therapist")) {
         // Para terapeutas: usar WhatsApp (CallMeBot)
-        await this.sendWhatsAppReminder(reminder, message, recipient);
+        success = await this.sendWhatsAppReminder(reminder, message, recipient);
+
+        if (!success) {
+          if (window.logger) {
+            window.logger.warn("WhatsApp falló, mostrando notificación en UI");
+          }
+          this.showUINotification(reminder, message);
+        }
       }
 
       // Guardar en historial
       this.logReminderSent(reminder, message);
     } catch (error) {
-      console.error(`❌ Error enviando recordatorio ${reminder.type}:`, error);
+      if (window.logger) {
+        window.logger.error(
+          `Error enviando recordatorio ${reminder.type}:`,
+          error
+        );
+      }
     }
   }
 
   // Enviar recordatorio por email (para clientes)
   async sendEmailReminder(reminder, message, recipient) {
+    if (window.logger) {
+      window.logger.debug("Iniciando envío de recordatorio por email");
+    }
+
     if (window.emailService) {
+      if (window.logger) {
+        window.logger.debug("EmailService encontrado, procediendo...");
+      }
+
       // Mapear correctamente el tipo de recordatorio
       let reminderType;
       if (reminder.type === "client24h") {
@@ -181,36 +232,64 @@ class ReminderSystem {
         reminderType = "2h";
       } else {
         // Para otros tipos (como therapist30min), usar tipo por defecto
-        console.log(
-          `⚠️ Tipo de recordatorio ${reminder.type} no es para email, usando fallback`
-        );
+        if (window.logger) {
+          window.logger.debug(
+            `Tipo de recordatorio ${reminder.type} no es para email, usando fallback`
+          );
+        }
         reminderType = "2h";
       }
 
       const emailData = {
-        ...reminder.reservation,
+        clientName: reminder.reservation.clientName,
+        clientEmail: recipient.email,
+        serviceName: reminder.reservation.service,
+        date: reminder.reservation.date,
+        time: reminder.reservation.time,
+        therapistId: "betsabe",
         reminderType: reminderType,
         customMessage: message,
       };
 
-      const success = await window.emailService.sendReminderEmail(
-        emailData,
-        reminderType
-      );
+      if (window.logger) {
+        window.logger.debug("Datos del email configurados correctamente");
+      }
 
-      if (success) {
-        console.log(
-          `✅ Recordatorio ${reminder.type} enviado por EMAIL a ${recipient.email}`
+      try {
+        if (window.logger) {
+          window.logger.debug("Llamando a emailService.sendReminderEmail...");
+        }
+        const success = await window.emailService.sendReminderEmail(
+          emailData,
+          reminderType
         );
-      } else {
-        console.log(`⚠️ Error enviando email, mostrando notificación en UI`);
-        this.showUINotification(reminder, message);
+
+        if (success === true) {
+          if (window.logger) {
+            window.logger.info(
+              `Recordatorio ${reminder.type} enviado por EMAIL a ${recipient.email}`
+            );
+          }
+          return true;
+        } else {
+          if (window.logger) {
+            window.logger.warn(
+              `Error enviando email (resultado: ${success}), usando fallback`
+            );
+          }
+          return false;
+        }
+      } catch (error) {
+        if (window.logger) {
+          window.logger.error("Error en sendReminderEmail:", error);
+        }
+        return false;
       }
     } else {
-      console.log(
-        `⚠️ EmailService no disponible, mostrando notificación en UI`
-      );
-      this.showUINotification(reminder, message);
+      if (window.logger) {
+        window.logger.warn("EmailService no disponible, usando fallback");
+      }
+      return false;
     }
   }
 
@@ -230,17 +309,25 @@ class ReminderSystem {
       );
 
       if (success) {
-        console.log(
-          `✅ Recordatorio ${reminder.type} enviado por WhatsApp a ${recipient.whatsapp}`
-        );
+        if (window.logger) {
+          window.logger.info(
+            `Recordatorio ${reminder.type} enviado por WhatsApp a ${recipient.whatsapp}`
+          );
+        }
       } else {
-        console.log(`⚠️ Error enviando WhatsApp, mostrando notificación en UI`);
+        if (window.logger) {
+          window.logger.warn(
+            "Error enviando WhatsApp, mostrando notificación en UI"
+          );
+        }
         this.showUINotification(reminder, message);
       }
     } else {
-      console.log(
-        `⚠️ CallMeBotService no disponible para terapeuta, mostrando notificación en UI`
-      );
+      if (window.logger) {
+        window.logger.warn(
+          "CallMeBotService no disponible para terapeuta, mostrando notificación en UI"
+        );
+      }
       this.showUINotification(reminder, message);
     }
   }
@@ -362,7 +449,9 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
 
   // Mostrar notificación en UI como fallback
   showUINotification(reminder, message) {
-    console.log("💬 Mostrando notificación en UI:", message);
+    if (window.logger) {
+      window.logger.debug("Mostrando notificación en UI");
+    }
 
     // Si estamos en el panel de terapeuta, mostrar notificación
     if (
@@ -376,13 +465,11 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
     }
   }
 
-  // Enviar por email como fallback
-  sendEmailReminder(reminder, message, recipient) {
-    console.log("📧 Fallback a email (simulado):", {
-      to: recipient.email,
-      subject: "Recordatorio de Cita - Espacio Shanti",
-      message: message,
-    });
+  // Enviar por email como fallback (simulado)
+  sendEmailFallback(reminder, message, recipient) {
+    if (window.logger) {
+      window.logger.debug("Usando fallback de email simulado");
+    }
   }
 
   // Log de recordatorios enviados
@@ -393,6 +480,9 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
       type: reminder.type,
       recipient: reminder.reservation.clientName,
       messageSent: message.substring(0, 100) + "...",
+      // Marcar si es una prueba basado en el ID de reserva
+      isTest:
+        reminder.reservationId && reminder.reservationId.includes("test-"),
     };
 
     // Guardar en localStorage para historial
@@ -416,7 +506,9 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
 
       return new Date(year, month - 1, day, hours, minutes);
     } catch (error) {
-      console.error("Error parseando fecha/hora:", error);
+      if (window.logger) {
+        window.logger.error("Error parseando fecha/hora:", error);
+      }
       return null;
     }
   }
@@ -445,14 +537,53 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
     const logs = JSON.parse(localStorage.getItem("reminderLogs") || "[]");
     const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    const recentLogs = logs.filter(
+    if (window.logger) {
+      window.logger.debug("Calculando estadísticas de recordatorios...");
+    }
+
+    // Filtrar logs reales (no de prueba) para estadísticas precisas
+    // Considerar logs sin isTest como reales (retrocompatibilidad)
+    const realLogs = logs.filter((log) => {
+      const isTest = log.isTest === true;
+      const isTestByReservationId =
+        log.reservationId && log.reservationId.includes("test-");
+      return !isTest && !isTestByReservationId;
+    });
+
+    const recentRealLogs = realLogs.filter(
       (log) => new Date(log.timestamp) > last7Days
     );
 
+    // También contar logs de prueba para diagnóstico
+    const testLogs = logs.filter((log) => {
+      const isTest = log.isTest === true;
+      const isTestByReservationId =
+        log.reservationId && log.reservationId.includes("test-");
+      return isTest || isTestByReservationId;
+    });
+
+    const recentTestLogs = testLogs.filter(
+      (log) => new Date(log.timestamp) > last7Days
+    );
+
+    if (window.logger) {
+      window.logger.debug("Estadísticas de recordatorios:");
+      window.logger.debug(`   - Logs reales (total): ${realLogs.length}`);
+      window.logger.debug(
+        `   - Logs reales (7 días): ${recentRealLogs.length}`
+      );
+      window.logger.debug(`   - Logs de prueba (total): ${testLogs.length}`);
+      window.logger.debug(
+        `   - Logs de prueba (7 días): ${recentTestLogs.length}`
+      );
+      window.logger.debug(`   - Total logs: ${logs.length}`);
+    }
+
     return {
-      totalSent: logs.length,
-      last7Days: recentLogs.length,
-      byType: recentLogs.reduce((acc, log) => {
+      totalSent: realLogs.length,
+      last7Days: recentRealLogs.length,
+      testLogs: recentTestLogs.length,
+      byType: recentRealLogs.reduce((acc, log) => {
         acc[log.type] = (acc[log.type] || 0) + 1;
         return acc;
       }, {}),
@@ -462,7 +593,9 @@ ${reservation.comments ? `📝 *Comentarios:* ${reservation.comments}` : ""}
   // Configuración
   updateConfig(newConfig) {
     this.reminderConfig = { ...this.reminderConfig, ...newConfig };
-    console.log("⚙️ Configuración de recordatorios actualizada");
+    if (window.logger) {
+      window.logger.system("Configuración de recordatorios actualizada");
+    }
   }
 }
 
@@ -496,44 +629,6 @@ if (window.callMeBotService) {
 // Inicializar sistema global
 window.reminderSystem = new ReminderSystem();
 
-// Función de prueba
-window.testReminderSystem = function () {
-  const testReservation = {
-    id: "test-" + Date.now(),
-    clientName: "Fernando Russo",
-    clientPhone: "+5491123456789",
-    clientEmail: "russofg@gmail.com", // Email real para pruebas
-    date: new Date(Date.now() + 60000).toISOString().split("T")[0], // En 1 minuto
-    time: new Date(Date.now() + 60000).toTimeString().slice(0, 5),
-    serviceName: "Reiki de Prueba",
-    therapistId: "betsabe",
-    status: "confirmed",
-  };
-
-  window.reminderSystem.scheduleReminders(testReservation);
-  console.log("🧪 Recordatorio de prueba programado para 1 minuto");
-  console.log("📧 Email de prueba: russofg@gmail.com");
-};
-
-// Función de prueba con recordatorios visibles (cita en 3 horas)
-window.testReminderSystemFull = function () {
-  const futureTime = new Date(Date.now() + 3 * 60 * 60 * 1000); // En 3 horas
-  const testReservation = {
-    id: "test-full-" + Date.now(),
-    clientName: "Fernando Russo",
-    clientPhone: "+5491123456789",
-    clientEmail: "russofg@gmail.com",
-    date: futureTime.toISOString().split("T")[0],
-    time: futureTime.toTimeString().slice(0, 5),
-    serviceName: "Reiki de Prueba Completa",
-    therapistId: "betsabe",
-    status: "confirmed",
-  };
-
-  window.reminderSystem.scheduleReminders(testReservation);
-  console.log("🧪 Recordatorio COMPLETO programado para 3 horas");
-  console.log("📧 Email de prueba: russofg@gmail.com");
-  console.log("⏰ Se programarán recordatorios de 2h y 30min antes");
-};
-
-console.log("✅ Sistema de Recordatorios cargado exitosamente");
+if (window.logger) {
+  window.logger.system("Sistema de Recordatorios cargado exitosamente");
+}

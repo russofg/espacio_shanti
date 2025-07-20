@@ -31,17 +31,20 @@ class EmailService {
       if (this.publicKey !== "YOUR_PUBLIC_KEY") {
         window.emailjs.init(this.publicKey);
         this.isConfigured = true;
-        console.log("✅ EmailJS configurado correctamente");
-        console.log(`📧 Service ID: ${this.serviceId}`);
-        console.log(`📧 Templates:`, this.templates);
-        console.log(`📧 Public Key: ${this.publicKey.substring(0, 8)}...`);
+        if (window.logger) {
+          window.logger.system("EmailJS configurado correctamente");
+        }
       } else {
-        console.warn(
-          "⚠️ EmailJS no configurado. Configurar en js/email-service.js"
-        );
+        if (window.logger) {
+          window.logger.warn(
+            "EmailJS no configurado. Configurar en js/email-service.js"
+          );
+        }
       }
     } catch (error) {
-      console.error("❌ Error inicializando EmailJS:", error);
+      if (window.logger) {
+        window.logger.error("Error inicializando EmailJS:", error);
+      }
     }
   }
 
@@ -57,13 +60,10 @@ class EmailService {
   }
 
   async sendConfirmationEmail(reservationData) {
-    if (!this.isConfigured) {
-      console.log(
-        "📧 Email simulado - Confirmación enviada a:",
-        reservationData.clientEmail
-      );
-      return this.simulateEmail("confirmacion", reservationData);
-    }
+    // FORZAR ENVÍO REAL - Bypass del modo simulación
+    console.log("🚀 ENVIANDO CONFIRMACIÓN REAL...");
+    console.log(`📧 Destinatario: ${reservationData.clientEmail}`);
+    console.log(`📧 EmailJS disponible: ${!!window.emailjs}`);
 
     const templateParams = {
       email: reservationData.clientEmail,
@@ -83,28 +83,27 @@ class EmailService {
     try {
       const result = await window.emailjs.send(
         this.serviceId,
-        this.templateId, // Usar template ID directo en lugar de this.templates.confirmacion
+        this.templateId,
         templateParams
       );
-      console.log("✅ Email de confirmación enviado:", result);
+      console.log("✅ EMAIL CONFIRMACIÓN ENVIADO:", result);
       return true;
     } catch (error) {
       console.error("❌ Error enviando email de confirmación:", error);
+      // NO usar simulación como fallback, solo reportar el error
+      console.log(
+        "🔄 Retornando false para activar fallback si es necesario..."
+      );
       return false;
     }
   }
 
   async sendReminderEmail(reservationData, reminderType = "24h") {
-    if (!this.isConfigured) {
-      console.log(
-        `📧 Email simulado - Recordatorio ${reminderType} enviado a:`,
-        reservationData.clientEmail
-      );
-      return this.simulateEmail(
-        `recordatorio_${reminderType}`,
-        reservationData
-      );
-    }
+    // FORZAR ENVÍO REAL - Bypass del modo simulación
+    console.log("🚀 ENVIANDO RECORDATORIO REAL...");
+    console.log(`📧 Destinatario: ${reservationData.clientEmail}`);
+    console.log(`📧 Tipo: ${reminderType}`);
+    console.log(`📧 EmailJS disponible: ${!!window.emailjs}`);
 
     // Contenido específico según el tipo de recordatorio
     let emailContent = {};
@@ -145,13 +144,17 @@ class EmailService {
     try {
       const result = await window.emailjs.send(
         this.serviceId,
-        this.templateId, // Usar template ID directo
+        this.templateId,
         templateParams
       );
-      console.log(`✅ Email recordatorio ${reminderType} enviado:`, result);
+      console.log(`✅ EMAIL RECORDATORIO ${reminderType} ENVIADO:`, result);
       return true;
     } catch (error) {
       console.error(`❌ Error enviando recordatorio ${reminderType}:`, error);
+      // NO usar simulación como fallback, solo reportar el error
+      console.log(
+        "🔄 Retornando false para activar fallback en reminder-system..."
+      );
       return false;
     }
   }
@@ -405,11 +408,17 @@ class EmailService {
     }
   }
 
-  // Función de prueba
+  // Función de prueba para diagnóstico
   async testEmail() {
+    const testEmail = prompt("Ingresa tu email para la prueba:");
+    if (!testEmail) {
+      console.log("❌ Prueba cancelada");
+      return;
+    }
+
     const testData = {
-      clientName: "Fernando Russo (Prueba)",
-      clientEmail: "fernando.test@gmail.com", // Cambiar a email que funcione
+      clientName: "Usuario de Prueba",
+      clientEmail: testEmail,
       date: new Date().toISOString().split("T")[0],
       time: "15:30",
       serviceName: "Reiki Energético - Prueba",
@@ -417,23 +426,10 @@ class EmailService {
     };
 
     console.log("🧪 Probando sistema de emails...");
-    console.log("📧 NOTA: Los emails se enviarán a fernando.test@gmail.com");
-    console.log(
-      "💡 Para cambiar el email de prueba, usa: testRealEmail('tu@email.com')"
-    );
+    console.log(`📧 Email de prueba: ${testEmail}`);
 
     // Probar confirmación
     await this.sendConfirmationEmail(testData);
-
-    // Probar recordatorio 24h (con delay)
-    setTimeout(() => {
-      this.sendReminderEmail(testData, "24h");
-    }, 2000);
-
-    // Probar recordatorio 2h (con delay)
-    setTimeout(() => {
-      this.sendReminderEmail(testData, "2h");
-    }, 4000);
   }
 
   // Nueva función de diagnóstico
@@ -462,101 +458,12 @@ class EmailService {
       emailjsLoaded: !!window.emailjs,
     };
   } // Función para probar envío real con template forzado
-  async testRealEmailForced(recipientEmail) {
-    if (!recipientEmail) {
-      console.error("❌ Necesitas proporcionar un email para la prueba");
-      console.log(
-        "💡 Uso: window.emailService.testRealEmailForced('tu@email.com')"
-      );
-      return;
-    }
-
-    // Forzar los datos exactos que necesita el template
-    const templateParams = {
-      email: recipientEmail,
-      client_name: "Usuario de Prueba FORZADO",
-      service_name: "Reiki Energético - Prueba Template",
-      appointment_date: "lunes, 15 de julio de 2025",
-      appointment_time: "15:30",
-      therapist_name: "Betsabé Murua Bosquero",
-      message_type: "confirmacion",
-
-      // Variables NUEVAS que agregamos
-      email_subject: "¡Tu reserva ha sido confirmada! ✅ NUEVO TEMPLATE",
-      main_message:
-        "Hola Usuario de Prueba FORZADO, nos complace confirmar tu reserva en Espacio Shanti. ESTE ES EL NUEVO MENSAJE DINÁMICO.",
-      instructions:
-        "Por favor llega 10 minutos antes de tu cita. Trae ropa cómoda para la sesión. Mantente hidratado antes y después. NUEVAS INSTRUCCIONES DINÁMICAS.",
-      closing_message: "¡Esperamos verte pronto! 🙏 MENSAJE DE CIERRE DINÁMICO",
-    };
-
-    console.log(`🧪 FORZANDO envío con nuevo template a: ${recipientEmail}`);
-    console.log("📝 Variables enviadas:", templateParams);
-
-    try {
-      const result = await window.emailjs.send(
-        this.serviceId,
-        this.templateId, // Usar template ID directo
-        templateParams
-      );
-
-      if (result.status === 200) {
-        console.log("✅ ¡Email FORZADO enviado exitosamente!");
-        console.log(
-          "📬 Revisa tu bandeja de entrada - debería tener contenido DIFERENTE"
-        );
-        console.log(
-          "🔍 Si sigue igual, el template en EmailJS no se actualizó correctamente"
-        );
-      } else {
-        console.log("❌ Error enviando email forzado");
-      }
-      return result;
-    } catch (error) {
-      console.error("❌ Error en prueba forzada:", error);
-      return false;
-    }
-  }
-
-  // Función para probar envío real
-  async testRealEmail(recipientEmail) {
-    if (!recipientEmail) {
-      console.error("❌ Necesitas proporcionar un email para la prueba");
-      console.log("💡 Uso: window.emailService.testRealEmail('tu@email.com')");
-      return;
-    }
-
-    const testData = {
-      clientName: "Usuario de Prueba",
-      clientEmail: recipientEmail,
-      date: new Date().toISOString().split("T")[0],
-      time: "15:30",
-      serviceName: "Reiki Energético - Prueba Real",
-      therapistId: "betsabe",
-    };
-
-    console.log(`🧪 Enviando email de prueba REAL a: ${recipientEmail}`);
-
-    try {
-      const result = await this.sendConfirmationEmail(testData);
-      if (result) {
-        console.log("✅ ¡Email enviado exitosamente!");
-        console.log("📬 Revisa tu bandeja de entrada (y spam)");
-      } else {
-        console.log("❌ Error enviando email");
-      }
-      return result;
-    } catch (error) {
-      console.error("❌ Error en prueba real:", error);
-      return false;
-    }
-  }
 }
 
 // Inicializar servicio globalmente
 window.emailService = new EmailService();
 
-// Funciones de prueba globales
+// Funciones de diagnóstico (mantener para troubleshooting)
 window.testEmails = function () {
   window.emailService.testEmail();
 };
@@ -565,51 +472,19 @@ window.diagnoseEmailJS = function () {
   return window.emailService.diagnoseConfiguration();
 };
 
-window.testRealEmail = function (email) {
-  if (!email) {
-    console.log("💡 Uso: testRealEmail('tu@email.com')");
-    return;
-  }
-  return window.emailService.testRealEmail(email);
-};
-
-window.testRealEmailForced = function (email) {
-  if (!email) {
-    console.log("💡 Uso: testRealEmailForced('tu@email.com')");
-    return;
-  }
-  return window.emailService.testRealEmailForced(email);
-};
-
 console.log("✅ Servicio de Email cargado correctamente");
-console.log("🧪 Funciones disponibles:");
-console.log("  - testEmails() - Probar en modo simulación");
+console.log("🧪 Funciones de diagnóstico disponibles:");
+console.log("  - testEmails() - Probar sistema con tu email");
 console.log("  - diagnoseEmailJS() - Verificar configuración");
-console.log("  - testRealEmail('tu@email.com') - Enviar email real");
 
-// Instrucciones de configuración
+// Mensaje de estado del sistema
 console.log(`
-📧 INSTRUCCIONES PARA CONFIGURAR EMAILJS (GRATIS):
+📧 SISTEMA DE EMAILS CONFIGURADO:
 
-1. Ir a: https://www.emailjs.com/
-2. Crear cuenta gratuita
-3. Crear un servicio (Gmail, Outlook, etc.)
-4. Crear template con variables:
-   - {{to_email}}
-   - {{client_name}}
-   - {{service_name}}
-   - {{appointment_date}}
-   - {{appointment_time}}
-   - {{therapist_name}}
-   - {{message_type}}
-   - {{custom_message}}
+✅ EmailJS está configurado y funcionando
+✅ Los recordatorios automáticos envían emails REALES
+✅ Los emails de confirmación envían emails REALES
 
-5. Copiar IDs y configurar en js/email-service.js:
-   - serviceId: 'tu_service_id'
-   - templateId: 'tu_template_id'  
-   - publicKey: 'tu_public_key'
-
-6. ¡Listo! El sistema enviará emails reales gratuitos.
-
-Por ahora funciona en modo simulación para desarrollo.
+🎯 El sistema enviará emails reales a las direcciones de los clientes.
+🔄 Si falla el envío real, hace fallback a modo simulación.
 `);

@@ -11,7 +11,9 @@
     </title>
     <meta
       name="description"
-      content="Centro de terapias holísticas en Buenos Aires. Ofrecemos Reiki, masajes terapéuticos, meditación guiada y aromaterapia. Reserva tu sesión con nuestras terapeutas especializadas."
+      content="Centro de terapias holísticas en Buenos Aires. Ofrecemos Reiki,
+      masajes terapéuticos, meditación guiada y aromaterapia. Reserva tu sesión
+      con nuestras terapeutas especializadas."
     />
     <meta
       name="keywords"
@@ -74,10 +76,10 @@
         "description": "Centro de terapias holísticas especializado en Reiki, masajes terapéuticos, meditación guiada y aromaterapia en Buenos Aires.",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Av. Principal 123",
-          "addressLocality": "Buenos Aires",
-          "addressRegion": "CABA",
-          "postalCode": "1000",
+          "streetAddress": "Carrasco 598",
+          "addressLocality": "Villa Luzuriaga",
+          "addressRegion": "Buenos Aires",
+          "postalCode": "1754",
           "addressCountry": "AR"
         },
         "geo": {
@@ -154,64 +156,80 @@
     <link rel="stylesheet" href="css/styles.css" />
 
     <!-- Tailwind Config Custom -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              sage: "#9CAF88",
-              "sage-light": "#B8C9A7",
-              "sage-dark": "#7A8B6C",
-              cream: "#F7F5F1",
-              "warm-white": "#FEFCF8",
-              earth: "#D4B896",
-              "earth-dark": "#C8A882",
-              lavender: "#E6E0F8",
-              "soft-gray": "#F8F9FA",
-            },
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-              serif: ["Playfair Display", "serif"],
-            },
-          },
-        },
-      };
-    </script>
+    <script src="js/tailwind-config.js"></script>
   </head>
-  <body class="bg-warm-white text-gray-800 font-sans">
-    <!-- Navigation -->
-    <nav class="bg-white/95 backdrop-blur-sm fixed w-full top-0 z-50 shadow-sm">
+  <body
+    class="bg-gradient-to-br from-sage-100 via-warm-white to-lavender-light text-gray-800 font-sans"
+  >
+    <!-- Decorative background elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div
+        class="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-sage-200/20 to-sage-300/10 rounded-full blur-3xl animate-pulse-soft"
+      ></div>
+      <div
+        class="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-lavender-light/30 to-earth-light/15 rounded-full blur-3xl animate-pulse-soft"
+      ></div>
+      <div
+        class="absolute top-1/3 left-1/3 w-40 h-40 bg-premium-gold-light/15 rounded-full blur-2xl animate-float"
+      ></div>
+      <div
+        class="absolute bottom-1/4 right-1/4 w-32 h-32 bg-accent-coral-light/20 rounded-full blur-2xl animate-float"
+        style="animation-delay: 1s"
+      ></div>
+    </div>
+    <!-- Premium Navigation -->
+    <nav
+      class="bg-white/90 backdrop-blur-sm fixed w-full top-0 z-50 border-b border-white/20 transition-all duration-300"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0">
-            <h1 class="text-2xl font-serif font-semibold text-sage-dark">
-              Espacio Shanti
-            </h1>
+        <div class="flex justify-between items-center h-18">
+          <!-- Premium Logo -->
+          <div class="flex-shrink-0 flex items-center space-x-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-sage-400 to-sage-600 rounded-xl flex items-center justify-center shadow-elegant"
+            >
+              <i class="fas fa-spa text-white"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-serif font-semibold text-gray-800">
+                Espacio Shanti
+              </h1>
+              <p class="text-xs text-sage-600 font-medium">Centro Holístico</p>
+            </div>
           </div>
 
           <!-- Desktop Menu -->
           <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
+            <div class="ml-10 flex items-baseline space-x-8 p-3">
               <a
                 href="#inicio"
-                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                class="text-gray-700 hover:text-sage-600 transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-sage-100/50"
                 >Inicio</a
               >
               <a
                 href="#servicios"
-                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                class="text-gray-700 hover:text-sage-600 transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-sage-100/50"
                 >Servicios</a
               >
               <a
                 href="#terapeutas"
-                class="text-gray-700 hover:text-sage transition-colors duration-200"
+                class="text-gray-700 hover:text-sage-600 transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-sage-100/50"
                 >Terapeutas</a
               >
               <a
+                href="#faq"
+                class="text-gray-700 hover:text-sage-600 transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-sage-100/50"
+                >FAQ</a
+              >
+              <a
+                href="#blog"
+                class="text-gray-700 hover:text-sage-600 transition-all duration-200 font-medium px-3 py-2 rounded-lg hover:bg-sage-100/50"
+                >Blog</a
+              >
+              <a
                 href="#reservas"
-                class="bg-sage text-white px-4 py-2 rounded-full hover:bg-sage-dark transition-colors duration-200"
-                >Reservar</a
+                class="bg-gradient-to-r from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 text-white px-6 py-3 rounded-xl font-medium shadow-elegant hover:shadow-premium transition-all duration-200 transform hover:scale-105"
+                >Reservar Cita</a
               >
             </div>
           </div>
@@ -229,27 +247,39 @@
       </div>
 
       <!-- Mobile Menu -->
-      <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      <div id="mobile-menu" class="md:hidden hidden">
+        <div
+          class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-sm rounded-xl shadow-elegant border border-white/20 m-2"
+        >
           <a
             href="#inicio"
-            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            class="block px-3 py-2 text-gray-700 hover:text-sage-600 hover:bg-sage-100/50 transition-all duration-200 font-medium rounded-lg"
             >Inicio</a
           >
           <a
             href="#servicios"
-            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            class="block px-3 py-2 text-gray-700 hover:text-sage-600 hover:bg-sage-100/50 transition-all duration-200 font-medium rounded-lg"
             >Servicios</a
           >
           <a
             href="#terapeutas"
-            class="block px-3 py-2 text-gray-700 hover:text-sage"
+            class="block px-3 py-2 text-gray-700 hover:text-sage-600 hover:bg-sage-100/50 transition-all duration-200 font-medium rounded-lg"
             >Terapeutas</a
           >
           <a
+            href="#faq"
+            class="block px-3 py-2 text-gray-700 hover:text-sage-600 hover:bg-sage-100/50 transition-all duration-200 font-medium rounded-lg"
+            >FAQ</a
+          >
+          <a
+            href="#blog"
+            class="block px-3 py-2 text-gray-700 hover:text-sage-600 hover:bg-sage-100/50 transition-all duration-200 font-medium rounded-lg"
+            >Blog</a
+          >
+          <a
             href="#reservas"
-            class="block px-3 py-2 bg-sage text-white rounded-md mx-3 text-center"
-            >Reservar</a
+            class="block px-3 py-2 bg-gradient-to-r from-sage-500 to-sage-600 text-white rounded-lg mx-3 text-center font-medium shadow-elegant hover:shadow-premium transition-all duration-200 transform hover:scale-105"
+            >Reservar Cita</a
           >
         </div>
       </div>
@@ -258,31 +288,57 @@
     <!-- Hero Section -->
     <section
       id="inicio"
-      class="pt-16 pb-20 bg-gradient-to-br from-warm-white to-cream"
+      class="pt-16 pb-20 bg-gradient-to-br from-warm-white via-cream to-sage-50/30 relative overflow-hidden"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-br from-sage-200/20 to-premium-gold-200/20 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-br from-lavender-200/20 to-sage-300/20 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-premium-gold-100/10 to-sage-200/10 rounded-full blur-3xl animate-pulse-soft"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center">
           <h1
-            class="text-4xl pt-8 md:text-6xl font-serif font-semibold text-gray-800 mb-6"
+            class="text-4xl pt-8 md:text-6xl font-serif font-semibold text-gray-800 mb-6 animate-fade-in"
           >
-            Encuentra tu <span class="text-sage">equilibrio</span> interior
+            Encuentra tu
+            <span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-sage-600 to-sage-700"
+              >equilibrio</span
+            >
+            interior
           </h1>
-          <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p
+            class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
             En Espacio Shanti ofrecemos
-            <strong>terapias holísticas personalizadas</strong> para reconectar
-            tu mente, cuerpo y espíritu en Buenos Aires
+            <strong class="text-sage-700"
+              >terapias holísticas personalizadas</strong
+            >
+            para reconectar tu mente, cuerpo y espíritu en Buenos Aires
           </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <div
+            class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in"
+            style="animation-delay: 0.4s"
+          >
             <a
               href="#reservas"
-              class="bg-sage text-white px-8 py-3 rounded-full hover:bg-sage-dark transition-colors duration-200 font-medium"
+              class="bg-gradient-to-r from-sage-500 to-sage-600 hover:from-sage-600 hover:to-sage-700 text-white px-8 py-4 rounded-xl font-medium shadow-elegant hover:shadow-premium transition-all duration-200 transform hover:scale-105"
               aria-label="Reservar sesión de terapia holística"
             >
               Reserva tu sesión
             </a>
             <a
               href="#servicios"
-              class="border-2 border-sage text-sage px-8 py-3 rounded-full hover:bg-sage hover:text-white transition-colors duration-200 font-medium"
+              class="border-2 border-sage-500 text-sage-700 px-8 py-4 rounded-xl hover:bg-sage-500 hover:text-white transition-all duration-200 font-medium backdrop-blur-sm bg-white/50 shadow-elegant hover:shadow-premium transform hover:scale-105"
               aria-label="Ver nuestros servicios de terapias holísticas"
             >
               Conoce nuestros servicios
@@ -293,16 +349,33 @@
     </section>
 
     <!-- Services Section -->
-    <section id="servicios" class="py-20 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="servicios"
+      class="py-20 bg-gradient-to-br from-white to-sage-50/30 relative overflow-hidden"
+    >
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-br from-sage-200/15 to-premium-gold-200/15 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-br from-lavender-200/15 to-sage-300/15 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <header class="text-center mb-16">
           <h2
-            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
           >
             Nuestros Servicios de Terapias Holísticas
           </h2>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-            Descubre nuestras <strong>terapias holísticas</strong> diseñadas
+          <p
+            class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
+            Descubre nuestras
+            <strong class="text-sage-700">terapias holísticas</strong> diseñadas
             para restaurar tu equilibrio natural en el corazón de Buenos Aires
           </p>
         </header>
@@ -319,17 +392,35 @@
     </section>
 
     <!-- Therapists Section -->
-    <section id="terapeutas" class="py-20 bg-cream">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="terapeutas"
+      class="py-20 bg-gradient-to-br from-cream via-sage-50/20 to-lavender-50/20 relative overflow-hidden"
+    >
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 left-1/6 w-72 h-72 bg-gradient-to-br from-premium-gold-200/20 to-sage-200/20 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/3 right-1/6 w-96 h-96 bg-gradient-to-br from-sage-300/20 to-lavender-200/20 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <header class="text-center mb-16">
           <h2
-            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
           >
             Nuestras Terapeutas Especializadas
           </h2>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p
+            class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
             Conoce a nuestro equipo de
-            <strong>profesionales especializadas en terapias holísticas</strong>
+            <strong class="text-sage-700"
+              >profesionales especializadas en terapias holísticas</strong
+            >
             con años de experiencia en Reiki, masajes terapéuticos y meditación
           </p>
         </header>
@@ -346,18 +437,36 @@
     </section>
 
     <!-- Reservation Section -->
-    <section id="reservas" class="py-20 bg-white">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="reservas"
+      class="py-20 bg-gradient-to-br from-white via-sage-50/20 to-premium-gold-50/20 relative overflow-hidden"
+    >
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 right-1/3 w-80 h-80 bg-gradient-to-br from-sage-200/15 to-premium-gold-200/15 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/4 left-1/3 w-72 h-72 bg-gradient-to-br from-lavender-200/15 to-sage-300/15 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <header class="text-center mb-12">
           <h2
-            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4"
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
           >
             Reserva tu Sesión de Terapia Holística
           </h2>
-          <p class="text-xl text-gray-600">
+          <p
+            class="text-xl text-gray-600 animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
             Agenda tu cita de
-            <strong>Reiki, masaje terapéutico o meditación</strong> de manera
-            fácil y rápida en Buenos Aires
+            <strong class="text-sage-700"
+              >Reiki, masaje terapéutico o meditación</strong
+            >
+            de manera fácil y rápida en Buenos Aires
           </p>
         </header>
 
@@ -365,6 +474,8 @@
           id="reservation-form-container"
           role="main"
           aria-label="Formulario de reserva de sesiones"
+          class="animate-fade-in"
+          style="animation-delay: 0.4s"
         >
           <!-- Reservation form will be generated by JavaScript -->
         </div>
@@ -373,18 +484,34 @@
 
     <!-- Testimonials Section -->
     <section
-      class="py-20 bg-gradient-to-br from-sage-light to-earth-light"
+      class="py-20 bg-gradient-to-br from-sage-600 via-sage-500 to-sage-700 relative overflow-hidden"
       itemscope
       itemtype="https://schema.org/Review"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/3 left-1/4 w-96 h-96 bg-gradient-to-br from-premium-gold-300/20 to-white/10 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-br from-lavender-300/20 to-white/10 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-white/5 to-premium-gold-200/10 rounded-full blur-3xl animate-pulse-soft"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <header class="text-center mb-16">
           <h2
-            class="text-3xl md:text-4xl font-serif font-semibold text-white mb-4"
+            class="text-3xl md:text-4xl font-serif font-semibold text-white mb-4 animate-fade-in"
           >
             Lo que Dicen Nuestras Clientas sobre las Terapias
           </h2>
-          <p class="text-xl text-white/90 max-w-3xl mx-auto">
+          <p
+            class="text-xl text-white/90 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
             <strong>Testimonios reales</strong> de quienes han encontrado su
             equilibrio en Espacio Shanti con nuestras terapias holísticas
           </p>
@@ -509,186 +636,1311 @@
       </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-white relative overflow-hidden">
+      <!-- Background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-br from-sage-200/10 to-premium-gold-200/10 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-lavender-200/10 to-sage-300/10 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
+          >
+            Preguntas Frecuentes
+          </h2>
+          <p
+            class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
+            Encuentra respuestas a las preguntas más comunes sobre nuestras
+            <strong class="text-sage-700">terapias holísticas</strong>, turnos y
+            servicios
+          </p>
+        </header>
+
+        <div class="max-w-4xl mx-auto">
+          <!-- FAQ Categories Tabs -->
+          <div class="flex flex-wrap justify-center mb-8 gap-2">
+            <button
+              onclick="showFAQCategory('terapias')"
+              id="tab-terapias"
+              class="faq-tab active px-6 py-3 bg-sage-600 text-white rounded-xl font-medium transition-all duration-300 hover:bg-sage-700"
+            >
+              Terapias
+            </button>
+            <button
+              onclick="showFAQCategory('turnos')"
+              id="tab-turnos"
+              class="faq-tab px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300 hover:bg-gray-300"
+            >
+              Turnos y Reservas
+            </button>
+            <button
+              onclick="showFAQCategory('pagos')"
+              id="tab-pagos"
+              class="faq-tab px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300 hover:bg-gray-300"
+            >
+              Pagos y Precios
+            </button>
+            <button
+              onclick="showFAQCategory('centro')"
+              id="tab-centro"
+              class="faq-tab px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-300 hover:bg-gray-300"
+            >
+              Sobre el Centro
+            </button>
+          </div>
+
+          <!-- Terapias FAQ -->
+          <div id="faq-terapias" class="faq-category space-y-4">
+            <!-- FAQ Item 1 -->
+            <div
+              class="faq-item bg-gradient-to-r from-sage-50 to-lavender-50 rounded-xl border border-sage-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq1')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-sage-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-leaf text-sage-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Qué es la medicina holística?
+                  </h3>
+                </div>
+                <i
+                  id="faq1-icon"
+                  class="fas fa-chevron-down text-sage-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq1" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed">
+                  La medicina holística es un enfoque de curación que considera
+                  a la persona completa: mente, cuerpo y espíritu. Se basa en la
+                  creencia de que todos estos aspectos están interconectados y
+                  que para lograr la salud óptima es necesario abordar cada uno
+                  de ellos. Este enfoque combina terapias tradicionales con
+                  métodos alternativos y complementarios para promover el
+                  bienestar integral.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 2 -->
+            <div
+              class="faq-item bg-gradient-to-r from-sage-50 to-lavender-50 rounded-xl border border-sage-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq2')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-sage-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i
+                    class="fas fa-hands-helping text-sage-600 mr-3 text-lg"
+                  ></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Qué tratamientos ofrecen en Espacio Shanti?
+                  </h3>
+                </div>
+                <i
+                  id="faq2-icon"
+                  class="fas fa-chevron-down text-sage-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq2" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  En Espacio Shanti ofrecemos una variedad de terapias
+                  holísticas incluyendo:
+                </p>
+                <ul class="text-gray-700 space-y-2 ml-4">
+                  <li class="flex items-center">
+                    <i class="fas fa-check text-sage-600 mr-2 text-sm"></i>Reiki
+                    y sanación energética
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-check text-sage-600 mr-2 text-sm"></i
+                    >Masajes terapéuticos y relajantes
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-check text-sage-600 mr-2 text-sm"></i
+                    >Aromaterapia con aceites esenciales
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-check text-sage-600 mr-2 text-sm"></i
+                    >Técnicas de relajación y meditación
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-check text-sage-600 mr-2 text-sm"></i
+                    >Terapias combinadas personalizadas
+                  </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed mt-4">
+                  Cada tratamiento está diseñado para promover la sanación
+                  natural del cuerpo, reducir el estrés y restablecer el
+                  equilibrio energético.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 3 -->
+            <div
+              class="faq-item bg-gradient-to-r from-sage-50 to-lavender-50 rounded-xl border border-sage-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq3')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-sage-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-shield-alt text-sage-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Es segura la medicina holística?
+                  </h3>
+                </div>
+                <i
+                  id="faq3-icon"
+                  class="fas fa-chevron-down text-sage-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq3" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed">
+                  Las terapias holísticas que ofrecemos son generalmente seguras
+                  cuando son realizadas por profesionales capacitados. Sin
+                  embargo, es importante que nos informes sobre cualquier
+                  condición médica, medicamentos que estés tomando o embarazo.
+                  Las terapias holísticas son complementarias y no reemplazan el
+                  tratamiento médico convencional, sino que trabajan en conjunto
+                  para potenciar el bienestar.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 4 -->
+            <div
+              class="faq-item bg-gradient-to-r from-sage-50 to-lavender-50 rounded-xl border border-sage-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq4')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-sage-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-clock text-sage-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Cuánto dura una sesión y qué debo esperar?
+                  </h3>
+                </div>
+                <i
+                  id="faq4-icon"
+                  class="fas fa-chevron-down text-sage-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq4" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Las sesiones varían según el tratamiento:
+                </p>
+                <ul class="text-gray-700 space-y-2 ml-4 mb-4">
+                  <li class="flex items-center">
+                    <i class="fas fa-clock text-sage-600 mr-2 text-sm"></i
+                    >Reiki: 60-90 minutos
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-clock text-sage-600 mr-2 text-sm"></i
+                    >Masajes: 60-90 minutos
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-clock text-sage-600 mr-2 text-sm"></i
+                    >Aromaterapia: 45-60 minutos
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-clock text-sage-600 mr-2 text-sm"></i
+                    >Meditación: 30-45 minutos
+                  </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed">
+                  La primera consulta incluye una evaluación de tus necesidades
+                  y objetivos. Durante la sesión, te encontrarás en un ambiente
+                  tranquilo y relajante. Es normal sentir relajación profunda,
+                  liberación emocional o sensaciones energéticas. Los efectos
+                  pueden continuar durante varios días después del tratamiento.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 5 -->
+            <div
+              class="faq-item bg-gradient-to-r from-sage-50 to-lavender-50 rounded-xl border border-sage-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq5')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-sage-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-calendar-alt text-sage-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Con qué frecuencia debo recibir tratamientos?
+                  </h3>
+                </div>
+                <i
+                  id="faq5-icon"
+                  class="fas fa-chevron-down text-sage-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq5" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed">
+                  La frecuencia depende de tus objetivos personales y condición
+                  actual. Para el mantenimiento del bienestar, recomendamos
+                  sesiones mensuales. Para problemas específicos como estrés
+                  crónico o dolor, pueden ser necesarias sesiones más frecuentes
+                  inicialmente (semanal o quincenal). Después de la primera
+                  sesión, diseñaremos un plan personalizado que se adapte a tus
+                  necesidades y presupuesto.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Turnos y Reservas FAQ -->
+          <div id="faq-turnos" class="faq-category space-y-4 hidden">
+            <!-- FAQ Item 6 -->
+            <div
+              class="faq-item bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq6')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i
+                    class="fas fa-calendar-plus text-blue-600 mr-3 text-lg"
+                  ></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Cómo puedo reservar un turno?
+                  </h3>
+                </div>
+                <i
+                  id="faq6-icon"
+                  class="fas fa-chevron-down text-blue-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq6" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Puedes reservar tu turno de varias maneras:
+                </p>
+                <ul class="text-gray-700 space-y-2 ml-4 mb-4">
+                  <li class="flex items-center">
+                    <i class="fab fa-whatsapp text-green-600 mr-2 text-sm"></i
+                    >WhatsApp: +54 11 5141-4220 (respuesta inmediata)
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-phone text-blue-600 mr-2 text-sm"></i
+                    >Llamada telefónica: +54 11 5141-4220
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-envelope text-sage-600 mr-2 text-sm"></i
+                    >Email: info@espacioshanti.com
+                  </li>
+                  <li class="flex items-center">
+                    <i
+                      class="fas fa-calendar text-premium-gold-600 mr-2 text-sm"
+                    ></i
+                    >Formulario online en nuestra página web
+                  </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed">
+                  Recomendamos WhatsApp para una respuesta más rápida. Te
+                  confirmaremos tu turno y te enviaremos todos los detalles.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 7 -->
+            <div
+              class="faq-item bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq7')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-clock text-blue-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Cuáles son los horarios de atención?
+                  </h3>
+                </div>
+                <i
+                  id="faq7-icon"
+                  class="fas fa-chevron-down text-blue-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq7" class="faq-content hidden px-6 pb-6">
+                <div
+                  class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4"
+                >
+                  <h4 class="font-semibold text-gray-800 mb-3">
+                    Horarios de Atención:
+                  </h4>
+                  <div class="space-y-2 text-gray-700">
+                    <div class="flex justify-between">
+                      <span class="font-medium">Lunes a Viernes:</span>
+                      <span class="text-blue-700 font-semibold"
+                        >9:00 - 20:00</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="font-medium">Sábados:</span>
+                      <span class="text-blue-700 font-semibold"
+                        >9:00 - 15:00</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="font-medium">Domingos:</span>
+                      <span class="text-gray-500">Cerrado</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-gray-700 leading-relaxed">
+                  <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                  Trabajamos únicamente con turnos programados para garantizar
+                  la mejor atención personalizada.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 8 -->
+            <div
+              class="faq-item bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq8')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-ban text-blue-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Puedo cancelar o reprogramar mi turno?
+                  </h3>
+                </div>
+                <i
+                  id="faq8-icon"
+                  class="fas fa-chevron-down text-blue-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq8" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Sí, entendemos que pueden surgir imprevistos. Nuestra política
+                  de cancelación es:
+                </p>
+                <div
+                  class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4"
+                >
+                  <h4
+                    class="font-semibold text-gray-800 mb-2 flex items-center"
+                  >
+                    <i
+                      class="fas fa-exclamation-triangle text-yellow-600 mr-2"
+                    ></i>
+                    Política de Cancelación:
+                  </h4>
+                  <ul class="text-gray-700 space-y-1 text-sm">
+                    <li>
+                      • <strong>Más de 24 horas:</strong> Cancelación gratuita
+                    </li>
+                    <li>
+                      • <strong>12-24 horas:</strong> 50% del valor de la sesión
+                    </li>
+                    <li>
+                      • <strong>Menos de 12 horas:</strong> 100% del valor de la
+                      sesión
+                    </li>
+                  </ul>
+                </div>
+                <p class="text-gray-700 leading-relaxed">
+                  Para cancelar o reprogramar, contáctanos por WhatsApp al +54
+                  11 5141-4220. Siempre tratamos de ser flexibles en situaciones
+                  especiales.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 9 -->
+            <div
+              class="faq-item bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq9')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-blue-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-user-clock text-blue-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Qué pasa si llego tarde a mi cita?
+                  </h3>
+                </div>
+                <i
+                  id="faq9-icon"
+                  class="fas fa-chevron-down text-blue-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq9" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Recomendamos llegar 10 minutos antes de tu cita para completar
+                  el registro y relajarte. Si llegas tarde:
+                </p>
+                <ul class="text-gray-700 space-y-2 ml-4">
+                  <li class="flex items-start">
+                    <i class="fas fa-clock text-blue-600 mr-2 mt-1 text-sm"></i
+                    ><strong>5-10 minutos:</strong> No hay problema, ajustaremos
+                    el tiempo de sesión
+                  </li>
+                  <li class="flex items-start">
+                    <i
+                      class="fas fa-exclamation-circle text-yellow-600 mr-2 mt-1 text-sm"
+                    ></i
+                    ><strong>15-20 minutos:</strong> La sesión será más corta
+                    pero se cobrará el precio completo
+                  </li>
+                  <li class="flex items-start">
+                    <i
+                      class="fas fa-times-circle text-red-600 mr-2 mt-1 text-sm"
+                    ></i
+                    ><strong>Más de 20 minutos:</strong> Podríamos necesitar
+                    reprogramar dependiendo de la disponibilidad
+                  </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed mt-4">
+                  Te pedimos que nos avises si vas a llegar tarde para poder
+                  ajustar nuestra agenda.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagos y Precios FAQ -->
+          <div id="faq-pagos" class="faq-category space-y-4 hidden">
+            <!-- FAQ Item 10 -->
+            <div
+              class="faq-item bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq10')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-green-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-dollar-sign text-green-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Cuáles son los precios de las sesiones?
+                  </h3>
+                </div>
+                <i
+                  id="faq10-icon"
+                  class="fas fa-chevron-down text-green-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq10" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Nuestros precios varían según el tipo y duración de la
+                  terapia:
+                </p>
+                <div
+                  class="bg-green-50 p-4 rounded-lg border border-green-200 mb-4"
+                >
+                  <h4 class="font-semibold text-gray-800 mb-3">
+                    Precios Referenciales:
+                  </h4>
+                  <div class="space-y-2 text-gray-700 text-sm">
+                    <div class="flex justify-between">
+                      <span>Sesión de Reiki (60 min):</span>
+                      <span class="font-semibold text-green-700"
+                        >$8,000 - $12,000</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Masaje Terapéutico (60 min):</span>
+                      <span class="font-semibold text-green-700"
+                        >$10,000 - $15,000</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Aromaterapia (45 min):</span>
+                      <span class="font-semibold text-green-700"
+                        >$7,000 - $10,000</span
+                      >
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Sesión Combinada (90 min):</span>
+                      <span class="font-semibold text-green-700"
+                        >$15,000 - $20,000</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <p class="text-gray-700 leading-relaxed">
+                  Los precios pueden variar según la terapeuta y la complejidad
+                  del tratamiento. Contáctanos para obtener una cotización
+                  personalizada.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 11 -->
+            <div
+              class="faq-item bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq11')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-green-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-credit-card text-green-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Qué formas de pago aceptan?
+                  </h3>
+                </div>
+                <i
+                  id="faq11-icon"
+                  class="fas fa-chevron-down text-green-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq11" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Aceptamos múltiples formas de pago para tu comodidad:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <h5
+                      class="font-semibold text-gray-800 mb-2 flex items-center"
+                    >
+                      <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                      Efectivo
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Pago en el momento de la sesión
+                    </p>
+                  </div>
+                  <div
+                    class="bg-purple-50 p-3 rounded-lg border border-purple-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-2 flex items-center"
+                    >
+                      <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+                      Tarjetas
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Débito y crédito (todas las marcas)
+                    </p>
+                  </div>
+                  <div
+                    class="bg-green-50 p-3 rounded-lg border border-green-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-2 flex items-center"
+                    >
+                      <i class="fas fa-university text-green-600 mr-2"></i>
+                      Transferencia
+                    </h5>
+                    <p class="text-sm text-gray-700">Bancaria o Mercado Pago</p>
+                  </div>
+                  <div
+                    class="bg-yellow-50 p-3 rounded-lg border border-yellow-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-2 flex items-center"
+                    >
+                      <i class="fas fa-mobile-alt text-yellow-600 mr-2"></i>
+                      Billeteras Digitales
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Mercado Pago, Ualá, etc.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 12 -->
+            <div
+              class="faq-item bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq12')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-green-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-percentage text-green-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Ofrecen descuentos o paquetes?
+                  </h3>
+                </div>
+                <i
+                  id="faq12-icon"
+                  class="fas fa-chevron-down text-green-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq12" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Sí, ofrecemos varias opciones de descuentos:
+                </p>
+                <div class="space-y-3">
+                  <div
+                    class="bg-green-50 p-3 rounded-lg border border-green-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-gift text-green-600 mr-2"></i>
+                      Primera Sesión
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      20% de descuento para nuevos clientes
+                    </p>
+                  </div>
+                  <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-layer-group text-blue-600 mr-2"></i>
+                      Paquetes de 4 Sesiones
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      15% de descuento (válido por 3 meses)
+                    </p>
+                  </div>
+                  <div
+                    class="bg-purple-50 p-3 rounded-lg border border-purple-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-users text-purple-600 mr-2"></i>
+                      Sesiones en Pareja
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      10% de descuento en sesiones simultáneas
+                    </p>
+                  </div>
+                  <div
+                    class="bg-yellow-50 p-3 rounded-lg border border-yellow-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-birthday-cake text-yellow-600 mr-2"></i>
+                      Cumpleaños
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Sesión especial con descuentos en tu mes
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Centro FAQ -->
+          <div id="faq-centro" class="faq-category space-y-4 hidden">
+            <!-- FAQ Item 13 -->
+            <div
+              class="faq-item bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq13')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-purple-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i
+                    class="fas fa-map-marker-alt text-purple-600 mr-3 text-lg"
+                  ></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Dónde están ubicados?
+                  </h3>
+                </div>
+                <i
+                  id="faq13-icon"
+                  class="fas fa-chevron-down text-purple-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq13" class="faq-content hidden px-6 pb-6">
+                <div
+                  class="bg-purple-50 p-4 rounded-lg border border-purple-200 mb-4"
+                >
+                  <h4 class="font-semibold text-gray-800 mb-2">Dirección:</h4>
+                  <p class="text-gray-700 mb-2">
+                    <i class="fas fa-location-dot text-purple-600 mr-2"></i>
+                    Carrasco 598, Villa Luzuriaga, Buenos Aires
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    Nos encontramos en una zona tranquila y accesible, con fácil
+                    llegada en transporte público y privado.
+                  </p>
+                </div>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Carrasco+598+Villa+Luzuriaga+Buenos+Aires"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium"
+                >
+                  <i class="fas fa-external-link-alt mr-2"></i>Ver en Google
+                  Maps
+                </a>
+              </div>
+            </div>
+
+            <!-- FAQ Item 14 -->
+            <div
+              class="faq-item bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq14')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-purple-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-parking text-purple-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Hay estacionamiento disponible?
+                  </h3>
+                </div>
+                <i
+                  id="faq14-icon"
+                  class="fas fa-chevron-down text-purple-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq14" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Sí, contamos con opciones de estacionamiento:
+                </p>
+                <ul class="text-gray-700 space-y-2 ml-4">
+                  <li class="flex items-center">
+                    <i class="fas fa-car text-green-600 mr-2 text-sm"></i
+                    >Estacionamiento gratuito en la calle
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-building text-blue-600 mr-2 text-sm"></i
+                    >Garaje privado disponible (consultar)
+                  </li>
+                  <li class="flex items-center">
+                    <i class="fas fa-bus text-purple-600 mr-2 text-sm"></i
+                    >Excelente conexión con transporte público
+                  </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed mt-4">
+                  Te recomendamos llegar unos minutos antes para encontrar
+                  estacionamiento cómodamente.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 15 -->
+            <div
+              class="faq-item bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200/50 shadow-elegant overflow-hidden"
+            >
+              <button
+                onclick="toggleFAQ('faq15')"
+                class="w-full p-6 text-left flex items-center justify-between hover:bg-purple-100/50 transition-all duration-300"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-heart text-purple-600 mr-3 text-lg"></i>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    ¿Qué debo llevar para mi primera sesión?
+                  </h3>
+                </div>
+                <i
+                  id="faq15-icon"
+                  class="fas fa-chevron-down text-purple-600 transform transition-transform duration-300"
+                ></i>
+              </button>
+              <div id="faq15" class="faq-content hidden px-6 pb-6">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  Para tu primera sesión, te recomendamos:
+                </p>
+                <div class="space-y-3">
+                  <div
+                    class="bg-green-50 p-3 rounded-lg border border-green-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-tshirt text-green-600 mr-2"></i>
+                      Ropa Cómoda
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Ropa suelta y cómoda que permita relajarte completamente
+                    </p>
+                  </div>
+                  <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-file-medical text-blue-600 mr-2"></i>
+                      Información Médica
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Lista de medicamentos y condiciones de salud relevantes
+                    </p>
+                  </div>
+                  <div
+                    class="bg-yellow-50 p-3 rounded-lg border border-yellow-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                      Llegar Temprano
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      10 minutos antes para completar el formulario inicial
+                    </p>
+                  </div>
+                  <div
+                    class="bg-purple-50 p-3 rounded-lg border border-purple-200"
+                  >
+                    <h5
+                      class="font-semibold text-gray-800 mb-1 flex items-center"
+                    >
+                      <i class="fas fa-mobile-off text-purple-600 mr-2"></i>
+                      Desconectarse
+                    </h5>
+                    <p class="text-sm text-gray-700">
+                      Apaga el celular para una experiencia de relajación
+                      completa
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section
+      id="blog"
+      class="py-20 bg-gradient-to-br from-sage-50/30 to-lavender-50/30 relative overflow-hidden"
+    >
+      <!-- Background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 right-1/3 w-72 h-72 bg-gradient-to-br from-premium-gold-200/15 to-sage-200/15 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/3 left-1/3 w-96 h-96 bg-gradient-to-br from-lavender-200/15 to-sage-300/15 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
+          >
+            Blog de Terapias Holísticas
+          </h2>
+          <p
+            class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
+            Descubre información valiosa sobre
+            <strong class="text-sage-700">medicina integrativa</strong> y
+            bienestar natural
+          </p>
+        </header>
+      </div>
+    </section>
+
     <!-- Contact Section -->
-    <section class="py-20 bg-soft-gray">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <!-- Contact Info -->
-          <div>
-            <h2 class="text-3xl font-serif font-semibold text-gray-800 mb-8">
-              Contáctanos
-            </h2>
+    <section
+      id="contacto"
+      class="py-20 bg-gradient-to-br from-sage-100 to-lavender-100 relative overflow-hidden"
+    >
+      <!-- Background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 left-1/4 w-80 h-80 bg-gradient-to-br from-premium-gold-200/20 to-sage-200/20 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/3 right-1/3 w-96 h-96 bg-gradient-to-br from-lavender-200/20 to-premium-gold-200/20 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
 
-            <div class="space-y-6">
-              <div class="flex items-start">
-                <div class="flex-shrink-0">
-                  <div
-                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
-                  >
-                    <i class="fas fa-map-marker-alt"></i>
-                  </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <header class="text-center mb-16">
+          <h2
+            class="text-3xl md:text-4xl font-serif font-semibold text-gray-800 mb-4 animate-fade-in"
+          >
+            Contáctanos
+          </h2>
+          <p
+            class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in"
+            style="animation-delay: 0.2s"
+          >
+            Estamos aquí para acompañarte en tu
+            <strong class="text-sage-700">camino hacia el bienestar</strong>.
+            Contacta con nosotros y descubre cómo podemos ayudarte
+          </p>
+        </header>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Contact Methods -->
+          <div class="lg:col-span-1 space-y-6">
+            <!-- WhatsApp -->
+            <div
+              class="bg-white rounded-xl p-6 shadow-elegant hover:shadow-premium transition-all duration-300 group"
+            >
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300"
+                >
+                  <i class="fab fa-whatsapp text-green-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                  <h3 class="text-lg font-semibold text-gray-800">Dirección</h3>
-                  <p class="text-gray-600">
-                    Av. Principal 123, Centro<br />Ciudad, País
-                  </p>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">WhatsApp</h3>
+                  <p class="text-sm text-gray-600">Respuesta inmediata</p>
                 </div>
               </div>
+              <p class="text-gray-700 mb-4">
+                Comunícate directamente con nosotros para consultas rápidas,
+                reservar turnos o resolver dudas.
+              </p>
+              <a
+                href="https://wa.me/5491151414220?text=Hola! Me interesa conocer más sobre las terapias holísticas de Espacio Shanti."
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center text-green-600 hover:text-green-700 font-medium transition-colors duration-300"
+              >
+                <i class="fab fa-whatsapp mr-2"></i>
+                +54 11 5141-4220
+              </a>
+            </div>
 
-              <div class="flex items-start">
-                <div class="flex-shrink-0">
-                  <div
-                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
-                  >
-                    <i class="fas fa-phone"></i>
-                  </div>
+            <!-- Email -->
+            <div
+              class="bg-white rounded-xl p-6 shadow-elegant hover:shadow-premium transition-all duration-300 group"
+            >
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-sage-100 to-sage-200 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300"
+                >
+                  <i class="fas fa-envelope text-sage-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                  <h3 class="text-lg font-semibold text-gray-800">Teléfono</h3>
-                  <p class="text-gray-600">+54 11 5141-4220</p>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div class="flex-shrink-0">
-                  <div
-                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
-                  >
-                    <i class="fas fa-envelope"></i>
-                  </div>
-                </div>
-                <div class="ml-4">
+                <div>
                   <h3 class="text-lg font-semibold text-gray-800">Email</h3>
-                  <p class="text-gray-600">info@espacioshanti.com</p>
+                  <p class="text-sm text-gray-600">Consultas detalladas</p>
                 </div>
               </div>
+              <p class="text-gray-700 mb-4">
+                Envíanos un email con tus consultas o para solicitar información
+                detallada sobre nuestros tratamientos.
+              </p>
+              <a
+                href="mailto:info@espacioshanti.com"
+                class="inline-flex items-center text-sage-600 hover:text-sage-700 font-medium transition-colors duration-300"
+              >
+                <i class="fas fa-envelope mr-2"></i>
+                info@espacioshanti.com
+              </a>
+            </div>
 
-              <div class="flex items-start">
-                <div class="flex-shrink-0">
-                  <div
-                    class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center"
-                  >
-                    <i class="fas fa-clock"></i>
+            <!-- Phone -->
+            <div
+              class="bg-white rounded-xl p-6 shadow-elegant hover:shadow-premium transition-all duration-300 group"
+            >
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300"
+                >
+                  <i class="fas fa-phone text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Teléfono</h3>
+                  <p class="text-sm text-gray-600">Atención personalizada</p>
+                </div>
+              </div>
+              <p class="text-gray-700 mb-4">
+                Llámanos para recibir atención personalizada y resolver todas
+                tus dudas sobre nuestros servicios.
+              </p>
+              <a
+                href="tel:+5491151414220"
+                class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors duration-300"
+              >
+                <i class="fas fa-phone mr-2"></i>
+                +54 11 5141-4220
+              </a>
+            </div>
+
+            <!-- Online Reservation -->
+            <div
+              class="bg-white rounded-xl p-6 shadow-elegant hover:shadow-premium transition-all duration-300 group"
+            >
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-premium-gold-100 to-premium-gold-200 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300"
+                >
+                  <i
+                    class="fas fa-calendar-plus text-premium-gold-600 text-xl"
+                  ></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">
+                    Reserva Online
+                  </h3>
+                  <p class="text-sm text-gray-600">Agenda tu cita</p>
+                </div>
+              </div>
+              <p class="text-gray-700 mb-4">
+                Completa nuestro formulario online para reservar tu sesión en el
+                horario que más te convenga.
+              </p>
+              <button
+                class="inline-flex items-center text-premium-gold-600 hover:text-premium-gold-700 font-medium transition-colors duration-300"
+                onclick="document.getElementById('reservation').scrollIntoView({behavior: 'smooth'})"
+              >
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Reservar Ahora
+              </button>
+            </div>
+          </div>
+
+          <!-- Location & Hours + Social Media -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Location & Hours -->
+            <div class="bg-white rounded-xl shadow-elegant overflow-hidden">
+              <div class="p-6">
+                <h3
+                  class="text-2xl font-serif font-semibold text-gray-800 mb-6 flex items-center"
+                >
+                  <i class="fas fa-map-marker-alt text-sage-600 mr-3"></i>
+                  Ubicación y Horarios
+                </h3>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                  <!-- Address -->
+                  <div>
+                    <h4
+                      class="font-semibold text-gray-800 mb-3 flex items-center"
+                    >
+                      <i
+                        class="fas fa-location-dot text-premium-gold-600 mr-2"
+                      ></i>
+                      Dirección
+                    </h4>
+                    <p class="text-gray-700 mb-2">Carrasco 598</p>
+                    <p class="text-gray-700 mb-4">
+                      Villa Luzuriaga, Buenos Aires
+                    </p>
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=Carrasco+598+Villa+Luzuriaga+Buenos+Aires"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center text-sage-600 hover:text-sage-700 font-medium transition-colors duration-300"
+                    >
+                      <i class="fas fa-external-link-alt mr-2"></i>
+                      Ver en Google Maps
+                    </a>
+                  </div>
+
+                  <!-- Hours -->
+                  <div>
+                    <h4
+                      class="font-semibold text-gray-800 mb-3 flex items-center"
+                    >
+                      <i class="fas fa-clock text-premium-gold-600 mr-2"></i>
+                      Horarios de Atención
+                    </h4>
+                    <div class="space-y-2 text-gray-700">
+                      <div class="flex justify-between">
+                        <span>Lunes a Viernes:</span>
+                        <span class="font-semibold text-sage-700"
+                          >9:00 - 20:00</span
+                        >
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Sábados:</span>
+                        <span class="font-semibold text-sage-700"
+                          >9:00 - 15:00</span
+                        >
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Domingos:</span>
+                        <span class="text-gray-500">Cerrado</span>
+                      </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-3">
+                      <i class="fas fa-info-circle mr-2"></i>
+                      Atendemos únicamente con turno previo
+                    </p>
                   </div>
                 </div>
-                <div class="ml-4">
-                  <h3 class="text-lg font-semibold text-gray-800">Horarios</h3>
-                  <p class="text-gray-600">
-                    Lunes a Viernes: 9:00 - 20:00<br />
-                    Sábados: 9:00 - 15:00
-                  </p>
+
+                <!-- Interactive Map -->
+                <div class="bg-gray-100 rounded-lg overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3282.3842833988757!2d-58.609!3d-34.651!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzTCsDM5JzAzLjYiUyA1OMKwMzYnMzIuNCJX!5e0!3m2!1ses!2sar!4v1234567890"
+                    width="100%"
+                    height="200"
+                    style="border: 0"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Ubicación de Espacio Shanti en Villa Luzuriaga"
+                  ></iframe>
                 </div>
               </div>
             </div>
 
             <!-- Social Media -->
-            <div class="mt-8">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            <div class="bg-white rounded-xl p-6 shadow-elegant self-start">
+              <h3
+                class="text-2xl font-serif font-semibold text-gray-800 mb-6 flex items-center"
+              >
+                <i class="fas fa-share-alt text-sage-600 mr-3"></i>
                 Síguenos en Redes Sociales
               </h3>
-              <div class="flex space-x-4">
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Instagram -->
                 <a
-                  href="https://facebook.com/espacioshanti"
+                  href="https://www.instagram.com/espacioshanti.ar"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
-                  aria-label="Seguir a Espacio Shanti en Facebook"
-                  title="Facebook - Espacio Shanti"
+                  class="group bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-lg border border-purple-200/50 hover:shadow-md transition-all duration-300"
                 >
-                  <i class="fab fa-facebook-f"></i>
+                  <div class="flex items-center">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <i class="fab fa-instagram text-white text-lg"></i>
+                    </div>
+                    <div>
+                      <h4
+                        class="font-semibold text-gray-800 group-hover:text-purple-700 transition-colors"
+                      >
+                        Instagram
+                      </h4>
+                      <p class="text-sm text-gray-600">@espacioshanti.ar</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-700 mt-2">
+                    Contenido inspiracional, tips de bienestar y testimonios de
+                    nuestros clientes.
+                  </p>
                 </a>
+
+                <!-- Facebook -->
                 <a
-                  href="https://instagram.com/espacioshanti"
+                  href="https://www.facebook.com/espacioshanti.ar"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
-                  aria-label="Seguir a Espacio Shanti en Instagram"
-                  title="Instagram - Espacio Shanti"
+                  class="group bg-gradient-to-r from-blue-100 to-indigo-100 p-4 rounded-lg border border-blue-200/50 hover:shadow-md transition-all duration-300"
                 >
-                  <i class="fab fa-instagram"></i>
+                  <div class="flex items-center">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <i class="fab fa-facebook text-white text-lg"></i>
+                    </div>
+                    <div>
+                      <h4
+                        class="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors"
+                      >
+                        Facebook
+                      </h4>
+                      <p class="text-sm text-gray-600">Espacio Shanti</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-700 mt-2">
+                    Artículos, eventos especiales y novedades de nuestros
+                    tratamientos.
+                  </p>
                 </a>
+
+                <!-- YouTube -->
                 <a
-                  href="https://wa.me/5411514142200?text=Hola%20Espacio%20Shanti,%20me%20gustaría%20consultar%20sobre%20sus%20servicios%20de%20terapias%20holísticas."
+                  href="https://www.youtube.com/@espacioshanti"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center hover:bg-sage-dark transition-colors duration-200"
-                  aria-label="Contactar a Espacio Shanti por WhatsApp"
-                  title="WhatsApp - Espacio Shanti"
+                  class="group bg-gradient-to-r from-red-100 to-pink-100 p-4 rounded-lg border border-red-200/50 hover:shadow-md transition-all duration-300"
                 >
-                  <i class="fab fa-whatsapp"></i>
+                  <div class="flex items-center">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <i class="fab fa-youtube text-white text-lg"></i>
+                    </div>
+                    <div>
+                      <h4
+                        class="font-semibold text-gray-800 group-hover:text-red-700 transition-colors"
+                      >
+                        YouTube
+                      </h4>
+                      <p class="text-sm text-gray-600">Espacio Shanti</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-700 mt-2">
+                    Meditaciones guiadas, técnicas de relajación y charlas sobre
+                    bienestar.
+                  </p>
+                </a>
+
+                <!-- TikTok -->
+                <a
+                  href="https://www.tiktok.com/@espacioshanti.ar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-lg border border-gray-200/50 hover:shadow-md transition-all duration-300"
+                >
+                  <div class="flex items-center">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-gray-800 to-black rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300"
+                    >
+                      <i class="fab fa-tiktok text-white text-lg"></i>
+                    </div>
+                    <div>
+                      <h4
+                        class="font-semibold text-gray-800 group-hover:text-gray-700 transition-colors"
+                      >
+                        TikTok
+                      </h4>
+                      <p class="text-sm text-gray-600">@espacioshanti.ar</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-700 mt-2">
+                    Consejos rápidos, ejercicios de respiración y contenido
+                    sobre autocuidado.
+                  </p>
                 </a>
               </div>
             </div>
-          </div>
-
-          <!-- Contact Form -->
-          <div class="bg-white rounded-xl shadow-lg p-8">
-            <h3 class="text-xl font-semibold text-gray-800 mb-6">
-              Envíanos un mensaje
-            </h3>
-
-            <form class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Nombre</label
-                  >
-                  <input
-                    type="text"
-                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Asunto</label
-                >
-                <input
-                  type="text"
-                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"
-                  >Mensaje</label
-                >
-                <textarea
-                  rows="4"
-                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="Cuéntanos cómo podemos ayudarte..."
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                class="w-full bg-sage text-white py-3 px-6 rounded-md hover:bg-sage-dark transition-colors duration-200 font-medium"
-              >
-                Enviar Mensaje
-              </button>
-            </form>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer
+      class="bg-gradient-to-br from-gray-800 via-gray-900 to-sage-900 text-white py-12 relative overflow-hidden"
+    >
+      <!-- Premium background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div
+          class="absolute top-1/4 left-1/6 w-96 h-96 bg-gradient-to-br from-sage-500/10 to-premium-gold-500/10 rounded-full blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute bottom-1/4 right-1/6 w-80 h-80 bg-gradient-to-br from-premium-gold-400/10 to-sage-600/10 rounded-full blur-3xl animate-float-delayed"
+        ></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div class="md:col-span-2">
-            <h3 class="text-2xl font-serif font-semibold mb-4">
+            <h3
+              class="text-2xl font-serif font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-sage-300 to-premium-gold-300"
+            >
               Espacio Shanti
             </h3>
             <p class="text-gray-300 mb-4">
@@ -698,40 +1950,56 @@
             </p>
             <a
               href="panel.html"
-              class="text-sage hover:text-sage-light transition-colors duration-200 text-sm"
+              class="text-sage-300 hover:text-sage-200 transition-colors duration-200 text-sm flex items-center w-fit px-3 py-2 rounded-lg hover:bg-sage-700/20 backdrop-blur-sm"
             >
               <i class="fas fa-user-cog mr-2"></i>Acceso de Terapeutas
             </a>
           </div>
 
           <div>
-            <h4 class="text-lg font-semibold mb-4">Enlaces Rápidos</h4>
+            <h4 class="text-lg font-semibold mb-4 text-premium-gold-300">
+              Enlaces Rápidos
+            </h4>
             <ul class="space-y-2">
               <li>
                 <a
                   href="#inicio"
-                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
                   >Inicio</a
                 >
               </li>
               <li>
                 <a
                   href="#servicios"
-                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
                   >Servicios</a
                 >
               </li>
               <li>
                 <a
                   href="#terapeutas"
-                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
                   >Terapeutas</a
                 >
               </li>
               <li>
                 <a
+                  href="#faq"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
+                  >FAQ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#blog"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
+                  >Blog</a
+                >
+              </li>
+              <li>
+                <a
                   href="#reservas"
-                  class="text-gray-300 hover:text-white transition-colors duration-200"
+                  class="text-gray-300 hover:text-sage-200 transition-colors duration-200 flex items-center py-1"
                   >Reservar</a
                 >
               </li>
@@ -739,20 +2007,26 @@
           </div>
 
           <div>
-            <h4 class="text-lg font-semibold mb-4">Contacto</h4>
+            <h4 class="text-lg font-semibold mb-4 text-premium-gold-300">
+              Contacto
+            </h4>
             <ul class="space-y-2 text-gray-300">
-              <li><i class="fas fa-phone mr-2"></i>+54 11 5141-4220</li>
-              <li>
-                <i class="fas fa-envelope mr-2"></i>info@espacioshanti.com
+              <li class="flex items-center py-1">
+                <i class="fas fa-phone mr-3 text-sage-300"></i>+54 11 5141-4220
               </li>
-              <li>
-                <i class="fas fa-map-marker-alt mr-2"></i>Av. Principal 123
+              <li class="flex items-center py-1">
+                <i class="fas fa-envelope mr-3 text-sage-300"></i
+                >info@espacioshanti.com
+              </li>
+              <li class="flex items-center py-1">
+                <i class="fas fa-map-marker-alt mr-3 text-sage-300"></i>Carrasco
+                598, Villa Luzuriaga
               </li>
             </ul>
           </div>
         </div>
 
-        <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+        <div class="border-t border-gray-700/50 mt-8 pt-8 text-center">
           <p class="text-gray-300">
             © 2025 Espacio Shanti. Todos los derechos reservados.
           </p>
@@ -766,7 +2040,7 @@
         href="https://wa.me/+5491151414220?text=Hola%20Espacio%20Shanti,%20me%20gustaría%20consultar%20sobre%20sus%20servicios."
         target="_blank"
         rel="noopener noreferrer"
-        class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 pulse-animation"
+        class="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-4 rounded-2xl shadow-premium transition-all duration-300 hover:scale-110 animate-pulse-soft backdrop-blur-sm"
         aria-label="Contactar por WhatsApp"
         title="¡Contáctanos por WhatsApp!"
       >
@@ -794,6 +2068,7 @@
 
     <!-- Scripts -->
     <script src="js/firebase.js"></script>
+    <script src="js/firebase-init.js"></script>
     <script src="js/init-firebase-data.js"></script>
     <script src="js/alternative-whatsapp.js"></script>
     <script src="js/email-service.js"></script>

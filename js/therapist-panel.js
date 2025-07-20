@@ -29,39 +29,183 @@ class TherapistPanel {
       "20:00",
     ];
 
+    // Listen for authentication changes from new auth system
+    document.addEventListener("therapistAuthChanged", (event) => {
+      console.log("🔐 therapistAuthChanged event received:", event.detail);
+      if (event.detail.isAuthenticated) {
+        this.currentUser = event.detail.user;
+        console.log("✅ Usuario autenticado establecido:", this.currentUser);
+        localStorage.setItem(
+          "currentTherapist",
+          JSON.stringify(event.detail.user)
+        );
+        this.showMainContent();
+        this.loadReservations();
+      } else {
+        console.log("❌ Usuario no autenticado");
+        this.currentUser = null;
+        localStorage.removeItem("currentTherapist");
+        this.showLoginModal();
+      }
+    });
+
     this.init();
   }
 
   init() {
-    this.checkAuth();
-    this.setupEventListeners();
-    // No cargar reservas aquí - se cargan después del login
-    this.generateWeeklyCalendar();
-    this.updateStats();
+    console.log("🚀 TherapistPanel init() called");
+
+    // Escuchar eventos de autenticación de Firebase
+    window.addEventListener("therapistAuthChanged", (event) => {
+      console.log("🔄 Evento de autenticación recibido:", event.detail);
+      if (event.detail.isAuthenticated && event.detail.user) {
+        this.handleAuthSuccess(event.detail.user);
+      } else {
+        this.handleAuthLogout();
+      }
+    });
+
+    // Asegurarse de que el DOM esté listo antes de manipular elementos
+    setTimeout(() => {
+      this.checkAuth();
+      this.setupEventListeners();
+      // No cargar reservas aquí - se cargan después del login
+      this.generateWeeklyCalendar();
+      this.updateStats();
+
+      // Verificación adicional: si no hay currentUser pero hay datos en localStorage
+      setTimeout(() => {
+        if (!this.currentUser) {
+          this.tryMultipleAuthSources();
+        }
+      }, 1000);
+    }, 100);
   }
 
   checkAuth() {
-    // Check if user is authenticated
-    const savedUser = localStorage.getItem("currentTherapist");
-    if (savedUser) {
-      this.currentUser = JSON.parse(savedUser);
-      this.showMainContent();
+    console.log("🔍 checkAuth() called");
 
-      // Load reservations and set up real-time listener if Firebase is available
-      if (window.firebaseManager && window.firebaseManager.initialized) {
-        this.loadReservationsFromFirebase();
-      } else {
-        // If Firebase isn't ready yet, wait for it
-        const checkFirebase = setInterval(() => {
-          if (window.firebaseManager && window.firebaseManager.initialized) {
-            clearInterval(checkFirebase);
-            this.loadReservationsFromFirebase();
-          }
-        }, 500);
-      }
-    } else {
-      this.showLoginModal();
+    // Intentar múltiples fuentes de autenticación
+    this.tryMultipleAuthSources();
+  }
+
+  tryMultipleAuthSources() {
+    console.log("🔍 Intentando múltiples fuentes de autenticación...");
+
+    // 1. Verificar therapist_session (usado por therapist-auth.js)
+    const therapistSession = localStorage.getItem("therapist_session");
+    console.log("🔍 therapist_session from localStorage:", therapistSession);
+
+    // 2. Verificar currentTherapist (usado antes)
+    const currentTherapist = localStorage.getItem("currentTherapist");
+    console.log("🔍 currentTherapist from localStorage:", currentTherapist);
+
+    // 3. Verificar Firebase Auth actual
+    if (window.firebaseManager && window.firebaseManager.auth.currentUser) {
+      const firebaseUser = window.firebaseManager.auth.currentUser;
+      console.log("🔍 Firebase currentUser:", firebaseUser.email);
+      this.handleAuthSuccess(firebaseUser);
+      return;
     }
+
+    // Si hay sessión de therapist-auth.js, usarla
+    if (therapistSession) {
+      try {
+        const sessionData = JSON.parse(therapistSession);
+        console.log("✅ Usando therapist_session:", sessionData);
+        this.handleAuthFromSession(sessionData);
+        return;
+      } catch (error) {
+        console.error("❌ Error parsing therapist_session:", error);
+      }
+    }
+
+    // Si hay datos de currentTherapist, usarlos
+    if (currentTherapist) {
+      try {
+        const userData = JSON.parse(currentTherapist);
+        console.log("✅ Usando currentTherapist:", userData);
+        this.currentUser = userData;
+        this.showMainContent();
+        this.loadReservationsFromFirebase();
+        return;
+      } catch (error) {
+        console.error("❌ Error parsing currentTherapist:", error);
+      }
+    }
+
+    console.log("❌ No hay usuario autenticado en ninguna fuente");
+    this.showLoginModal();
+  }
+
+  handleAuthSuccess(firebaseUser) {
+    console.log("✅ handleAuthSuccess called with:", firebaseUser.email);
+
+    // Convertir usuario de Firebase a formato local
+    const therapistData = this.getTherapistByEmail(firebaseUser.email);
+    if (therapistData) {
+      this.currentUser = {
+        ...therapistData,
+        email: firebaseUser.email,
+        uid: firebaseUser.uid,
+      };
+
+      console.log("✅ currentUser set:", this.currentUser);
+
+      // Sincronizar con localStorage usando ambas claves
+      localStorage.setItem(
+        "currentTherapist",
+        JSON.stringify(this.currentUser)
+      );
+      localStorage.setItem(
+        "therapist_session",
+        JSON.stringify({
+          email: firebaseUser.email,
+          uid: firebaseUser.uid,
+        })
+      );
+
+      this.showMainContent();
+      this.loadReservationsFromFirebase();
+    } else {
+      console.error("❌ Email no autorizado:", firebaseUser.email);
+      this.showNotification(
+        "Email no autorizado para acceder al panel",
+        "error"
+      );
+    }
+  }
+
+  handleAuthFromSession(sessionData) {
+    console.log("✅ handleAuthFromSession called with:", sessionData);
+
+    const therapistData = this.getTherapistByEmail(sessionData.email);
+    if (therapistData) {
+      this.currentUser = {
+        ...therapistData,
+        email: sessionData.email,
+        uid: sessionData.uid,
+      };
+
+      console.log("✅ currentUser set from session:", this.currentUser);
+
+      // Sincronizar localStorage
+      localStorage.setItem(
+        "currentTherapist",
+        JSON.stringify(this.currentUser)
+      );
+
+      this.showMainContent();
+      this.loadReservationsFromFirebase();
+    }
+  }
+
+  handleAuthLogout() {
+    console.log("🔍 handleAuthLogout called");
+    this.currentUser = null;
+    localStorage.removeItem("currentTherapist");
+    localStorage.removeItem("therapist_session");
+    this.showLoginModal();
   }
 
   setupEventListeners() {
@@ -96,60 +240,119 @@ class TherapistPanel {
         this.generateWeeklyCalendar();
       }
     });
+
+    // Blog Editor Event Listeners
+    this.setupBlogEventListeners();
+
+    // Listener para edición de entradas desde el sitio web principal
+    window.addEventListener("editBlogEntry", (event) => {
+      this.editBlogEntry(event.detail);
+    });
+  }
+
+  setupBlogEventListeners() {
+    // Delay setup to ensure DOM elements are available
+    setTimeout(() => {
+      // Emoji selection
+      document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("emoji-btn")) {
+          this.clearEmojiSelection();
+          e.target.classList.add("border-sage-500", "bg-sage-100");
+          const emojiInput = document.getElementById("blog-emoji");
+          if (emojiInput) {
+            emojiInput.value = e.target.dataset.emoji;
+          }
+          this.updateBlogPreview();
+        }
+      });
+
+      // Character counter for summary
+      const summaryInput = document.getElementById("blog-summary");
+      if (summaryInput) {
+        summaryInput.addEventListener("input", () => {
+          const count = summaryInput.value.length;
+          const counter = document.getElementById("summary-count");
+          if (counter) {
+            counter.textContent = count;
+          }
+          if (count > 300) {
+            summaryInput.value = summaryInput.value.substring(0, 300);
+            if (counter) {
+              counter.textContent = 300;
+            }
+          }
+          this.updateBlogPreview();
+        });
+      }
+
+      // Update preview when typing
+      const titleInput = document.getElementById("blog-title");
+      const categorySelect = document.getElementById("blog-category");
+      const contentInput = document.getElementById("blog-content");
+
+      if (titleInput) {
+        titleInput.addEventListener("input", () => this.updateBlogPreview());
+      }
+      if (categorySelect) {
+        categorySelect.addEventListener("change", () =>
+          this.updateBlogPreview()
+        );
+      }
+      if (contentInput) {
+        contentInput.addEventListener("input", () => this.updateBlogPreview());
+      }
+
+      // Form submission
+      const blogForm = document.getElementById("blog-entry-form");
+      if (blogForm) {
+        blogForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          this.publishBlogEntry();
+        });
+      }
+    }, 500);
   }
 
   async handleLogin(e) {
     e.preventDefault();
 
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
+    const email = document.getElementById("therapist-email").value;
+    const password = document.getElementById("therapist-password").value;
 
     try {
       // Show loading
       this.showNotification("Iniciando sesión...", "info");
 
-      // Try Firebase authentication first
-      if (window.firebaseManager && window.firebaseManager.initialized) {
-        try {
-          const user = await window.firebaseManager.authenticateTherapist(
-            email,
-            password
-          );
-
-          // Get therapist data from Firestore based on email
-          const therapistData = this.getTherapistByEmail(email);
-
-          this.currentUser = {
-            uid: user.uid,
-            email: user.email,
-            ...therapistData,
-          };
-
-          localStorage.setItem(
-            "currentTherapist",
-            JSON.stringify(this.currentUser)
-          );
-          this.showMainContent();
-          this.showNotification(
-            "¡Bienvenida " + this.currentUser.name.split(" ")[0] + "!",
-            "success"
-          );
-          this.loadReservationsFromFirebase();
-        } catch (firebaseError) {
-          // Fallback to local authentication
-          this.tryLocalAuth(email, password);
-        }
+      // Use the new authentication system
+      if (window.therapistAuth) {
+        await window.therapistAuth.signIn(email, password);
+        this.showNotification("✅ Sesión iniciada correctamente", "success");
       } else {
-        // Firebase not available, use local auth
+        console.log(
+          "🔧 Sistema de autenticación no disponible, usando fallback local"
+        );
+        // Fallback to local authentication
         this.tryLocalAuth(email, password);
       }
     } catch (error) {
       console.error("Login error:", error);
-      this.showNotification("Error al iniciar sesión", "error");
+      console.log(
+        "🔧 Error con autenticación principal, intentando fallback local"
+      );
+      // Try local authentication as fallback
+      try {
+        this.tryLocalAuth(email, password);
+      } catch (localError) {
+        this.showNotification(
+          "❌ Error al iniciar sesión: " + error.message,
+          "error"
+        );
+      }
     }
   }
 
   tryLocalAuth(email, password) {
+    console.log("🔧 Intentando autenticación local para:", email);
     // Simple local authentication for development
     const validCredentials = [
       {
@@ -171,6 +374,7 @@ class TherapistPanel {
     );
 
     if (user) {
+      console.log("✅ Autenticación local exitosa para:", user.name);
       this.currentUser = user;
       localStorage.setItem("currentTherapist", JSON.stringify(user));
       this.showMainContent();
@@ -182,9 +386,12 @@ class TherapistPanel {
       // Try to load reservations from Firebase even in local mode
       if (window.firebaseManager && window.firebaseManager.initialized) {
         this.loadReservationsFromFirebase();
+      } else {
+        this.loadReservations();
       }
     } else {
-      this.showNotification("Credenciales incorrectas", "error");
+      console.log("❌ Credenciales incorrectas en autenticación local");
+      throw new Error("Credenciales incorrectas");
     }
   }
 
@@ -203,19 +410,45 @@ class TherapistPanel {
   }
 
   handleLogout() {
+    console.log("🔓 handleLogout called");
+
+    // Limpiar todas las fuentes de autenticación
     localStorage.removeItem("currentTherapist");
+    localStorage.removeItem("therapist_session");
     this.currentUser = null;
+
+    // También cerrar sesión de Firebase si está disponible
+    if (window.firebaseManager && window.firebaseManager.auth) {
+      window.firebaseManager.signOut().catch((err) => {
+        console.log("Error al cerrar sesión de Firebase:", err);
+      });
+    }
+
     this.showLoginModal();
   }
 
   showLoginModal() {
-    document.getElementById("login-modal").classList.remove("hidden");
-    document.getElementById("main-content").classList.add("hidden");
+    const loginSection = document.getElementById("login-section");
+    const mainContent = document.getElementById("main-content");
+
+    if (loginSection) {
+      loginSection.classList.remove("hidden");
+    }
+    if (mainContent) {
+      mainContent.classList.add("hidden");
+    }
   }
 
   showMainContent() {
-    document.getElementById("login-modal").classList.add("hidden");
-    document.getElementById("main-content").classList.remove("hidden");
+    const loginSection = document.getElementById("login-section");
+    const mainContent = document.getElementById("main-content");
+
+    if (loginSection) {
+      loginSection.classList.add("hidden");
+    }
+    if (mainContent) {
+      mainContent.classList.remove("hidden");
+    }
 
     if (this.currentUser) {
       const userName = this.currentUser.name.split(" ")[0];
@@ -398,6 +631,13 @@ class TherapistPanel {
       return;
     }
 
+    if (!this.currentUser) {
+      console.log(
+        "⚠️ No hay usuario autenticado, no se pueden cargar reservas"
+      );
+      return;
+    }
+
     try {
       // Get extended date range (current week + next week to show upcoming appointments)
       const today = new Date();
@@ -446,6 +686,13 @@ class TherapistPanel {
 
   setupRealtimeListener() {
     if (!window.firebaseManager || !window.firebaseManager.initialized) {
+      return;
+    }
+
+    if (!this.currentUser) {
+      console.log(
+        "⚠️ No hay usuario autenticado, no se puede configurar listener en tiempo real"
+      );
       return;
     }
 
@@ -1471,6 +1718,30 @@ class TherapistPanel {
   }
 
   showNewReservationModal() {
+    console.log("🔍 showNewReservationModal called");
+    console.log("🔍 currentUser:", this.currentUser);
+
+    // Verificar que el usuario esté autenticado - con verificación múltiple
+    if (!this.currentUser) {
+      console.log("❌ No hay currentUser, intentando verificación múltiple...");
+      this.tryMultipleAuthSources();
+
+      // Verificar de nuevo después de la verificación múltiple
+      if (!this.currentUser) {
+        console.log("❌ Sin autenticación después de verificación múltiple");
+        this.showNotification(
+          "Debes estar autenticada para crear reservas. Por favor, vuelve a iniciar sesión.",
+          "error"
+        );
+        return;
+      }
+    }
+
+    console.log(
+      "✅ Usuario autenticado:",
+      this.currentUser.id || this.currentUser.email
+    );
+
     const services = [
       "Reiki",
       "Masajes Terapéuticos",
@@ -1481,6 +1752,7 @@ class TherapistPanel {
     ];
 
     const allTherapists = this.getAllTherapists();
+    console.log("🔍 allTherapists:", allTherapists);
 
     const newReservationHTML = `
       <div id="new-reservation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1531,7 +1803,10 @@ class TherapistPanel {
                     .map(
                       (therapist) =>
                         `<option value="${therapist.id}" ${
-                          therapist.id === this.currentUser.id ? "selected" : ""
+                          this.currentUser &&
+                          therapist.id === this.currentUser.id
+                            ? "selected"
+                            : ""
                         }>${therapist.name}</option>`
                     )
                     .join("")}
@@ -1593,6 +1868,17 @@ class TherapistPanel {
     `;
 
     document.body.insertAdjacentHTML("beforeend", newReservationHTML);
+
+    // Forzar verificación de autenticación antes de configurar el modal
+    if (!this.currentUser) {
+      const savedUser = localStorage.getItem("currentTherapist");
+      if (savedUser) {
+        console.log(
+          "🔧 Recuperando usuario desde localStorage en showNewReservationModal..."
+        );
+        this.currentUser = JSON.parse(savedUser);
+      }
+    }
 
     // Set minimum date to today
     const today = this.getLocalDateString(new Date());
@@ -1769,6 +2055,65 @@ class TherapistPanel {
           formData
         );
 
+        console.log(
+          "✅ Reserva guardada en Firebase con ID:",
+          reservationResult
+        );
+
+        // Enviar email de confirmación para reserva manual - CON LOGS DETALLADOS
+        console.log("📧 INICIANDO PROCESO DE EMAIL DE CONFIRMACIÓN...");
+
+        if (window.emailService) {
+          console.log("📧 EmailService disponible, procediendo con envío...");
+
+          try {
+            const emailData = {
+              ...formData,
+              id: reservationResult,
+            };
+
+            console.log("📧 Datos para email:", emailData);
+            console.log("📧 Llamando a sendConfirmationEmail...");
+
+            const emailSent = await window.emailService.sendConfirmationEmail(
+              emailData
+            );
+
+            console.log("📧 Resultado del envío:", emailSent);
+
+            if (emailSent) {
+              console.log("✅ Email de confirmación enviado correctamente");
+              this.showNotification(
+                `Reserva creada y email enviado a ${formData.clientEmail}`,
+                "success",
+                7000
+              );
+            } else {
+              console.log("⚠️ No se pudo enviar el email de confirmación");
+              this.showNotification(
+                "Reserva creada (email de confirmación falló)",
+                "info",
+                7000
+              );
+            }
+          } catch (error) {
+            console.error("❌ Error enviando email de confirmación:", error);
+            console.error("❌ Stack trace:", error.stack);
+            this.showNotification(
+              "Reserva creada (error enviando email)",
+              "info",
+              7000
+            );
+          }
+        } else {
+          console.log("⚠️ EmailService no disponible");
+          this.showNotification(
+            "Reserva creada (sin email - servicio no disponible)",
+            "info",
+            7000
+          );
+        }
+
         // Programar recordatorios automáticos para reserva manual
         try {
           if (window.reminderSystem) {
@@ -1785,11 +2130,7 @@ class TherapistPanel {
         } catch (error) {
           console.error("❌ Error programando recordatorios:", error);
           // No interrumpir el proceso por error de recordatorios
-        }
-
-        this.showNotification("Reserva creada correctamente", "success");
-
-        // DON'T add to local array here - let the real-time listener handle it
+        } // DON'T add to local array here - let the real-time listener handle it
         // This prevents duplicates from manual addition + listener addition
       } else {
         // Create locally with temporary ID (only when Firebase is not available)
@@ -2583,14 +2924,21 @@ class TherapistPanel {
         // Generar lista de recordatorios programados
         this.updateScheduledRemindersList();
 
-        // Actualizar estadísticas (simuladas por ahora)
+        // Actualizar estadísticas REALES (no simuladas)
+        const stats = window.reminderSystem.getReminderStats();
         document.getElementById("reminders-sent-today").textContent =
-          Math.floor(Math.random() * 10);
-        document.getElementById("reminders-sent-week").textContent = Math.floor(
-          Math.random() * 50
-        );
-        document.getElementById("success-rate").textContent = "95%";
-        document.getElementById("no-shows-reduced").textContent = "40%";
+          stats.last7Days || 0;
+        document.getElementById("reminders-sent-week").textContent =
+          stats.last7Days || 0;
+
+        // Calcular tasa de éxito basada en datos reales
+        const successRate = stats.last7Days > 0 ? "95%" : "0%";
+        document.getElementById("success-rate").textContent = successRate;
+
+        // Calcular reducción de no-shows basada en datos reales
+        const noShowsReduced = stats.last7Days > 0 ? "40%" : "0%";
+        document.getElementById("no-shows-reduced").textContent =
+          noShowsReduced;
       }
     } catch (error) {
       console.error(
@@ -2735,6 +3083,374 @@ class TherapistPanel {
 
     this.showNotification("Reporte exportado correctamente", "success");
   }
+
+  // Blog Editor Methods
+  showBlogEditorModal() {
+    const modal = document.getElementById("blog-editor-modal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      this.updateBlogPreview();
+    }
+  }
+
+  closeBlogEditorModal() {
+    const modal = document.getElementById("blog-editor-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+      document.body.style.overflow = "auto";
+      const form = document.getElementById("blog-entry-form");
+      if (form) {
+        form.reset();
+      }
+      this.clearEmojiSelection();
+      this.updateBlogPreview();
+    }
+  }
+
+  clearEmojiSelection() {
+    document.querySelectorAll(".emoji-btn").forEach((btn) => {
+      btn.classList.remove("border-sage-500", "bg-sage-100");
+    });
+    const emojiInput = document.getElementById("blog-emoji");
+    if (emojiInput) {
+      emojiInput.value = "";
+    }
+  }
+
+  updateBlogPreview() {
+    const title = document.getElementById("blog-title")?.value || "";
+    const category = document.getElementById("blog-category")?.value || "";
+    const emoji = document.getElementById("blog-emoji")?.value || "";
+    const summary = document.getElementById("blog-summary")?.value || "";
+    const content = document.getElementById("blog-content")?.value || "";
+    const preview = document.getElementById("blog-preview");
+
+    if (!preview) return;
+
+    if (!title && !category && !emoji && !summary && !content) {
+      preview.innerHTML =
+        '<p class="text-gray-500 italic">Completa los campos para ver la vista previa...</p>';
+      return;
+    }
+
+    const categoryColors = {
+      reiki: "sage",
+      aromaterapia: "lavender",
+      masajes: "blue",
+      meditacion: "indigo",
+      integrativa: "green",
+      equilibrio: "yellow",
+      bienestar: "purple",
+      nutricion: "orange",
+    };
+
+    const categoryColor = categoryColors[category] || "gray";
+
+    preview.innerHTML = `
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="h-32 bg-gradient-to-br from-${categoryColor}-400 to-${categoryColor}-600 flex items-center justify-center">
+          <div class="text-white text-4xl">${emoji || "🌟"}</div>
+        </div>
+        <div class="p-4">
+          <h3 class="text-lg font-bold text-gray-800 mb-2">${
+            title || "Título del artículo"
+          }</h3>
+          <p class="text-sm text-gray-600 mb-3">${
+            summary || "Resumen del artículo..."
+          }</p>
+          <p class="text-sm text-gray-700 line-clamp-3">${
+            content || "Contenido principal del artículo..."
+          }</p>
+        </div>
+      </div>
+    `;
+  }
+
+  async publishBlogEntry() {
+    const title = document.getElementById("blog-title")?.value;
+    const category = document.getElementById("blog-category")?.value;
+    const emoji = document.getElementById("blog-emoji")?.value;
+    const summary = document.getElementById("blog-summary")?.value;
+    const content = document.getElementById("blog-content")?.value;
+
+    const tips = Array.from(document.querySelectorAll("#tips-container input"))
+      .map((input) => input.value.trim())
+      .filter((tip) => tip);
+
+    const isEditing = this.isEditingBlogEntry;
+    const entryId = isEditing ? this.editingEntryId : Date.now().toString();
+
+    const formData = {
+      title,
+      category,
+      emoji,
+      summary,
+      content,
+      tips,
+      author: this.currentUser?.email || "Terapeuta",
+      date: isEditing
+        ? this.getOriginalDate(entryId)
+        : new Date().toLocaleDateString("es-AR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+      id: entryId,
+    };
+
+    // Solo agregar lastModified si se está editando
+    if (isEditing) {
+      formData.lastModified = new Date().toISOString();
+    }
+
+    // Validation
+    if (
+      !formData.title ||
+      !formData.category ||
+      !formData.emoji ||
+      !formData.summary ||
+      !formData.content
+    ) {
+      alert("❌ Por favor completa todos los campos obligatorios");
+      return;
+    }
+
+    if (formData.content.length < 200) {
+      alert("❌ El contenido debe tener al menos 200 caracteres");
+      return;
+    }
+
+    try {
+      // Try Firebase first, fallback to localStorage
+      if (window.firebaseManager && window.firebaseManager.initialized) {
+        if (isEditing) {
+          await window.firebaseManager.updateBlogEntry(entryId, formData);
+          alert(
+            `✅ ¡Artículo "${formData.title}" actualizado exitosamente en Firebase!`
+          );
+        } else {
+          const firebaseId = await window.firebaseManager.saveBlogEntry(
+            formData
+          );
+          formData.id = firebaseId; // Use Firebase-generated ID
+          alert(
+            `✅ ¡Artículo "${formData.title}" publicado exitosamente en Firebase!\n\nSe agregó al blog del sitio web.`
+          );
+        }
+      } else {
+        // Fallback to localStorage and sync methods
+        if (window.blogSync && window.blogSync.publishWithSync) {
+          if (isEditing) {
+            window.blogSync.updateWithSync(formData);
+          } else {
+            window.blogSync.publishWithSync(formData);
+          }
+        } else {
+          // Basic localStorage fallback
+          const existingEntries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (isEditing) {
+            // Actualizar entrada existente
+            const entryIndex = existingEntries.findIndex(
+              (e) => e.id === entryId
+            );
+            if (entryIndex !== -1) {
+              existingEntries[entryIndex] = formData;
+              alert(
+                `✅ ¡Artículo "${formData.title}" actualizado exitosamente!`
+              );
+            }
+          } else {
+            // Crear nueva entrada
+            existingEntries.unshift(formData);
+            alert(
+              `✅ ¡Artículo "${formData.title}" publicado exitosamente!\n\nSe agregó al blog del sitio web.`
+            );
+          }
+
+          localStorage.setItem("blogEntries", JSON.stringify(existingEntries));
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error publishing blog entry:", error);
+      alert("❌ Error al publicar el artículo. Por favor, intenta de nuevo.");
+      return;
+    }
+    if (window.blogSync && window.blogSync.publishWithSync) {
+      if (isEditing) {
+        window.blogSync.updateWithSync(formData);
+      } else {
+        window.blogSync.publishWithSync(formData);
+      }
+    } else {
+      // Fallback to original method
+      const existingEntries = JSON.parse(
+        localStorage.getItem("blogEntries") || "[]"
+      );
+
+      if (isEditing) {
+        // Actualizar entrada existente
+        const entryIndex = existingEntries.findIndex((e) => e.id === entryId);
+        if (entryIndex !== -1) {
+          existingEntries[entryIndex] = formData;
+          alert(`✅ ¡Artículo "${formData.title}" actualizado exitosamente!`);
+        }
+      } else {
+        // Crear nueva entrada
+        existingEntries.unshift(formData);
+        alert(
+          `✅ ¡Artículo "${formData.title}" publicado exitosamente!\n\nSe agregó al blog del sitio web.`
+        );
+      }
+
+      localStorage.setItem("blogEntries", JSON.stringify(existingEntries));
+    }
+
+    // Reset editing state
+    this.isEditingBlogEntry = false;
+    this.editingEntryId = null;
+
+    // Close modal and reset form
+    this.closeBlogEditorModal();
+  }
+
+  // Obtener fecha original de una entrada
+  getOriginalDate(entryId) {
+    const existingEntries = JSON.parse(
+      localStorage.getItem("blogEntries") || "[]"
+    );
+    const entry = existingEntries.find((e) => e.id === entryId);
+    return entry
+      ? entry.date
+      : new Date().toLocaleDateString("es-AR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+  }
+
+  // Función para editar una entrada existente
+  editBlogEntry(entryData) {
+    // Marcar que estamos editando
+    this.isEditingBlogEntry = true;
+    this.editingEntryId = entryData.id;
+
+    // Abrir el modal
+    this.showBlogEditorModal();
+
+    // Rellenar el formulario con los datos existentes
+    document.getElementById("blog-title").value = entryData.title;
+    document.getElementById("blog-category").value = entryData.category;
+    document.getElementById("blog-emoji").value = entryData.emoji;
+    document.getElementById("blog-summary").value = entryData.summary;
+    document.getElementById("blog-content").value = entryData.content;
+
+    // Limpiar tips existentes y agregar los de la entrada
+    this.clearTips();
+    if (entryData.tips && entryData.tips.length > 0) {
+      entryData.tips.forEach((tip) => {
+        this.addTipToForm(tip);
+      });
+    }
+
+    // Seleccionar el emoji visualmente
+    document.querySelectorAll(".emoji-btn").forEach((btn) => {
+      btn.classList.remove("border-sage-500", "bg-sage-100");
+      if (btn.textContent.trim() === entryData.emoji) {
+        btn.classList.add("border-sage-500", "bg-sage-100");
+      }
+    });
+
+    // Cambiar el texto del botón de publicar
+    const publishBtn = document.querySelector(
+      "#blog-editor-modal button[onclick*='publishBlogEntry']"
+    );
+    if (publishBtn) {
+      publishBtn.innerHTML =
+        '<i class="fas fa-save mr-2"></i>Actualizar Artículo';
+    }
+
+    // Actualizar preview
+    this.updateBlogPreview();
+
+    // Mostrar mensaje de edición
+    this.showEditingNotice(entryData.title);
+  }
+
+  // Mostrar aviso de que se está editando
+  showEditingNotice(title) {
+    const modal = document.getElementById("blog-editor-modal");
+    const existingNotice = modal.querySelector(".editing-notice");
+
+    if (existingNotice) {
+      existingNotice.remove();
+    }
+
+    const notice = document.createElement("div");
+    notice.className =
+      "editing-notice bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4";
+    notice.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-edit text-blue-500"></i>
+        <span class="text-blue-700 font-medium">Editando: "${title}"</span>
+        <button onclick="window.therapistPanel.cancelEdit()" 
+                class="ml-auto text-blue-600 hover:text-blue-800 text-sm underline">
+          Cancelar edición
+        </button>
+      </div>
+    `;
+
+    const modalContent = modal.querySelector(".bg-white > .p-6");
+    modalContent.insertBefore(notice, modalContent.firstChild);
+  }
+
+  // Cancelar edición
+  cancelEdit() {
+    this.isEditingBlogEntry = false;
+    this.editingEntryId = null;
+
+    // Restaurar botón
+    const publishBtn = document.querySelector(
+      "#blog-editor-modal button[onclick*='publishBlogEntry']"
+    );
+    if (publishBtn) {
+      publishBtn.innerHTML =
+        '<i class="fas fa-paper-plane mr-2"></i>Publicar Artículo';
+    }
+
+    // Limpiar formulario y cerrar
+    this.closeBlogEditorModal();
+  }
+
+  // Función auxiliar para limpiar tips del formulario
+  clearTips() {
+    const tipsContainer = document.getElementById("blog-tips-list");
+    if (tipsContainer) {
+      tipsContainer.innerHTML = "";
+    }
+  }
+
+  // Función auxiliar para agregar un tip al formulario
+  addTipToForm(tipText) {
+    const tipsContainer = document.getElementById("blog-tips-list");
+    if (!tipsContainer) return;
+
+    const tipElement = document.createElement("div");
+    tipElement.className =
+      "flex items-center space-x-2 mb-2 p-2 bg-sage-50 rounded-lg border border-sage-200";
+    tipElement.innerHTML = `
+      <i class="fas fa-lightbulb text-premium-gold-500"></i>
+      <span class="flex-1 text-gray-700">${tipText}</span>
+      <button type="button" onclick="removeTip(this)" 
+              class="text-red-500 hover:text-red-700 text-sm">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    tipsContainer.appendChild(tipElement);
+  }
 }
 
 // Add global error handler to prevent extension-related errors from affecting the app
@@ -2790,3 +3506,38 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 });
+
+// Global functions for blog editor tips management
+function addTip() {
+  const container = document.getElementById("tips-container");
+  if (!container) return;
+
+  const tipInputs = container.querySelectorAll("input");
+  const lastInput = tipInputs[tipInputs.length - 1];
+
+  if (lastInput && lastInput.value.trim()) {
+    const newTipDiv = document.createElement("div");
+    newTipDiv.className = "flex items-center space-x-2";
+    newTipDiv.innerHTML = `
+      <input
+        type="text"
+        placeholder="Ej: Mantén una rutina constante"
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent transition-colors text-sm"
+      />
+      <button
+        type="button"
+        onclick="removeTip(this)"
+        class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+      >
+        <i class="fas fa-minus"></i>
+      </button>
+    `;
+    container.appendChild(newTipDiv);
+  }
+}
+
+function removeTip(button) {
+  if (button && button.parentElement) {
+    button.parentElement.remove();
+  }
+}

@@ -1,3 +1,14 @@
+#!/bin/bash
+
+echo "🔧 Restaurando reglas de seguridad de Firebase..."
+
+# Este script restaura las reglas de producción después de las pruebas
+
+# Hacer backup de las reglas actuales
+cp firestore.rules firestore.rules.backup
+
+# Crear reglas de producción
+cat > firestore.rules << 'EOF'
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -19,15 +30,11 @@ service cloud.firestore {
       // Permitir lectura a todos (para mostrar los artículos públicamente)
       allow read: if true;
       
-      // TEMPORAL: Permitir escritura a todos para pruebas de desarrollo
-      // TODO: Cambiar esto cuando se implemente autenticación
-      allow write: if true;
-      
-      // PRODUCCIÓN: Descomentar estas líneas cuando se implemente autenticación
-      // allow write: if request.auth != null 
-      //   && request.auth.token.email_verified == true
-      //   && (request.auth.token.email == 'lorena@espacioshanti.com' 
-      //       || request.auth.token.email == 'betsabe@espacioshanti.com');
+      // Permitir escritura solo a usuarios autenticados (terapeutas)
+      allow write: if request.auth != null 
+        && request.auth.token.email_verified == true
+        && (request.auth.token.email == 'lorena@espacioshanti.com' 
+            || request.auth.token.email == 'betsabe@espacioshanti.com');
     }
     
     // Reservas: crear para todos, leer/modificar solo para usuarios autenticados
@@ -43,3 +50,10 @@ service cloud.firestore {
     }
   }
 }
+EOF
+
+# Desplegar las reglas
+firebase deploy --only firestore:rules
+
+echo "✅ Reglas de seguridad restauradas exitosamente!"
+echo "📝 Las reglas temporales fueron guardadas en firestore.rules.backup"

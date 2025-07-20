@@ -5,6 +5,7 @@ class EspacioShantiApp {
     this.db = null;
     this.auth = null;
     this.currentUser = null;
+    this.isTherapistAuthenticated = false;
     this.reservations = [];
     this.services = [
       {
@@ -13,7 +14,7 @@ class EspacioShantiApp {
         description:
           "Terapia energética que promueve la relajación y el equilibrio.",
         duration: 60,
-        price: 5000,
+        price: 12000,
         image: "images/reiki.jpg",
       },
       {
@@ -21,7 +22,7 @@ class EspacioShantiApp {
         name: "Meditación Guiada",
         description: "Sesiones de meditación para encontrar paz interior.",
         duration: 45,
-        price: 3500,
+        price: 10000,
         image: "images/meditacion.jpg",
       },
       {
@@ -29,7 +30,7 @@ class EspacioShantiApp {
         name: "Masajes Terapéuticos",
         description: "Masajes relajantes para liberar tensiones.",
         duration: 90,
-        price: 7000,
+        price: 14000,
         image: "images/masajes.jpg",
       },
       {
@@ -37,7 +38,7 @@ class EspacioShantiApp {
         name: "Aromaterapia",
         description: "Terapia con aceites esenciales para el bienestar.",
         duration: 75,
-        price: 6000,
+        price: 12000,
         image: "images/aromaterapia.jpg",
       },
     ];
@@ -68,6 +69,7 @@ class EspacioShantiApp {
     this.setupEventListeners();
     await this.loadContent();
     this.setupRealtimeListener();
+    this.setupAuthentication();
   }
 
   setupEventListeners() {
@@ -558,10 +560,8 @@ class EspacioShantiApp {
         dateInput.value = this.getTodayDateString();
       }
 
-      // Programar recordatorios automáticos
-      if (window.reminderSystem) {
-        window.reminderSystem.scheduleReminders(reservation);
-      }
+      // Los recordatorios ya se programan en saveReservation()
+      // No es necesario programarlos aquí de nuevo
     } catch (error) {
       console.error("Error saving reservation:", error);
       this.showNotification(
@@ -596,6 +596,65 @@ class EspacioShantiApp {
         const reservationId = await window.firebaseManager.saveReservation(
           completeReservationData
         );
+
+        console.log("✅ Reserva del sitio web guardada con ID:", reservationId);
+
+        // Enviar email de confirmación al cliente
+        console.log("📧 INICIANDO EMAIL DE CONFIRMACIÓN DESDE SITIO WEB...");
+
+        if (window.emailService) {
+          console.log("📧 EmailService disponible, enviando confirmación...");
+
+          try {
+            const emailData = {
+              ...completeReservationData,
+              id: reservationId,
+            };
+
+            console.log("📧 Datos para email (sitio web):", emailData);
+
+            const emailSent = await window.emailService.sendConfirmationEmail(
+              emailData
+            );
+
+            console.log("📧 Resultado email (sitio web):", emailSent);
+
+            if (emailSent) {
+              console.log("✅ Email de confirmación enviado al cliente");
+            } else {
+              console.log("⚠️ No se pudo enviar el email de confirmación");
+            }
+          } catch (error) {
+            console.error("❌ Error enviando email de confirmación:", error);
+            // No interrumpir el proceso de reserva por un error de email
+          }
+        } else {
+          console.log(
+            "⚠️ EmailService no disponible para envío de confirmación"
+          );
+        }
+
+        // Programar recordatorios automáticos
+        console.log("📅 PROGRAMANDO RECORDATORIOS DESDE SITIO WEB...");
+
+        if (window.reminderSystem) {
+          try {
+            const reservationWithId = {
+              ...completeReservationData,
+              id: reservationId,
+            };
+
+            window.reminderSystem.scheduleReminders(reservationWithId);
+            console.log(
+              "📅 Recordatorios programados para reserva web:",
+              reservationId
+            );
+          } catch (error) {
+            console.error("❌ Error programando recordatorios:", error);
+          }
+        } else {
+          console.log("⚠️ ReminderSystem no disponible");
+        }
 
         // Enviar notificación de WhatsApp al terapeuta
         try {
@@ -795,6 +854,26 @@ class EspacioShantiApp {
     }
   }
 
+  // Setup authentication state monitoring
+  setupAuthentication() {
+    if (!window.firebaseManager || !window.firebaseManager.initialized) {
+      console.log("🔐 Firebase not ready for auth setup");
+      return;
+    }
+
+    // Listen for authentication state changes
+    window.firebaseManager.onAuthStateChanged((user) => {
+      this.isTherapistAuthenticated = !!user;
+      this.currentUser = user;
+
+      if (user) {
+        console.log("🔐 Therapist authenticated:", user.email);
+      } else {
+        console.log("🔐 No authenticated therapist");
+      }
+    });
+  }
+
   // Simple function to check if ALL therapists are busy at a specific time
   isTimeSlotCompletelyBooked(dateString, time) {
     // Both therapist IDs
@@ -870,7 +949,137 @@ window.addEventListener("beforeunload", function () {
   }
 });
 
+// FAQ Functionality
+
+// FAQ Accordion functionality
+function toggleFAQ(faqId) {
+  const content = document.getElementById(faqId);
+  const icon = document.getElementById(faqId + "-icon");
+
+  if (content.classList.contains("hidden")) {
+    content.classList.remove("hidden");
+    content.style.maxHeight = content.scrollHeight + "px";
+    icon.style.transform = "rotate(180deg)";
+  } else {
+    content.classList.add("hidden");
+    content.style.maxHeight = "0px";
+    icon.style.transform = "rotate(0deg)";
+  }
+}
+
+// FAQ Category switching functionality
+function showFAQCategory(category) {
+  // Hide all categories
+  const categories = ["terapias", "turnos", "pagos", "centro"];
+  categories.forEach((cat) => {
+    const categoryDiv = document.getElementById("faq-" + cat);
+    const tab = document.getElementById("tab-" + cat);
+    if (categoryDiv) categoryDiv.classList.add("hidden");
+    if (tab) {
+      tab.classList.remove("active");
+      tab.classList.remove(
+        "bg-sage-600",
+        "text-white",
+        "bg-blue-600",
+        "bg-green-600",
+        "bg-purple-600"
+      );
+      tab.classList.add("bg-gray-200", "text-gray-700");
+    }
+  });
+
+  // Show selected category
+  const selectedCategory = document.getElementById("faq-" + category);
+  const selectedTab = document.getElementById("tab-" + category);
+  if (selectedCategory) selectedCategory.classList.remove("hidden");
+  if (selectedTab) {
+    selectedTab.classList.add("active");
+    selectedTab.classList.remove("bg-gray-200", "text-gray-700");
+
+    // Apply category-specific colors
+    switch (category) {
+      case "terapias":
+        selectedTab.classList.add("bg-sage-600", "text-white");
+        break;
+      case "turnos":
+        selectedTab.classList.add("bg-blue-600", "text-white");
+        break;
+      case "pagos":
+        selectedTab.classList.add("bg-green-600", "text-white");
+        break;
+      case "centro":
+        selectedTab.classList.add("bg-purple-600", "text-white");
+        break;
+    }
+  }
+}
+
+// Setup real-time blog listener (moved from global scope to class)
+function setupBlogListener() {
+  if (window.firebaseManager && window.firebaseManager.initialized) {
+    // Listen for real-time blog updates
+    window.firebaseManager.listenToBlogEntries((entries) => {
+      console.log(
+        "📡 Real-time blog update received:",
+        entries.length,
+        "entries"
+      );
+
+      // Avoid regenerating during delete operations
+      if (window.isDeletingBlogEntry) {
+        console.log("⏳ Skipping regeneration during delete operation");
+        return;
+      }
+
+      // Update the blog display in real-time
+      generateBlogCards();
+    });
+  }
+}
+
+// Función para editar una entrada de blog
+async function editBlogEntry(entryId) {
+  try {
+    let therapistEntries = [];
+
+    if (window.firebaseManager && window.firebaseManager.initialized) {
+      therapistEntries = await window.firebaseManager.getBlogEntries();
+    } else {
+      therapistEntries = JSON.parse(
+        localStorage.getItem("blogEntries") || "[]"
+      );
+    }
+
+    const entry = therapistEntries.find((e) => e.id === entryId);
+
+    if (!entry) {
+      alert("No se pudo encontrar la entrada para editar.");
+      return;
+    }
+
+    // Save entry data for later use
+    localStorage.setItem("pendingEditEntry", JSON.stringify(entry));
+
+    // Check if panel is already open in another tab/window
+    if (window.therapistPanel) {
+      // Panel is already loaded, call edit directly
+      window.therapistPanel.editBlogEntry(entry);
+      closeBlogModal();
+    } else {
+      // Open panel in same window
+      closeBlogModal();
+      window.location.href = "panel.html?editEntry=" + entryId;
+    }
+  } catch (error) {
+    console.error("❌ Error editing blog entry:", error);
+    alert("Error al preparar la edición. Por favor, intenta de nuevo.");
+  }
+}
+
 // Initialize the app when the DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   window.espacioShantiApp = new EspacioShantiApp();
+
+  // Initialize FAQ on page load
+  showFAQCategory("terapias");
 });

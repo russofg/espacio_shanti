@@ -300,6 +300,183 @@ class FirebaseManager {
       throw error;
     }
   }
+
+  // Blog Entry Management Functions
+
+  // Save a new blog entry
+  async saveBlogEntry(blogData) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const blogRef = this.firestore.collection(this.db, "blogEntries");
+
+      const dataToSave = {
+        ...blogData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const docRef = await this.firestore.addDoc(blogRef, dataToSave);
+      console.log("✅ Blog entry saved with ID:", docRef.id);
+
+      return docRef.id;
+    } catch (error) {
+      console.error("❌ Error saving blog entry:", error);
+      throw error;
+    }
+  }
+
+  // Get all blog entries
+  async getBlogEntries() {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      return [];
+    }
+
+    try {
+      const blogRef = this.firestore.collection(this.db, "blogEntries");
+      const q = this.firestore.query(
+        blogRef,
+        this.firestore.orderBy("createdAt", "desc")
+      );
+
+      const snapshot = await this.firestore.getDocs(q);
+      const entries = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      console.log(`✅ Retrieved ${entries.length} blog entries from Firebase`);
+      return entries;
+    } catch (error) {
+      console.error("❌ Error getting blog entries:", error);
+      return [];
+    }
+  }
+
+  // Update a blog entry
+  async updateBlogEntry(entryId, updateData) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const entryRef = this.firestore.doc(this.db, "blogEntries", entryId);
+
+      const dataToUpdate = {
+        ...updateData,
+        updatedAt: new Date(),
+      };
+
+      await this.firestore.updateDoc(entryRef, dataToUpdate);
+      console.log("✅ Blog entry updated successfully:", entryId);
+
+      return true;
+    } catch (error) {
+      console.error("❌ Error updating blog entry:", error);
+      throw error;
+    }
+  }
+
+  // Delete a blog entry
+  async deleteBlogEntry(entryId) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const entryRef = this.firestore.doc(this.db, "blogEntries", entryId);
+      await this.firestore.deleteDoc(entryRef);
+      console.log("✅ Blog entry deleted successfully:", entryId);
+
+      return true;
+    } catch (error) {
+      console.error("❌ Error deleting blog entry:", error);
+      throw error;
+    }
+  }
+
+  // Listen to real-time blog entries changes
+  listenToBlogEntries(callback) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      return null;
+    }
+
+    try {
+      const blogRef = this.firestore.collection(this.db, "blogEntries");
+      const q = this.firestore.query(
+        blogRef,
+        this.firestore.orderBy("createdAt", "desc")
+      );
+
+      const unsubscribe = this.firestore.onSnapshot(q, (snapshot) => {
+        const entries = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        callback(entries);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error("❌ Error setting up blog entries listener:", error);
+      return null;
+    }
+  }
+
+  // Authentication Functions
+
+  // Sign in therapist
+  async signInTherapist(email, password) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const userCredential =
+        await this.authFunctions.signInWithEmailAndPassword(
+          this.auth,
+          email,
+          password
+        );
+
+      console.log(
+        "✅ Therapist signed in successfully:",
+        userCredential.user.email
+      );
+      return userCredential.user;
+    } catch (error) {
+      console.error("❌ Error signing in therapist:", error);
+      throw error;
+    }
+  }
+
+  // Check if current user is authenticated therapist
+  isAuthenticatedTherapist() {
+    return this.auth?.currentUser !== null;
+  }
+
+  // Get current therapist info
+  getCurrentTherapist() {
+    return this.auth?.currentUser || null;
+  }
+
+  // Set up authentication state listener
+  onAuthStateChanged(callback) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      return null;
+    }
+
+    return this.authFunctions.onAuthStateChanged(this.auth, callback);
+  }
 }
 
 // Create global instance
