@@ -268,7 +268,7 @@ class EspacioShantiApp {
         }
 
         return `
-            <div class="service-card bg-white rounded-xl shadow-md overflow-hidden card-hover transition-all duration-300 hover:shadow-lg" data-service-id="${
+            <div class="service-card bg-white rounded-xl shadow-md overflow-hidden card-hover transition-all duration-300 hover:shadow-lg h-full flex flex-col" data-service-id="${
               service.id
             }">
                 <div class="h-48 relative overflow-hidden">
@@ -277,14 +277,14 @@ class EspacioShantiApp {
                        onerror="this.src='/images/services/default-service.svg'">
                   <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                 </div>
-                <div class="p-6">
+                <div class="p-6 flex flex-col flex-grow">
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">${
                       service.name
                     }</h3>
-                    <p class="text-gray-600 mb-4 min-h-[48px]">${
+                    <p class="text-gray-600 mb-4 flex-grow">${
                       service.description
                     }</p>
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center mt-auto">
                         <span class="text-sage-600 font-semibold">${
                           service.duration
                         } min</span>
