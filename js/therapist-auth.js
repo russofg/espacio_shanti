@@ -45,17 +45,44 @@ class TherapistAuth {
   }
 
   checkExistingSession() {
-    // Verificar si hay datos de sesión guardados
-    const savedUser = localStorage.getItem("therapist_session");
-    if (savedUser) {
-      try {
-        this.currentUser = JSON.parse(savedUser);
+    // Verificar si hay datos de sesión guardados usando almacenamiento seguro
+    let savedUser = null;
+    
+    try {
+      // Intentar primero con almacenamiento seguro
+      if (window.secureStorage) {
+        savedUser = window.secureStorage.getSecureItem("therapist_session");
+      }
+      
+      // Si no hay datos en almacenamiento seguro, intentar localStorage tradicional
+      if (!savedUser) {
+        const rawData = localStorage.getItem("therapist_session");
+        if (rawData) {
+          // Verificar si los datos están en formato JSON tradicional
+          if (rawData.startsWith('{')) {
+            savedUser = JSON.parse(rawData);
+          } else {
+            // Si no es JSON, podría ser datos cifrados antiguos, limpiar
+            window.secureLogger?.warn("🔄 Limpiando datos de sesión en formato no válido");
+            localStorage.removeItem("therapist_session");
+            return;
+          }
+        }
+      }
+      
+      if (savedUser) {
+        this.currentUser = savedUser;
         this.isAuthenticated = true;
         this.updateUI();
-      } catch (error) {
-        console.error("Error loading saved session:", error);
-        localStorage.removeItem("therapist_session");
+        window.secureLogger?.info("✅ Sesión de terapeuta restaurada exitosamente");
       }
+    } catch (error) {
+      window.secureLogger?.error("Error loading saved session:", error.message);
+      // Limpiar datos corruptos
+      if (window.secureStorage) {
+        window.secureStorage.removeItem("therapist_session");
+      }
+      localStorage.removeItem("therapist_session");
     }
   }
 
@@ -74,14 +101,18 @@ class TherapistAuth {
       this.currentUser = user;
       this.isAuthenticated = true;
 
-      // Guardar sesión localmente
-      localStorage.setItem(
-        "therapist_session",
-        JSON.stringify({
-          email: user.email,
-          uid: user.uid,
-        })
-      );
+      // Guardar sesión localmente de forma segura
+      const sessionData = {
+        email: user.email,
+        uid: user.uid,
+      };
+      
+      if (window.secureStorage) {
+        window.secureStorage.setSecureItem("therapist_session", sessionData);
+      } else {
+        // Fallback a localStorage tradicional
+        localStorage.setItem("therapist_session", JSON.stringify(sessionData));
+      }
 
       // Actualizar UI y disparar eventos
       this.updateUI();
@@ -101,7 +132,10 @@ class TherapistAuth {
         await window.firebaseManager.auth.signOut();
       }
 
-      // Limpiar sesión local
+      // Limpiar sesión local de forma segura
+      if (window.secureStorage) {
+        window.secureStorage.removeItem("therapist_session");
+      }
       localStorage.removeItem("therapist_session");
 
       this.currentUser = null;
@@ -109,9 +143,9 @@ class TherapistAuth {
       this.updateUI();
       this.dispatchAuthEvent(false);
 
-      console.log("✅ Therapist signed out successfully");
+      window.secureLogger?.info("✅ Therapist signed out successfully");
     } catch (error) {
-      console.error("❌ Sign out error:", error);
+      window.secureLogger?.error("❌ Sign out error:", error.message);
       throw error;
     }
   }
