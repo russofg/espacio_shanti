@@ -35,10 +35,15 @@ class FirebaseManager {
         await import(
           "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
         );
+      const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } =
+        await import(
+          "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"
+        );
 
       this.app = initializeApp(config);
       this.db = getFirestore(this.app);
       this.auth = getAuth(this.app);
+      this.storage = getStorage(this.app);
 
       // Store Firebase functions for later use
       this.firestore = {
@@ -57,6 +62,13 @@ class FirebaseManager {
       this.authFunctions = {
         signInWithEmailAndPassword,
         onAuthStateChanged,
+      };
+
+      this.storageFunctions = {
+        ref,
+        uploadBytes,
+        getDownloadURL,
+        deleteObject,
       };
 
       this.initialized = true;
@@ -476,6 +488,117 @@ class FirebaseManager {
     }
 
     return this.authFunctions.onAuthStateChanged(this.auth, callback);
+  }
+
+  // Services Management Functions
+
+  // Get all services
+  async getServices() {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const servicesRef = this.firestore.collection(this.db, "services");
+      const querySnapshot = await this.firestore.getDocs(servicesRef);
+      const services = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = {
+          id: doc.id,
+          ...doc.data(),
+        };
+        services.push(data);
+      });
+
+      // Ordenar por orden especificado o por nombre
+      services.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      return services;
+    } catch (error) {
+      console.error("❌ Error getting services:", error);
+      throw error;
+    }
+  }
+
+  // Save or update a service
+  async saveService(serviceData) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const servicesRef = this.firestore.collection(this.db, "services");
+
+      if (serviceData.id) {
+        // Update existing service
+        const serviceRef = this.firestore.doc(
+          this.db,
+          "services",
+          serviceData.id
+        );
+        await this.firestore.updateDoc(serviceRef, {
+          ...serviceData,
+          updatedAt: new Date(),
+        });
+        return serviceData.id;
+      } else {
+        // Create new service
+        const docRef = await this.firestore.addDoc(servicesRef, {
+          ...serviceData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        return docRef.id;
+      }
+    } catch (error) {
+      console.error("❌ Error saving service:", error);
+      throw error;
+    }
+  }
+
+  // Update an existing service
+  async updateService(serviceId, serviceData) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const serviceRef = this.firestore.doc(this.db, "services", serviceId);
+      await this.firestore.updateDoc(serviceRef, {
+        ...serviceData,
+        updatedAt: new Date(),
+      });
+      return serviceId;
+    } catch (error) {
+      console.error("❌ Error updating service:", error);
+      throw error;
+    }
+  }
+
+  // Delete a service
+  async deleteService(serviceId) {
+    if (!this.initialized) {
+      console.error("❌ Firebase no inicializado");
+      throw new Error("Firebase not initialized");
+    }
+
+    try {
+      const serviceRef = this.firestore.doc(this.db, "services", serviceId);
+      await this.firestore.deleteDoc(serviceRef);
+      return true;
+    } catch (error) {
+      console.error("❌ Error deleting service:", error);
+      throw error;
+    }
   }
 }
 

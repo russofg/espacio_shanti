@@ -7,7 +7,9 @@ class EspacioShantiApp {
     this.currentUser = null;
     this.isTherapistAuthenticated = false;
     this.reservations = [];
-    this.services = [
+    // Los servicios ahora se cargan dinámicamente desde Firebase
+    // Para backwards compatibility, mantener estos como fallback
+    this.servicesBackup = [
       {
         id: "reiki",
         name: "Reiki",
@@ -43,6 +45,9 @@ class EspacioShantiApp {
       },
     ];
 
+    // Los servicios se cargarán dinámicamente
+    this.services = [];
+
     this.therapists = [
       {
         id: "lorena",
@@ -67,9 +72,127 @@ class EspacioShantiApp {
 
   async init() {
     this.setupEventListeners();
+    await this.loadServices(); // Cargar servicios desde Firebase primero
+
+    // Si no hay servicios en Firebase, crear servicios de ejemplo
+    if (this.services.length === 0 || this.services === this.servicesBackup) {
+      await this.createExampleServices();
+    }
+
     await this.loadContent();
     this.setupRealtimeListener();
     this.setupAuthentication();
+  }
+
+  // Crear servicios de ejemplo en Firebase
+  async createExampleServices() {
+    try {
+      if (!window.firebaseManager || !window.firebaseManager.initialized) {
+        console.log(
+          "⚠️ Firebase no disponible para crear servicios de ejemplo"
+        );
+        return;
+      }
+
+      console.log("🔧 Creando servicios de ejemplo en Firebase...");
+
+      const exampleServices = [
+        {
+          name: "Reiki Usui",
+          description:
+            "Terapia energética que promueve la relajación profunda y el equilibrio de los chakras.",
+          duration: 60,
+          price: 12000,
+          image: "images/reiki.jpg",
+          order: 1,
+        },
+        {
+          name: "Meditación Guiada",
+          description:
+            "Sesiones de meditación mindfulness para encontrar paz interior y reducir el estrés.",
+          duration: 45,
+          price: 10000,
+          image: "images/meditacion.jpg",
+          order: 2,
+        },
+        {
+          name: "Masajes Terapéuticos",
+          description:
+            "Masajes relajantes y descontracturantes para liberar tensiones corporales.",
+          duration: 90,
+          price: 14000,
+          image: "images/masajes.jpg",
+          order: 3,
+        },
+        {
+          name: "Aromaterapia",
+          description:
+            "Terapia holística con aceites esenciales puros para el bienestar integral.",
+          duration: 75,
+          price: 12000,
+          image: "images/aromaterapia.jpg",
+          order: 4,
+        },
+      ];
+
+      for (const service of exampleServices) {
+        await window.firebaseManager.saveService(service);
+        console.log(`✅ Servicio creado: ${service.name}`);
+      }
+
+      // Recargar servicios después de crearlos
+      await this.loadServices();
+      this.renderServices(); // Re-renderizar los servicios
+    } catch (error) {
+      console.error("❌ Error creando servicios de ejemplo:", error);
+    }
+  }
+
+  // Cargar servicios desde Firebase
+  async loadServices() {
+    try {
+      // Esperar a que Firebase esté listo
+      let retries = 0;
+      while (
+        (!window.firebaseManager || !window.firebaseManager.initialized) &&
+        retries < 10
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        retries++;
+      }
+
+      if (window.firebaseManager && window.firebaseManager.initialized) {
+        console.log("🔥 Cargando servicios desde Firebase...");
+        const firebaseServices = await window.firebaseManager.getServices();
+        console.log(
+          "🔍 DEBUG: Servicios obtenidos de Firebase:",
+          firebaseServices
+        );
+
+        if (firebaseServices && firebaseServices.length > 0) {
+          this.services = firebaseServices;
+          console.log(
+            "✅ Servicios cargados desde Firebase:",
+            this.services.length,
+            "servicios"
+          );
+          console.log("📋 Lista de servicios:", this.services);
+        } else {
+          console.log("⚠️ No hay servicios en Firebase, usando backup");
+          this.services = [...this.servicesBackup];
+          console.log("📋 Usando servicios backup:", this.services);
+        }
+      } else {
+        console.log("⚠️ Firebase no disponible, usando servicios backup");
+        this.services = [...this.servicesBackup];
+        console.log("📋 Usando servicios backup:", this.services);
+      }
+    } catch (error) {
+      console.error("❌ Error cargando servicios:", error);
+      console.log("🔄 Usando servicios backup");
+      this.services = [...this.servicesBackup];
+      console.log("📋 Usando servicios backup por error:", this.services);
+    }
   }
 
   setupEventListeners() {
@@ -112,33 +235,69 @@ class EspacioShantiApp {
 
   renderServices() {
     const servicesContainer = document.getElementById("services-container");
-    if (!servicesContainer) return;
+    if (!servicesContainer) {
+      console.warn("⚠️ No se encontró el contenedor de servicios");
+      return;
+    }
+
+    console.log("🎨 Renderizando servicios:", this.services.length);
+
+    if (this.services.length === 0) {
+      servicesContainer.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <p class="text-gray-600 text-lg">No hay servicios disponibles</p>
+          <p class="text-gray-500 text-sm mt-2">Los servicios se cargarán automáticamente desde Firebase</p>
+        </div>
+      `;
+      return;
+    }
 
     const servicesHTML = this.services
-      .map(
-        (service) => `
-            <div class="service-card bg-white rounded-xl shadow-md overflow-hidden card-hover" data-service-id="${
+      .map((service) => {
+        // Determinar la URL de la imagen
+        let imageUrl = "/images/services/default-service.svg";
+        if (service.image) {
+          if (
+            service.image.startsWith("http") ||
+            service.image.startsWith("/")
+          ) {
+            imageUrl = service.image;
+          } else {
+            imageUrl = `/images/services/${service.image}`;
+          }
+        }
+
+        return `
+            <div class="service-card bg-white rounded-xl shadow-md overflow-hidden card-hover transition-all duration-300 hover:shadow-lg" data-service-id="${
               service.id
             }">
-                <div class="h-48 bg-gradient-to-br from-sage-light to-sage"></div>
+                <div class="h-48 relative overflow-hidden">
+                  <img src="${imageUrl}" alt="${service.name}" 
+                       class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                       onerror="this.src='/images/services/default-service.svg'">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">${
                       service.name
                     }</h3>
-                    <p class="text-gray-600 mb-4">${service.description}</p>
+                    <p class="text-gray-600 mb-4 min-h-[48px]">${
+                      service.description
+                    }</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-sage font-semibold">${
+                        <span class="text-sage-600 font-semibold">${
                           service.duration
                         } min</span>
-                        <span class="text-gray-800 font-bold">$${service.price.toLocaleString()}</span>
+                        <span class="text-gray-800 font-bold text-lg">$${service.price.toLocaleString()}</span>
                     </div>
                 </div>
             </div>
-        `
-      )
+          `;
+      })
       .join("");
 
     servicesContainer.innerHTML = servicesHTML;
+    console.log("✅ Servicios renderizados exitosamente");
   }
 
   renderTherapists() {
@@ -657,15 +816,23 @@ class EspacioShantiApp {
         }
 
         // Enviar notificación de WhatsApp al terapeuta
+        console.log("📱 INICIANDO NOTIFICACIÓN WHATSAPP...");
         try {
           if (window.callMeBotService) {
+            console.log(
+              "📱 CallMeBot service disponible, enviando notificación..."
+            );
             const notificationSent =
               await window.callMeBotService.sendNotification(
                 completeReservationData
               );
             if (notificationSent) {
+              console.log("✅ Notificación WhatsApp enviada exitosamente");
             } else {
+              console.log("❌ Falló el envío de notificación WhatsApp");
             }
+          } else {
+            console.log("❌ CallMeBot service no disponible");
           }
         } catch (error) {
           console.error("❌ Error enviando notificación WhatsApp:", error);
@@ -784,8 +951,70 @@ class EspacioShantiApp {
             console.error("❌ Error en listener de reservas:", error);
           }
         );
+
+      // Setup services real-time listener
+      this.setupServicesListener();
     } catch (error) {
       console.error("❌ Error configurando listener:", error);
+    }
+  }
+
+  // Configurar listener para cambios en servicios
+  setupServicesListener() {
+    if (!window.firebaseManager || !window.firebaseManager.initialized) {
+      return;
+    }
+
+    // Evitar múltiples listeners
+    if (this.unsubscribeServices) {
+      return;
+    }
+
+    try {
+      // Crear un listener personalizado para servicios
+      const servicesRef = window.firebaseManager.firestore.collection(
+        window.firebaseManager.db,
+        "services"
+      );
+
+      // Flag to skip initial load
+      let initialLoad = true;
+
+      this.unsubscribeServices = window.firebaseManager.firestore.onSnapshot(
+        servicesRef,
+        (snapshot) => {
+          if (initialLoad) {
+            initialLoad = false;
+            return;
+          }
+
+          console.log("🔄 Servicios actualizados en tiempo real");
+
+          const updatedServices = [];
+          snapshot.forEach((doc) => {
+            updatedServices.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+          });
+
+          // Ordenar servicios
+          updatedServices.sort((a, b) => {
+            if (a.order !== undefined && b.order !== undefined) {
+              return a.order - b.order;
+            }
+            return a.name.localeCompare(b.name);
+          });
+
+          // Actualizar servicios y re-renderizar
+          this.services = updatedServices;
+          this.renderServices();
+
+          console.log("✅ Servicios actualizados:", this.services.length);
+        }
+      );
+    } catch (error) {
+      console.error("❌ Error configurando listener de servicios:", error);
     }
   }
 

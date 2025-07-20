@@ -3,7 +3,6 @@ class TherapistPanel {
   constructor() {
     this.currentUser = null;
     this.currentWeek = new Date();
-    this.currentMobileDate = new Date(); // For mobile calendar navigation
     this.reservations = [];
     this.unsubscribe = null; // For real-time listener cleanup
     this.weekdays = [
@@ -66,20 +65,9 @@ class TherapistPanel {
       }
     });
 
-    // Función para esperar que Firebase esté listo
-    const waitForFirebase = () => {
-      if (window.firebaseManager && window.firebaseManager.initialized) {
-        console.log("✅ Firebase está inicializado, ejecutando checkAuth");
-        this.checkAuth();
-      } else {
-        console.log("⏳ Esperando que Firebase se inicialice...");
-        setTimeout(waitForFirebase, 500);
-      }
-    };
-
     // Asegurarse de que el DOM esté listo antes de manipular elementos
     setTimeout(() => {
-      waitForFirebase(); // Esperar Firebase antes de checkAuth
+      this.checkAuth();
       this.setupEventListeners();
       // No cargar reservas aquí - se cargan después del login
       this.generateWeeklyCalendar();
@@ -91,14 +79,6 @@ class TherapistPanel {
           this.tryMultipleAuthSources();
         }
       }, 1000);
-
-      // Add window resize listener for responsive calendar
-      window.addEventListener("resize", () => {
-        clearTimeout(this.resizeTimeout);
-        this.resizeTimeout = setTimeout(() => {
-          this.generateWeeklyCalendar();
-        }, 300);
-      });
     }, 100);
   }
 
@@ -112,29 +92,20 @@ class TherapistPanel {
   tryMultipleAuthSources() {
     console.log("🔍 Intentando múltiples fuentes de autenticación...");
 
-    try {
-      // 1. Verificar therapist_session (usado por therapist-auth.js)
-      const therapistSession = localStorage.getItem("therapist_session");
-      console.log("🔍 therapist_session from localStorage:", therapistSession);
+    // 1. Verificar therapist_session (usado por therapist-auth.js)
+    const therapistSession = localStorage.getItem("therapist_session");
+    console.log("🔍 therapist_session from localStorage:", therapistSession);
 
-      // 2. Verificar currentTherapist (usado antes)
-      const currentTherapist = localStorage.getItem("currentTherapist");
-      console.log("🔍 currentTherapist from localStorage:", currentTherapist);
+    // 2. Verificar currentTherapist (usado antes)
+    const currentTherapist = localStorage.getItem("currentTherapist");
+    console.log("🔍 currentTherapist from localStorage:", currentTherapist);
 
-      // 3. Verificar Firebase Auth actual (solo si Firebase está inicializado)
-      if (
-        window.firebaseManager &&
-        window.firebaseManager.initialized &&
-        window.firebaseManager.auth &&
-        window.firebaseManager.auth.currentUser
-      ) {
-        const firebaseUser = window.firebaseManager.auth.currentUser;
-        console.log("🔍 Firebase currentUser:", firebaseUser.email);
-        this.handleAuthSuccess(firebaseUser);
-        return;
-      }
-    } catch (error) {
-      console.error("🚨 Error en tryMultipleAuthSources:", error);
+    // 3. Verificar Firebase Auth actual
+    if (window.firebaseManager && window.firebaseManager.auth.currentUser) {
+      const firebaseUser = window.firebaseManager.auth.currentUser;
+      console.log("🔍 Firebase currentUser:", firebaseUser.email);
+      this.handleAuthSuccess(firebaseUser);
+      return;
     }
 
     // Si hay sessión de therapist-auth.js, usarla
@@ -480,64 +451,11 @@ class TherapistPanel {
     }
 
     if (this.currentUser) {
-      const userName = this.currentUser.name
-        ? this.currentUser.name.split(" ")[0]
-        : "Terapeuta";
+      const userName = this.currentUser.name.split(" ")[0];
 
-      // Generate initials for mobile
-      const getInitials = (name) => {
-        if (!name) return "T";
-        const nameParts = name.split(" ");
-        if (nameParts.length >= 2) {
-          return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
-        }
-        return name[0].toUpperCase();
-      };
-
-      const userInitials = getInitials(this.currentUser.name);
-
-      // Update main header auth status with responsive design
-      const authStatus = document.getElementById("auth-status");
-      if (authStatus) {
-        authStatus.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <!-- Mobile: Show initials only -->
-            <div class="sm:hidden">
-              <div class="w-7 h-7 bg-gradient-to-br from-sage-400 to-sage-600 rounded-full flex items-center justify-center shadow-soft">
-                <span class="text-white text-xs font-bold">${userInitials}</span>
-              </div>
-            </div>
-            
-            <!-- Desktop: Show full info with aligned avatar -->
-            <div class="hidden sm:flex sm:items-center sm:space-x-3">
-              <div class="text-right">
-                <div class="font-semibold text-gray-800 text-sm">${userName}</div>
-                <div class="text-xs text-sage-600">Profesional Terapéutico</div>
-              </div>
-              <div class="w-8 h-8 bg-gradient-to-br from-sage-400 to-sage-600 rounded-full flex items-center justify-center shadow-soft">
-                <i class="fas fa-user text-white text-sm"></i>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      // Update logout button style to match
-      const logoutBtn = document.getElementById("logout-btn-mobile");
-      if (logoutBtn) {
-        logoutBtn.className =
-          "bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-600 p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-soft hover:shadow-elegant transition-all duration-200 transform hover:scale-105";
-        logoutBtn.title = "Cerrar Sesión";
-
-        // Update icon size for mobile
-        const icon = logoutBtn.querySelector("i");
-        if (icon) {
-          icon.className = "fas fa-sign-out-alt text-sm sm:text-base";
-        }
-      }
-
-      // Update mobile user info
+      // Update user info
       const userInfoMobile = document.getElementById("user-info-mobile");
+
       if (userInfoMobile) {
         userInfoMobile.textContent = `Bienvenida, ${userName}`;
       }
@@ -569,195 +487,99 @@ class TherapistPanel {
       endOfWeek
     )}`;
 
-    // Check device sizes
-    const isMobile = window.innerWidth < 640;
+    // Check if mobile
+    const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth < 1024;
 
-    // Mobile-first approach: create a more readable layout for small screens
-    if (isMobile) {
-      this.generateMobileCalendar(startOfWeek, calendarContainer);
-    } else {
-      this.generateDesktopCalendar(startOfWeek, calendarContainer, isTablet);
-    }
-  }
-
-  generateMobileCalendar(startOfWeek, container) {
-    // For mobile, show one day at a time with navigation
-    let mobileHTML = `
-      <div class="mobile-calendar">
-        <div class="flex justify-between items-center mb-4 bg-white/70 rounded-lg p-3">
-          <button id="mobile-prev-day" class="p-2 rounded-lg bg-sage-100 hover:bg-sage-200 text-sage-700 transition-colors">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <div class="text-center">
-            <div id="mobile-current-day" class="font-semibold text-gray-800"></div>
-            <div id="mobile-current-date" class="text-sm text-gray-600"></div>
-          </div>
-          <button id="mobile-next-day" class="p-2 rounded-lg bg-sage-100 hover:bg-sage-200 text-sage-700 transition-colors">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-        <div id="mobile-day-slots" class="space-y-2">
-          <!-- Slots will be generated here -->
-        </div>
-      </div>
-    `;
-
-    container.innerHTML = mobileHTML;
-
-    // Initialize mobile calendar with today
-    this.currentMobileDate = new Date();
-    this.updateMobileDay();
-
-    // Add event listeners for mobile navigation
-    document.getElementById("mobile-prev-day").addEventListener("click", () => {
-      this.currentMobileDate.setDate(this.currentMobileDate.getDate() - 1);
-      this.updateMobileDay();
-    });
-
-    document.getElementById("mobile-next-day").addEventListener("click", () => {
-      this.currentMobileDate.setDate(this.currentMobileDate.getDate() + 1);
-      this.updateMobileDay();
-    });
-  }
-
-  updateMobileDay() {
-    const dayElement = document.getElementById("mobile-current-day");
-    const dateElement = document.getElementById("mobile-current-date");
-    const slotsElement = document.getElementById("mobile-day-slots");
-
-    if (!dayElement || !dateElement || !slotsElement) return;
-
-    // Update day and date display
-    dayElement.textContent = this.weekdays[this.currentMobileDate.getDay()];
-    dateElement.textContent = this.currentMobileDate.toLocaleDateString(
-      "es-ES",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    );
-
-    // Generate time slots for this day
-    const dateStr = this.getLocalDateString(this.currentMobileDate);
-    const isToday = dateStr === this.getLocalDateString(new Date());
-
-    let slotsHTML = "";
-    this.hours.forEach((hour) => {
-      const reservation = this.getReservationForSlot(dateStr, hour);
-
-      if (reservation) {
-        slotsHTML += `
-          <div class="bg-sage-100 border-l-4 border-sage-500 rounded-lg p-4 cursor-pointer hover:bg-sage-150 transition-colors"
-               onclick="window.therapistPanel.showReservationActions('${
-                 reservation.id
-               }')">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="font-semibold text-gray-800">${
-                  reservation.clientName
-                }</div>
-                <div class="text-sm text-gray-600">${
-                  reservation.serviceName || reservation.service || "Servicio"
-                }</div>
-                ${
-                  reservation.clientPhone
-                    ? `<div class="text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i>${reservation.clientPhone}</div>`
-                    : ""
-                }
-              </div>
-              <div class="text-right ml-3">
-                <div class="text-lg font-bold text-sage-700">${hour}</div>
-                <div class="text-xs text-gray-500">Click para gestionar</div>
-              </div>
-            </div>
-          </div>
-        `;
-      } else {
-        slotsHTML += `
-          <div class="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-            <div class="flex justify-between items-center">
-              <div class="text-gray-500">Horario disponible</div>
-              <div class="text-lg font-semibold text-gray-400">${hour}</div>
-            </div>
-          </div>
-        `;
-      }
-    });
-
-    slotsElement.innerHTML = slotsHTML;
-  }
-
-  generateDesktopCalendar(startOfWeek, container, isTablet) {
-    // Generate calendar HTML with better responsive design for desktop/tablet
+    // Generate calendar HTML with better responsive design
     let calendarHTML = `
-      <div class="calendar-grid ${isTablet ? "text-sm" : "text-base"}">
-        <div class="p-2 sm:p-3 font-semibold text-gray-600 text-center bg-gray-50 rounded-lg">Hora</div>
-        ${Array.from({ length: 7 }, (_, i) => {
-          const date = new Date(startOfWeek);
-          date.setDate(startOfWeek.getDate() + i);
-          const isToday =
-            this.getLocalDateString(date) ===
-            this.getLocalDateString(new Date());
-          return `
-            <div class="p-2 sm:p-3 font-semibold text-gray-600 text-center calendar-cell ${
-              isToday
-                ? "bg-blue-50 text-blue-700 ring-2 ring-blue-200"
-                : "bg-gray-50"
-            } rounded-lg">
-              <div class="text-sm sm:text-base font-semibold">${this.weekdays[
-                date.getDay()
-              ].substring(0, isTablet ? 3 : 10)}</div>
-              <div class="text-xs sm:text-sm ${
-                isToday ? "text-blue-600 font-medium" : "text-gray-500"
-              }">${date.getDate()}/${date.getMonth() + 1}</div>
-            </div>
-          `;
-        }).join("")}
-      `;
+            <div class="calendar-grid text-xs ${isTablet ? "text-2xs" : ""}">
+                <div class="p-1 sm:p-2 font-semibold text-gray-600 text-center bg-gray-50 rounded">Hora</div>
+                ${Array.from({ length: 7 }, (_, i) => {
+                  const date = new Date(startOfWeek);
+                  date.setDate(startOfWeek.getDate() + i);
+                  const isToday =
+                    this.getLocalDateString(date) ===
+                    this.getLocalDateString(new Date());
+                  return `
+                        <div class="p-1 sm:p-2 font-semibold text-gray-600 text-center calendar-cell ${
+                          isToday ? "bg-blue-50 text-blue-700" : "bg-gray-50"
+                        } rounded">
+                            <div class="${
+                              isMobile
+                                ? "text-xs"
+                                : isTablet
+                                ? "text-xs"
+                                : "text-sm"
+                            }">${this.weekdays[date.getDay()].substring(
+                    0,
+                    isMobile ? 3 : isTablet ? 3 : 10
+                  )}</div>
+                            <div class="text-xs ${
+                              isToday ? "text-blue-600" : "text-gray-500"
+                            }">${date.getDate()}/${date.getMonth() + 1}</div>
+                        </div>
+                    `;
+                }).join("")}
+        `;
 
     // Generate time slots
     this.hours.forEach((hour) => {
       calendarHTML += `
-        <div class="p-2 sm:p-3 text-gray-600 font-medium text-sm text-center bg-gray-50 rounded-lg">${hour}</div>
-        ${Array.from({ length: 7 }, (_, dayIndex) => {
-          const date = new Date(startOfWeek);
-          date.setDate(startOfWeek.getDate() + dayIndex);
-          const dateStr = this.getLocalDateString(date);
+                <div class="p-1 sm:p-2 text-gray-600 font-medium text-xs text-center bg-gray-50 rounded">${hour}</div>
+                ${Array.from({ length: 7 }, (_, dayIndex) => {
+                  const date = new Date(startOfWeek);
+                  date.setDate(startOfWeek.getDate() + dayIndex);
+                  const dateStr = this.getLocalDateString(date);
 
-          const reservation = this.getReservationForSlot(dateStr, hour);
+                  const reservation = this.getReservationForSlot(dateStr, hour);
 
-          if (reservation) {
-            const clientName = reservation.clientName.split(" ")[0];
-            const serviceShort =
-              reservation.serviceName || reservation.service || "Servicio";
+                  if (reservation) {
+                    // More compact reservation display
+                    const clientName = reservation.clientName.split(" ")[0]; // Only first name
+                    const serviceShort =
+                      reservation.serviceName ||
+                      reservation.service ||
+                      "Servicio";
 
-            return `
-              <div class="calendar-reservation bg-gradient-to-br from-sage-100 to-sage-150 text-sage-800 rounded-lg border border-sage-200 text-xs cursor-pointer hover:from-sage-150 hover:to-sage-200 transition-all duration-200 p-2 relative shadow-sm hover:shadow-md" 
-                   onclick="window.therapistPanel.showReservationActions('${
-                     reservation.id
-                   }')"
-                   title="${reservation.clientName} - ${serviceShort}">
-                <div class="font-semibold truncate leading-tight">${clientName}</div>
-                <div class="truncate text-xs opacity-80 leading-tight">${serviceShort.substring(
-                  0,
-                  isTablet ? 12 : 20
-                )}</div>
-                <div class="text-xs opacity-60 mt-1">
-                  <i class="fas fa-clock mr-1"></i>Click
-                </div>
-              </div>
+                    return `
+                            <div class="calendar-reservation bg-sage-light text-sage-dark rounded border-l-4 border-sage text-xs cursor-pointer hover:bg-sage-light/70 transition-colors p-1 relative" 
+                                 onclick="window.therapistPanel.showReservationActions('${
+                                   reservation.id
+                                 }')"
+                                 title="${
+                                   reservation.clientName
+                                 } - ${serviceShort}">
+                                <div class="font-semibold truncate leading-tight">${clientName}</div>
+                                ${
+                                  !isMobile
+                                    ? `<div class="truncate text-xs opacity-75 leading-tight">${serviceShort.substring(
+                                        0,
+                                        isTablet ? 12 : 20
+                                      )}</div>`
+                                    : `<div class="truncate text-xs opacity-75 leading-tight">${serviceShort.substring(
+                                        0,
+                                        8
+                                      )}</div>`
+                                }
+                                ${
+                                  isMobile
+                                    ? '<div class="absolute top-0 right-0 text-xs opacity-60 text-sage-dark">⚡</div>'
+                                    : '<div class="text-xs opacity-60 mt-0.5">Click</div>'
+                                }
+                            </div>
+                        `;
+                  } else {
+                    return `<div class="p-1 border border-gray-200 rounded hover:bg-gray-50 calendar-cell" style="min-height: ${
+                      isMobile ? "32px" : "48px"
+                    };"></div>`;
+                  }
+                }).join("")}
             `;
-          } else {
-            return `<div class="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 calendar-cell transition-colors duration-200" style="min-height: 60px;"></div>`;
-          }
-        }).join("")}
-      `;
     });
 
     calendarHTML += "</div>";
-    container.innerHTML = calendarHTML;
+    calendarContainer.innerHTML = calendarHTML;
   }
 
   getReservationForSlot(date, time) {
@@ -1940,10 +1762,9 @@ class TherapistPanel {
     }
 
     // Usar servicios dinámicos si están disponibles, sino usar backup
-    const servicesToShow =
-      dynamicServices.length > 0
-        ? dynamicServices.map((service) => service.name)
-        : services;
+    const servicesToShow = dynamicServices.length > 0 
+      ? dynamicServices.map(service => service.name)
+      : services;
 
     const allTherapists = this.getAllTherapists();
     console.log("🔍 allTherapists:", allTherapists);
@@ -3104,6 +2925,46 @@ class TherapistPanel {
     this.loadReminderSystemData();
   }
 
+  // Nueva función para gestión de servicios
+  showServiceManagementModal() {
+    const modalHTML = `
+      <div id="service-management-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-6">
+              <h3 class="text-xl font-semibold text-gray-800">Gestión de Servicios</h3>
+              <button onclick="document.getElementById('service-management-modal').remove()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            
+            <div class="space-y-6">
+              <!-- Botón para agregar nuevo servicio -->
+              <div class="flex justify-end">
+                <button onclick="window.therapistPanel.showNewServiceForm()" class="bg-emerald-500 text-white py-2 px-4 rounded-lg hover:bg-emerald-600 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>Nuevo Servicio
+                </button>
+              </div>
+
+              <!-- Lista de servicios -->
+              <div id="services-list" class="space-y-4">
+                <div class="text-center text-gray-500 py-8">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                  <p>Cargando servicios...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Cargar los servicios
+    this.loadServicesForManagement();
+  }
+
   loadReminderSystemData() {
     try {
       // Obtener estadísticas del sistema de recordatorios
@@ -3650,13 +3511,13 @@ class TherapistPanel {
   async loadServicesForManagement() {
     try {
       console.log("📋 Cargando servicios para gestión...");
-
+      
       const servicesList = document.getElementById("services-list");
       if (!servicesList) return;
 
       // Obtener servicios de Firebase
       const services = await window.firebaseManager.getServices();
-
+      
       if (services.length === 0) {
         servicesList.innerHTML = `
           <div class="text-center text-gray-500 py-8">
@@ -3669,49 +3530,32 @@ class TherapistPanel {
       }
 
       // Renderizar lista de servicios
-      servicesList.innerHTML = services
-        .map(
-          (service) => `
+      servicesList.innerHTML = services.map(service => `
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
           <div class="flex items-start justify-between">
             <div class="flex-1">
               <h4 class="font-semibold text-gray-900">${service.name}</h4>
-              <p class="text-gray-600 text-sm mt-1">${
-                service.description || "Sin descripción"
-              }</p>
+              <p class="text-gray-600 text-sm mt-1">${service.description || 'Sin descripción'}</p>
               <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                <span><i class="far fa-clock"></i> ${
-                  service.duration || "N/A"
-                } min</span>
-                <span><i class="fas fa-dollar-sign"></i> $${
-                  service.price || "N/A"
-                }</span>
-                ${
-                  service.order !== undefined
-                    ? `<span><i class="fas fa-sort"></i> Orden: ${service.order}</span>`
-                    : ""
-                }
+                <span><i class="far fa-clock"></i> ${service.duration || 'N/A'} min</span>
+                <span><i class="fas fa-dollar-sign"></i> $${service.price || 'N/A'}</span>
+                ${service.order !== undefined ? `<span><i class="fas fa-sort"></i> Orden: ${service.order}</span>` : ''}
               </div>
             </div>
             <div class="flex items-center space-x-2 ml-4">
-              <button onclick="window.therapistPanel.editService('${
-                service.id
-              }')" 
+              <button onclick="window.therapistPanel.editService('${service.id}')" 
                       class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                 <i class="fas fa-edit"></i>
               </button>
-              <button onclick="window.therapistPanel.confirmDeleteService('${
-                service.id
-              }', '${service.name}')" 
+              <button onclick="window.therapistPanel.confirmDeleteService('${service.id}', '${service.name}')" 
                       class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
         </div>
-      `
-        )
-        .join("");
+      `).join('');
+
     } catch (error) {
       console.error("❌ Error cargando servicios:", error);
       const servicesList = document.getElementById("services-list");
@@ -3734,33 +3578,27 @@ class TherapistPanel {
 
     const formContainer = document.getElementById("service-form-container");
     const listContainer = document.getElementById("services-list-container");
-
+    
     listContainer.classList.add("hidden");
     formContainer.classList.remove("hidden");
-
+    
     // Limpiar formulario
     document.getElementById("service-form").reset();
-    document.getElementById("service-id").value = "";
-
+    document.getElementById("service-id").value = '';
+    
     // Actualizar título
     document.getElementById("form-title").textContent = "Nuevo Servicio";
     document.getElementById("form-submit-btn").textContent = "Crear Servicio";
-
-    // Ocultar vista previa
-    document.getElementById("image-preview").classList.add("hidden");
-
-    // Agregar event listener para vista previa de imagen
-    this.setupImagePreview();
   }
 
   async editService(serviceId) {
     try {
       console.log("✏️ Editando servicio:", serviceId);
-
+      
       // Obtener datos del servicio
       const services = await window.firebaseManager.getServices();
-      const service = services.find((s) => s.id === serviceId);
-
+      const service = services.find(s => s.id === serviceId);
+      
       if (!service) {
         alert("Servicio no encontrado");
         return;
@@ -3771,36 +3609,23 @@ class TherapistPanel {
 
       const formContainer = document.getElementById("service-form-container");
       const listContainer = document.getElementById("services-list-container");
-
+      
       listContainer.classList.add("hidden");
       formContainer.classList.remove("hidden");
-
+      
       // Llenar formulario con datos existentes
       document.getElementById("service-id").value = service.id;
       document.getElementById("service-name").value = service.name;
-      document.getElementById("service-description").value =
-        service.description || "";
-      document.getElementById("service-duration").value =
-        service.duration || "";
-      document.getElementById("service-price").value = service.price || "";
-      document.getElementById("service-image").value = service.image || "";
-      document.getElementById("service-order").value = service.order || "";
-
+      document.getElementById("service-description").value = service.description || '';
+      document.getElementById("service-duration").value = service.duration || '';
+      document.getElementById("service-price").value = service.price || '';
+      document.getElementById("service-image").value = service.image || '';
+      document.getElementById("service-order").value = service.order || '';
+      
       // Actualizar título
       document.getElementById("form-title").textContent = "Editar Servicio";
-      document.getElementById("form-submit-btn").textContent =
-        "Actualizar Servicio";
+      document.getElementById("form-submit-btn").textContent = "Actualizar Servicio";
 
-      // Configurar vista previa de imagen y mostrar imagen actual si existe
-      this.setupImagePreview();
-      if (service.image) {
-        const imagePreview = document.getElementById("image-preview");
-        const previewImg = document.getElementById("preview-img");
-        if (imagePreview && previewImg) {
-          previewImg.src = this.getServiceImageUrl(service.image);
-          imagePreview.classList.remove("hidden");
-        }
-      }
     } catch (error) {
       console.error("❌ Error editando servicio:", error);
       alert("Error al cargar datos del servicio");
@@ -3809,29 +3634,19 @@ class TherapistPanel {
 
   async saveService(event) {
     event.preventDefault();
-
+    
     try {
       const formData = new FormData(event.target);
-      const serviceId = formData.get("service-id");
-
+      const serviceId = formData.get('service-id');
+      
       const serviceData = {
-        name: formData.get("name")?.trim() || "",
-        description: formData.get("description")?.trim() || "",
-        duration: parseInt(formData.get("duration")) || 0,
-        price: parseFloat(formData.get("price")) || 0,
-        image: formData.get("image")?.trim() || "",
-        order: parseInt(formData.get("order")) || 0,
+        name: formData.get('name').trim(),
+        description: formData.get('description').trim(),
+        duration: parseInt(formData.get('duration')) || null,
+        price: parseFloat(formData.get('price')) || null,
+        image: formData.get('image').trim(),
+        order: parseInt(formData.get('order')) || 0
       };
-
-      // Debug info
-      console.log("🔍 Form data recibida:", {
-        name: formData.get("name"),
-        description: formData.get("description"),
-        duration: formData.get("duration"),
-        price: formData.get("price"),
-        image: formData.get("image"),
-        order: formData.get("order"),
-      });
 
       // Validación básica
       if (!serviceData.name) {
@@ -3841,22 +3656,23 @@ class TherapistPanel {
 
       console.log("💾 Guardando servicio:", serviceData);
 
-      if (serviceId && serviceId.trim() !== "") {
+      if (serviceId) {
         // Actualizar servicio existente
-        await window.firebaseManager.updateService(serviceId, serviceData);
+        await window.firebaseManager.saveService(serviceId, serviceData);
         console.log("✅ Servicio actualizado");
       } else {
         // Crear nuevo servicio
-        await window.firebaseManager.saveService(serviceData);
+        await window.firebaseManager.saveService(null, serviceData);
         console.log("✅ Servicio creado");
       }
 
       // Volver a la lista y recargar
       this.showServicesList();
       await this.loadServicesForManagement();
-
+      
       // Actualizar dropdowns en formularios
       this.updateServiceDropdowns();
+
     } catch (error) {
       console.error("❌ Error guardando servicio:", error);
       alert("Error al guardar el servicio. Inténtalo de nuevo.");
@@ -3866,15 +3682,16 @@ class TherapistPanel {
   async deleteService(serviceId) {
     try {
       console.log("🗑️ Eliminando servicio:", serviceId);
-
+      
       await window.firebaseManager.deleteService(serviceId);
       console.log("✅ Servicio eliminado");
-
+      
       // Recargar lista
       await this.loadServicesForManagement();
-
+      
       // Actualizar dropdowns
       this.updateServiceDropdowns();
+
     } catch (error) {
       console.error("❌ Error eliminando servicio:", error);
       alert("Error al eliminar el servicio");
@@ -3882,11 +3699,7 @@ class TherapistPanel {
   }
 
   confirmDeleteService(serviceId, serviceName) {
-    if (
-      confirm(
-        `¿Estás seguro de que quieres eliminar el servicio "${serviceName}"?\n\nEsta acción no se puede deshacer.`
-      )
-    ) {
+    if (confirm(`¿Estás seguro de que quieres eliminar el servicio "${serviceName}"?\n\nEsta acción no se puede deshacer.`)) {
       this.deleteService(serviceId);
     }
   }
@@ -3894,7 +3707,7 @@ class TherapistPanel {
   showServicesList() {
     const formContainer = document.getElementById("service-form-container");
     const listContainer = document.getElementById("services-list-container");
-
+    
     formContainer.classList.add("hidden");
     listContainer.classList.remove("hidden");
   }
@@ -3975,34 +3788,9 @@ class TherapistPanel {
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Imagen del Servicio
-                    <span class="text-xs text-gray-500">(nombre del archivo en /images/services/)</span>
-                  </label>
-                  <div class="space-y-3">
-                    <input type="text" id="service-image" name="image" placeholder="ej: masajes.jpg, reiki.svg, terapia-psicologica.png"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-                    
-                    <!-- Vista previa de la imagen -->
-                    <div id="image-preview" class="hidden">
-                      <img id="preview-img" src="" alt="Vista previa" 
-                           class="w-32 h-24 object-cover rounded-lg border border-gray-200 shadow-sm">
-                    </div>
-                    
-                    <!-- Imágenes disponibles -->
-                    <div class="bg-gray-50 rounded-lg p-3">
-                      <p class="text-xs text-gray-600 mb-2">Imágenes disponibles:</p>
-                      <div class="flex flex-wrap gap-2 text-xs">
-                        <span class="bg-white px-2 py-1 rounded border text-emerald-700">default-service.svg</span>
-                        <span class="bg-white px-2 py-1 rounded border text-emerald-700">masajes.svg</span>
-                        <span class="bg-white px-2 py-1 rounded border text-emerald-700">reiki.svg</span>
-                        <span class="bg-white px-2 py-1 rounded border text-emerald-700">terapia-psicologica.svg</span>
-                      </div>
-                      <p class="text-xs text-gray-500 mt-2">
-                        💡 Agregar nuevas imágenes: copiar a /images/services/ y escribir el nombre aquí
-                      </p>
-                    </div>
-                  </div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">URL de Imagen</label>
+                  <input type="url" id="service-image" name="image"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
                 </div>
                 
                 <div class="flex items-center justify-end space-x-4 pt-4">
@@ -4024,112 +3812,41 @@ class TherapistPanel {
     }
 
     // Mostrar el modal y cargar servicios
-    modal.style.display = "block";
+    modal.style.display = 'block';
     this.loadServicesForManagement();
   }
 
   async updateServiceDropdowns() {
     try {
       console.log("🔄 Actualizando dropdowns de servicios...");
-
+      
       // Obtener servicios de Firebase
       const services = await window.firebaseManager.getServices();
-
+      
       // Actualizar variable global de servicios
-      window.servicesToShow =
-        services.length > 0
-          ? services
-          : [
-              {
-                id: "reiki",
-                name: "Reiki",
-                description: "Terapia energética japonesa",
-                duration: 60,
-                price: 5000,
-              },
-              {
-                id: "masaje",
-                name: "Masaje Terapéutico",
-                description: "Masajes para relajación y bienestar",
-                duration: 90,
-                price: 7000,
-              },
-              {
-                id: "yoga",
-                name: "Yoga",
-                description: "Clases de yoga y meditación",
-                duration: 75,
-                price: 3000,
-              },
-              {
-                id: "acupuntura",
-                name: "Acupuntura",
-                description: "Medicina tradicional china",
-                duration: 45,
-                price: 6000,
-              },
-            ];
+      window.servicesToShow = services.length > 0 ? services : [
+        { id: 'reiki', name: 'Reiki', description: 'Terapia energética japonesa', duration: 60, price: 5000 },
+        { id: 'masaje', name: 'Masaje Terapéutico', description: 'Masajes para relajación y bienestar', duration: 90, price: 7000 },
+        { id: 'yoga', name: 'Yoga', description: 'Clases de yoga y meditación', duration: 75, price: 3000 },
+        { id: 'acupuntura', name: 'Acupuntura', description: 'Medicina tradicional china', duration: 45, price: 6000 }
+      ];
 
       console.log("✅ Servicios actualizados:", window.servicesToShow.length);
+
     } catch (error) {
       console.error("❌ Error actualizando servicios:", error);
     }
-  }
-
-  setupImagePreview() {
-    const imageInput = document.getElementById("service-image");
-    const imagePreview = document.getElementById("image-preview");
-    const previewImg = document.getElementById("preview-img");
-
-    if (!imageInput || !imagePreview || !previewImg) return;
-
-    imageInput.addEventListener("input", (e) => {
-      const imageName = e.target.value.trim();
-
-      if (imageName) {
-        // Construir la URL de la imagen
-        const imageUrl = `/images/services/${imageName}`;
-
-        // Mostrar vista previa
-        previewImg.src = imageUrl;
-        previewImg.onerror = () => {
-          // Si la imagen no existe, mostrar la imagen por defecto
-          previewImg.src = "/images/services/default-service.svg";
-        };
-        imagePreview.classList.remove("hidden");
-      } else {
-        imagePreview.classList.add("hidden");
-      }
-    });
-  }
-
-  getServiceImageUrl(imageName) {
-    // Si no hay imagen especificada, usar la por defecto
-    if (!imageName) {
-      return "/images/services/default-service.svg";
-    }
-
-    // Si ya es una URL completa, devolverla tal como está
-    if (imageName.startsWith("http") || imageName.startsWith("/")) {
-      return imageName;
-    }
-
-    // Construir URL local
-    return `/images/services/${imageName}`;
   }
 }
 
 // Add global error handler to prevent extension-related errors from affecting the app
 window.addEventListener("error", function (event) {
-  // Ignore Chrome extension errors and Firebase auth timing issues
+  // Ignore Chrome extension errors
   if (
     event.message &&
     (event.message.includes("message channel closed") ||
       event.message.includes("Extension context invalidated") ||
-      event.message.includes("Could not establish connection") ||
-      event.message.includes(
-        "Cannot read properties of null (reading 'currentUser')"
-      ))
+      event.message.includes("Could not establish connection"))
   ) {
     event.preventDefault();
     return false;
@@ -4175,6 +3892,396 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 });
+
+// Global functions for blog editor tips management
+function addTip() {
+  const container = document.getElementById("tips-container");
+  if (!container) return;
+
+  const tipInputs = container.querySelectorAll("input");
+  const lastInput = tipInputs[tipInputs.length - 1];
+
+  if (lastInput && lastInput.value.trim()) {
+    const newTipDiv = document.createElement("div");
+    newTipDiv.className = "flex items-center space-x-2";
+    newTipDiv.innerHTML = `
+      <input
+        type="text"
+        placeholder="Ej: Mantén una rutina constante"
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent transition-colors text-sm"
+      />
+      <button
+        type="button"
+        onclick="removeTip(this)"
+        class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+      >
+        <i class="fas fa-minus"></i>
+      </button>
+    `;
+    container.appendChild(newTipDiv);
+  }
+
+  // Nuevas funciones para gestión de servicios
+  async loadServicesForManagement() {
+    try {
+      console.log("📋 Cargando servicios para gestión...");
+      
+      const servicesList = document.getElementById("services-list");
+      if (!servicesList) return;
+
+      // Obtener servicios de Firebase
+      const services = await window.firebaseManager.getServices();
+      
+      if (services.length === 0) {
+        servicesList.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-spa text-3xl mb-2"></i>
+            <p>No hay servicios registrados</p>
+            <p class="text-sm mt-2">Haz clic en "Nuevo Servicio" para agregar el primero</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Renderizar servicios
+      const servicesHTML = services.map(service => `
+        <div class="bg-white border rounded-lg p-4 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3">
+                <img src="${service.image || '/images/default-service.jpg'}" 
+                     alt="${service.name}" 
+                     class="w-16 h-16 rounded-lg object-cover">
+                <div>
+                  <h4 class="font-semibold text-lg text-gray-800">${service.name}</h4>
+                  <p class="text-gray-600 text-sm">${service.description}</p>
+                  <div class="flex items-center space-x-4 mt-2">
+                    <span class="text-emerald-600 font-medium">$${service.price}</span>
+                    <span class="text-gray-500 text-sm">${service.duration} min</span>
+                    <span class="text-gray-400 text-xs">Orden: ${service.order || 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex space-x-2 ml-4">
+              <button onclick="window.therapistPanel.editService('${service.id}')" 
+                      class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+                <i class="fas fa-edit mr-1"></i>Editar
+              </button>
+              <button onclick="window.therapistPanel.deleteService('${service.id}', '${service.name}')" 
+                      class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
+                <i class="fas fa-trash mr-1"></i>Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      servicesList.innerHTML = servicesHTML;
+
+    } catch (error) {
+      console.error("❌ Error cargando servicios:", error);
+      const servicesList = document.getElementById("services-list");
+      if (servicesList) {
+        servicesList.innerHTML = `
+          <div class="text-center text-red-500 py-8">
+            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+            <p>Error al cargar los servicios</p>
+            <p class="text-sm mt-2">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  showNewServiceForm() {
+    const formHTML = `
+      <div id="service-form-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-6">
+              <h3 class="text-xl font-semibold text-gray-800">Nuevo Servicio</h3>
+              <button onclick="document.getElementById('service-form-modal').remove()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            
+            <form id="service-form" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Servicio *</label>
+                <input type="text" id="service-name" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
+                <textarea id="service-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Duración (minutos) *</label>
+                  <input type="number" id="service-duration" min="15" step="15" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
+                  <input type="number" id="service-price" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">URL de Imagen</label>
+                <input type="url" id="service-image" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="https://ejemplo.com/imagen.jpg">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Orden de Aparición</label>
+                <input type="number" id="service-order" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="0">
+                <p class="text-xs text-gray-500 mt-1">Menor número aparece primero</p>
+              </div>
+              
+              <div class="flex gap-3 mt-6">
+                <button type="submit" class="flex-1 bg-emerald-500 text-white py-2 px-4 rounded hover:bg-emerald-600 transition-colors">
+                  <i class="fas fa-save mr-2"></i>Crear Servicio
+                </button>
+                <button type="button" onclick="document.getElementById('service-form-modal').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", formHTML);
+
+    // Agregar event listener al formulario
+    document.getElementById("service-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await this.saveService();
+    });
+  }
+
+  async editService(serviceId) {
+    try {
+      // Obtener el servicio actual
+      const services = await window.firebaseManager.getServices();
+      const service = services.find(s => s.id === serviceId);
+      
+      if (!service) {
+        this.showNotification("Servicio no encontrado", "error");
+        return;
+      }
+
+      const formHTML = `
+        <div id="service-form-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Editar Servicio</h3>
+                <button onclick="document.getElementById('service-form-modal').remove()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times text-xl"></i>
+                </button>
+              </div>
+              
+              <form id="service-form" class="space-y-4">
+                <input type="hidden" id="service-id" value="${service.id}">
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Servicio *</label>
+                  <input type="text" id="service-name" value="${service.name}" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
+                  <textarea id="service-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>${service.description}</textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Duración (minutos) *</label>
+                    <input type="number" id="service-duration" value="${service.duration}" min="15" step="15" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
+                    <input type="number" id="service-price" value="${service.price}" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">URL de Imagen</label>
+                  <input type="url" id="service-image" value="${service.image || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Orden de Aparición</label>
+                  <input type="number" id="service-order" value="${service.order || 0}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="0">
+                  <p class="text-xs text-gray-500 mt-1">Menor número aparece primero</p>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                  <button type="submit" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Actualizar Servicio
+                  </button>
+                  <button type="button" onclick="document.getElementById('service-form-modal').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML("beforeend", formHTML);
+
+      // Agregar event listener al formulario
+      document.getElementById("service-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await this.saveService(true); // true indica que es una edición
+      });
+
+    } catch (error) {
+      console.error("❌ Error al editar servicio:", error);
+      this.showNotification("Error al cargar el servicio para editar", "error");
+    }
+  }
+
+  async saveService(isEdit = false) {
+    try {
+      const submitButton = document.querySelector('#service-form button[type="submit"]');
+      if (submitButton.disabled) return;
+
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+
+      const serviceData = {
+        name: document.getElementById("service-name").value.trim(),
+        description: document.getElementById("service-description").value.trim(),
+        duration: parseInt(document.getElementById("service-duration").value),
+        price: parseFloat(document.getElementById("service-price").value),
+        image: document.getElementById("service-image").value.trim() || null,
+        order: parseInt(document.getElementById("service-order").value) || 0
+      };
+
+      if (isEdit) {
+        serviceData.id = document.getElementById("service-id").value;
+      }
+
+      // Validaciones
+      if (!serviceData.name || !serviceData.description) {
+        throw new Error("Nombre y descripción son obligatorios");
+      }
+
+      if (serviceData.duration < 15) {
+        throw new Error("La duración mínima es 15 minutos");
+      }
+
+      if (serviceData.price < 0) {
+        throw new Error("El precio no puede ser negativo");
+      }
+
+      // Guardar en Firebase
+      await window.firebaseManager.saveService(serviceData);
+
+      this.showNotification(
+        isEdit ? "Servicio actualizado correctamente" : "Servicio creado correctamente",
+        "success"
+      );
+
+      // Cerrar modal
+      document.getElementById("service-form-modal").remove();
+
+      // Recargar lista de servicios
+      await this.loadServicesForManagement();
+
+      // Actualizar también el dropdown de servicios en nueva reserva
+      await this.updateServiceDropdowns();
+
+    } catch (error) {
+      console.error("❌ Error al guardar servicio:", error);
+      this.showNotification("Error al guardar el servicio: " + error.message, "error");
+    } finally {
+      const submitButton = document.querySelector('#service-form button[type="submit"]');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = isEdit 
+          ? '<i class="fas fa-save mr-2"></i>Actualizar Servicio'
+          : '<i class="fas fa-save mr-2"></i>Crear Servicio';
+      }
+    }
+  }
+
+  async deleteService(serviceId, serviceName) {
+    const confirmHTML = `
+      <div id="delete-service-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+          <div class="p-6">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
+              <h3 class="text-lg font-semibold text-gray-800">Confirmar Eliminación</h3>
+            </div>
+            
+            <p class="text-gray-600 mb-6">
+              ¿Estás segura de que quieres eliminar el servicio "<strong>${serviceName}</strong>"?
+              <br><br>
+              <span class="text-red-600 text-sm">Esta acción no se puede deshacer.</span>
+            </p>
+            
+            <div class="flex gap-3">
+              <button onclick="window.therapistPanel.confirmDeleteService('${serviceId}')" class="flex-1 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors">
+                <i class="fas fa-trash mr-2"></i>Sí, Eliminar
+              </button>
+              <button onclick="document.getElementById('delete-service-modal').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition-colors">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", confirmHTML);
+  }
+
+  async confirmDeleteService(serviceId) {
+    try {
+      await window.firebaseManager.deleteService(serviceId);
+      
+      this.showNotification("Servicio eliminado correctamente", "success");
+      
+      // Cerrar modal de confirmación
+      document.getElementById("delete-service-modal").remove();
+      
+      // Recargar lista de servicios
+      await this.loadServicesForManagement();
+      
+      // Actualizar también el dropdown de servicios en nueva reserva
+      await this.updateServiceDropdowns();
+
+    } catch (error) {
+      console.error("❌ Error al eliminar servicio:", error);
+      this.showNotification("Error al eliminar el servicio: " + error.message, "error");
+    }
+  }
+
+  async updateServiceDropdowns() {
+    try {
+      // Actualizar dropdown en el modal de nueva reserva si está abierto
+      const serviceSelect = document.getElementById("new-service");
+      if (serviceSelect) {
+        const services = await window.firebaseManager.getServices();
+        
+        serviceSelect.innerHTML = '<option value="">Seleccionar servicio...</option>' +
+          services.map(service => 
+            `<option value="${service.name}">${service.name}</option>`
+          ).join('');
+      }
+    } catch (error) {
+      console.error("❌ Error actualizando dropdowns de servicios:", error);
+    }
+  }
+}
 
 function removeTip(button) {
   if (button && button.parentElement) {

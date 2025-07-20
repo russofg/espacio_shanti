@@ -7,13 +7,13 @@ class CallMeBotService {
     // 3. Recibirán un API key personal
 
     this.apiKeys = {
-      lorena: "123456", // ⚠️ REEMPLAZAR con API key real de Lorena
-      betsabe: "4491919", // ⚠️ REEMPLAZAR con API key real de Betsabé"9569005"
+      lorena: "9569005", // API key real de Betsabé (funciona)
+      betsabe: "9569005", // ⚠️ API key real de Betsabé
     };
 
     this.phones = {
-      lorena: "+5491123456789", // ⚠️ REEMPLAZAR con número real de Lorena
-      betsabe: "+5491161174746", // ⚠️ REEMPLAZAR con número real de Betsabé
+      lorena: "+5491151414220", // Teléfono real de Betsabé (funciona)
+      betsabe: "+5491151414220", // ⚠️ Teléfono real de Betsabé
     };
   }
 
