@@ -190,22 +190,24 @@ class SecureStorage {
 
   // Migrar datos desde localStorage tradicional a almacenamiento seguro
   migrateFromLegacyStorage() {
-    const keysToMigrate = ['therapist_session', 'currentTherapist'];
-    
-    keysToMigrate.forEach(key => {
+    const keysToMigrate = ["therapist_session", "currentTherapist"];
+
+    keysToMigrate.forEach((key) => {
       try {
         const legacyData = localStorage.getItem(key);
         if (legacyData) {
           // Verificar si es JSON válido
           const parsedData = JSON.parse(legacyData);
-          
+
           // Migrar a almacenamiento seguro
           this.setSecureItem(key, parsedData);
-          
+
           // Remover datos legacy
           localStorage.removeItem(key);
-          
-          window.secureLogger?.info(`🔄 Migrados datos de ${key} a almacenamiento seguro`);
+
+          window.secureLogger?.info(
+            `🔄 Migrados datos de ${key} a almacenamiento seguro`
+          );
         }
       } catch (error) {
         // Si los datos no son JSON válido, limpiarlos
@@ -219,10 +221,10 @@ class SecureStorage {
   cleanCorruptedData() {
     const allKeys = Object.keys(localStorage);
     let cleanedCount = 0;
-    
-    allKeys.forEach(key => {
+
+    allKeys.forEach((key) => {
       const data = localStorage.getItem(key);
-      if (data && !key.startsWith('secure-logger')) {
+      if (data && !key.startsWith("secure-logger")) {
         try {
           // Intentar parsear como JSON
           JSON.parse(data);
@@ -236,9 +238,11 @@ class SecureStorage {
         }
       }
     });
-    
+
     if (cleanedCount > 0) {
-      window.secureLogger?.info(`🧹 Limpiados ${cleanedCount} datos corrompidos`);
+      window.secureLogger?.info(
+        `🧹 Limpiados ${cleanedCount} datos corrompidos`
+      );
     }
   }
 }

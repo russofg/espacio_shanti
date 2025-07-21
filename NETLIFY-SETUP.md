@@ -39,20 +39,23 @@ DEBUG_MODE = false
 ## 🔥 IMPORTANTE - CÓMO OBTENER LAS CLAVES REALES:
 
 ### Para Firebase:
+
 1. Ve a: https://console.firebase.google.com/project/espacio-shanti/settings/general/web
-2. Busca la sección "Your apps" 
+2. Busca la sección "Your apps"
 3. Copia los valores reales de:
    - `FIREBASE_APP_ID`
-   - `FIREBASE_API_KEY` 
+   - `FIREBASE_API_KEY`
    - `FIREBASE_MESSAGING_SENDER_ID`
    - `FIREBASE_MEASUREMENT_ID`
 
 ### Para WhatsApp (opcional):
+
 1. Agrega +34 644 59 71 67 como contacto "CallMeBot"
 2. Envía: "I allow callmebot to send me messages"
 3. Te responderán con tu API key personal
 
 ### Para APP_SECRET_TOKEN:
+
 Genera un token aleatorio, por ejemplo: `EspacioShanti2024_TuTokenSeguro123`
 
 ## PASO 3: REDEPLOY

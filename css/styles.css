@@ -628,3 +628,49 @@ body {
 #services-container {
     align-items: stretch;
 }
+
+/* Therapist Panel Login Modal - Ensure proper centering */
+#login-section {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+#login-section > div {
+    margin: auto !important;
+    max-width: 28rem !important;
+    width: 90% !important;
+}
+
+/* Hide elements with hidden class */
+.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Ensure main content is properly positioned when visible */
+#main-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure login section is completely hidden when not needed */
+#login-section.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+}

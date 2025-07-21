@@ -13,17 +13,23 @@ if (logoutBtn) {
 }
 
 // 2. Verificar si TherapistPanel existe
-console.log("📍 TherapistPanel existe:", typeof window.therapistPanel !== 'undefined');
+console.log(
+  "📍 TherapistPanel existe:",
+  typeof window.therapistPanel !== "undefined"
+);
 if (window.therapistPanel) {
-  console.log("📍 handleLogout existe:", typeof window.therapistPanel.handleLogout === 'function');
+  console.log(
+    "📍 handleLogout existe:",
+    typeof window.therapistPanel.handleLogout === "function"
+  );
 }
 
 // 3. Agregar listener temporal para debug
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', function(e) {
+  logoutBtn.addEventListener("click", function (e) {
     console.log("🎯 CLICK en logout detectado!");
     console.log("🎯 Event:", e);
-    
+
     if (window.therapistPanel && window.therapistPanel.handleLogout) {
       console.log("🎯 Llamando a handleLogout...");
       window.therapistPanel.handleLogout();
@@ -31,7 +37,7 @@ if (logoutBtn) {
       console.log("❌ handleLogout no disponible");
     }
   });
-  
+
   console.log("✅ Listener de debug agregado al botón logout");
 }
 

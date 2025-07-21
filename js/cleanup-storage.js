@@ -4,13 +4,9 @@
 console.log("🧹 Limpiando datos corrompidos de localStorage...");
 
 // Lista de claves que pueden tener datos corrompidos
-const keysToClean = [
-  'therapist_session',
-  'currentTherapist',
-  'blogEntries'
-];
+const keysToClean = ["therapist_session", "currentTherapist", "blogEntries"];
 
-keysToClean.forEach(key => {
+keysToClean.forEach((key) => {
   const data = localStorage.getItem(key);
   if (data) {
     try {

@@ -47,34 +47,38 @@ class TherapistAuth {
   checkExistingSession() {
     // Verificar si hay datos de sesión guardados usando almacenamiento seguro
     let savedUser = null;
-    
+
     try {
       // Intentar primero con almacenamiento seguro
       if (window.secureStorage) {
         savedUser = window.secureStorage.getSecureItem("therapist_session");
       }
-      
+
       // Si no hay datos en almacenamiento seguro, intentar localStorage tradicional
       if (!savedUser) {
         const rawData = localStorage.getItem("therapist_session");
         if (rawData) {
           // Verificar si los datos están en formato JSON tradicional
-          if (rawData.startsWith('{')) {
+          if (rawData.startsWith("{")) {
             savedUser = JSON.parse(rawData);
           } else {
             // Si no es JSON, podría ser datos cifrados antiguos, limpiar
-            window.secureLogger?.warn("🔄 Limpiando datos de sesión en formato no válido");
+            window.secureLogger?.warn(
+              "🔄 Limpiando datos de sesión en formato no válido"
+            );
             localStorage.removeItem("therapist_session");
             return;
           }
         }
       }
-      
+
       if (savedUser) {
         this.currentUser = savedUser;
         this.isAuthenticated = true;
         this.updateUI();
-        window.secureLogger?.info("✅ Sesión de terapeuta restaurada exitosamente");
+        window.secureLogger?.info(
+          "✅ Sesión de terapeuta restaurada exitosamente"
+        );
       }
     } catch (error) {
       window.secureLogger?.error("Error loading saved session:", error.message);
@@ -106,7 +110,7 @@ class TherapistAuth {
         email: user.email,
         uid: user.uid,
       };
-      
+
       if (window.secureStorage) {
         window.secureStorage.setSecureItem("therapist_session", sessionData);
       } else {

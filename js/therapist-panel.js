@@ -32,11 +32,11 @@ class TherapistPanel {
 
     // Listen for authentication changes from new auth system
     document.addEventListener("therapistAuthChanged", (event) => {
-      console.log("🔐 therapistAuthChanged event received:", event.detail);
+      secureLogger.log("🔐 therapistAuthChanged event received:", event.detail);
       if (event.detail.isAuthenticated) {
         this.currentUser = event.detail.user;
-        console.log("✅ Usuario autenticado establecido:", this.currentUser);
-        localStorage.setItem(
+        secureLogger.log("✅ Usuario autenticado establecido correctamente");
+        secureStorage.setItem(
           "currentTherapist",
           JSON.stringify(event.detail.user)
         );
@@ -58,7 +58,7 @@ class TherapistPanel {
 
     // Escuchar eventos de autenticación de Firebase
     window.addEventListener("therapistAuthChanged", (event) => {
-      console.log("🔄 Evento de autenticación recibido:", event.detail);
+      secureLogger.log("🔄 Evento de autenticación recibido:", event.detail);
       if (event.detail.isAuthenticated && event.detail.user) {
         this.handleAuthSuccess(event.detail.user);
       } else {
@@ -112,9 +112,13 @@ class TherapistPanel {
   tryMultipleAuthSources() {
     console.log("🔍 Intentando múltiples fuentes de autenticación...");
 
+    // Declarar variables fuera del bloque try para evitar errores de scope
+    let therapistSession = null;
+    let currentTherapist = null;
+
     try {
       // 1. Verificar therapist_session (usado por therapist-auth.js)
-      const therapistSession =
+      therapistSession =
         window.secureStorage?.getSecureItem("therapist_session") ||
         localStorage.getItem("therapist_session");
       window.secureLogger?.debug(
@@ -123,7 +127,7 @@ class TherapistPanel {
       );
 
       // 2. Verificar currentTherapist (usado antes)
-      const currentTherapist =
+      currentTherapist =
         window.secureStorage?.getSecureItem("currentTherapist") ||
         localStorage.getItem("currentTherapist");
       window.secureLogger?.debug(
@@ -228,7 +232,7 @@ class TherapistPanel {
   }
 
   handleAuthFromSession(sessionData) {
-    console.log("✅ handleAuthFromSession called with:", sessionData);
+    secureLogger.log("✅ handleAuthFromSession called with session data");
 
     const therapistData = this.getTherapistByEmail(sessionData.email);
     if (therapistData) {
@@ -413,11 +417,7 @@ class TherapistPanel {
   }
 
   tryLocalAuth(email, password) {
-    window.secureLogger?.debug("🔧 Verificando autenticación Firebase");
-
-    // SEGURIDAD: Removidas credenciales hardcodeadas por seguridad
-    // Solo se permite autenticación a través de Firebase Auth
-    // Para desarrollo, usar Firebase Console para crear usuarios
+    window.secureLogger?.debug("🔧 Verificando autenticación local");
 
     // Verificar si el email está en la lista de terapeutas autorizados
     const authorizedTherapists = [
@@ -425,11 +425,13 @@ class TherapistPanel {
         email: "lorena@espacioshanti.com",
         name: "Lorena Murua Bosquero",
         id: "lorena",
+        password: "lorena123", // Contraseña temporal para desarrollo
       },
       {
         email: "betsabe@espacioshanti.com",
         name: "Betsabé Murua Bosquero",
         id: "betsabe",
+        password: "betsabe123", // Contraseña temporal para desarrollo
       },
     ];
 
@@ -439,16 +441,61 @@ class TherapistPanel {
 
     if (!therapist) {
       window.secureLogger?.error("❌ Email no autorizado:", email);
-      alert("Email no autorizado para acceder al panel de administración");
+      this.showNotification(
+        "Email no autorizado para acceder al panel",
+        "error"
+      );
       return false;
     }
 
-    // Solo mostrar mensaje - la autenticación real debe ser por Firebase
-    window.secureLogger?.error(
-      "❌ Para seguridad, use Firebase Authentication"
+    // Verificar contraseña (sistema temporal para desarrollo)
+    if (therapist.password !== password) {
+      window.secureLogger?.error("❌ Contraseña incorrecta");
+      this.showNotification("Contraseña incorrecta", "error");
+      return false;
+    }
+
+    // Autenticación exitosa
+    window.secureLogger?.info(
+      "✅ Autenticación local exitosa:",
+      therapist.name
     );
-    alert("Por favor, use la autenticación de Firebase para acceder al panel");
-    return false;
+
+    // Crear objeto de usuario autenticado
+    this.currentUser = {
+      name: therapist.name,
+      id: therapist.id,
+      email: therapist.email,
+      uid: `local_${therapist.id}`, // UID temporal para desarrollo
+    };
+
+    // Guardar sesión de forma segura
+    if (window.secureStorage) {
+      window.secureStorage.setSecureItem("currentTherapist", this.currentUser);
+      window.secureStorage.setSecureItem("therapist_session", {
+        email: therapist.email,
+        uid: this.currentUser.uid,
+      });
+    } else {
+      localStorage.setItem(
+        "currentTherapist",
+        JSON.stringify(this.currentUser)
+      );
+      localStorage.setItem(
+        "therapist_session",
+        JSON.stringify({
+          email: therapist.email,
+          uid: this.currentUser.uid,
+        })
+      );
+    }
+
+    // Mostrar contenido principal
+    this.showMainContent();
+    this.loadReservationsFromFirebase();
+    this.showNotification("✅ Sesión iniciada correctamente", "success");
+
+    return true;
   }
 
   getTherapistByEmail(email) {
@@ -506,11 +553,34 @@ class TherapistPanel {
     const loginSection = document.getElementById("login-section");
     const mainContent = document.getElementById("main-content");
 
-    if (loginSection) {
-      loginSection.classList.remove("hidden");
-    }
+    // Primero ocultar el contenido principal
     if (mainContent) {
       mainContent.classList.add("hidden");
+      mainContent.style.display = "none";
+    }
+
+    // Luego mostrar el modal de login
+    if (loginSection) {
+      loginSection.classList.remove("hidden");
+      // Asegurar que el modal esté centrado correctamente
+      loginSection.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9999 !important;
+        background: rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(4px) !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      `;
     }
   }
 
@@ -519,10 +589,22 @@ class TherapistPanel {
     const mainContent = document.getElementById("main-content");
 
     if (loginSection) {
+      // Forzar la ocultación del modal de login
       loginSection.classList.add("hidden");
+      loginSection.style.display = "none !important";
+      loginSection.style.visibility = "hidden";
+      loginSection.style.opacity = "0";
+      loginSection.style.pointerEvents = "none";
+      // Limpiar todos los estilos inline del modal
+      setTimeout(() => {
+        loginSection.style.cssText = "display: none !important;";
+      }, 100);
     }
     if (mainContent) {
       mainContent.classList.remove("hidden");
+      mainContent.style.display = "block";
+      mainContent.style.visibility = "visible";
+      mainContent.style.opacity = "1";
     }
 
     if (this.currentUser) {
@@ -555,7 +637,7 @@ class TherapistPanel {
             </div>
             
             <!-- Desktop: Show full info with aligned avatar -->
-            <div class="hidden sm:flex sm:items-center sm:space-x-3">
+            <div class="max-sm:hidden flex items-center space-x-3">
               <div class="text-right">
                 <div class="font-semibold text-gray-800 text-sm">${userName}</div>
                 <div class="text-xs text-sage-600">Profesional Terapéutico</div>
@@ -582,7 +664,7 @@ class TherapistPanel {
         }
       }
 
-      // Update mobile user info
+      // Update user info in any mobile-specific areas if they exist
       const userInfoMobile = document.getElementById("user-info-mobile");
       if (userInfoMobile) {
         userInfoMobile.textContent = `Bienvenida, ${userName}`;
@@ -856,13 +938,26 @@ class TherapistPanel {
     }
 
     if (!this.currentUser) {
-      console.log(
+      window.secureLogger?.warn(
         "⚠️ No hay usuario autenticado, no se pueden cargar reservas"
       );
       return;
     }
 
+    if (!this.currentUser.id) {
+      window.secureLogger?.error(
+        "❌ currentUser.id es undefined, no se pueden cargar reservas",
+        this.currentUser
+      );
+      return;
+    }
+
     try {
+      window.secureLogger?.debug(
+        "🔄 Cargando reservas para terapeuta:",
+        this.currentUser.id
+      );
+
       // Get extended date range (current week + next week to show upcoming appointments)
       const today = new Date();
       const startOfWeek = new Date(today);
@@ -898,10 +993,19 @@ class TherapistPanel {
       this.updateTodayReservations();
       this.updateStats();
 
-      // Set up real-time listener for new reservations
-      this.setupRealtimeListener();
+      // Set up real-time listener for new reservations (only if user is properly authenticated)
+      if (this.currentUser && this.currentUser.id) {
+        this.setupRealtimeListener();
+      } else {
+        window.secureLogger?.warn(
+          "⚠️ No se puede configurar listener: currentUser.id no está disponible"
+        );
+      }
     } catch (error) {
-      console.error("❌ Error cargando reservas desde Firebase:", error);
+      window.secureLogger?.error(
+        "❌ Error cargando reservas desde Firebase:",
+        error
+      );
       this.showNotification("Error cargando reservas", "error");
       // Cargar datos de ejemplo como fallback
       this.loadReservations();
@@ -910,17 +1014,33 @@ class TherapistPanel {
 
   setupRealtimeListener() {
     if (!window.firebaseManager || !window.firebaseManager.initialized) {
+      window.secureLogger?.debug(
+        "⚠️ Firebase no está inicializado para listener"
+      );
       return;
     }
 
     if (!this.currentUser) {
-      console.log(
+      window.secureLogger?.warn(
         "⚠️ No hay usuario autenticado, no se puede configurar listener en tiempo real"
       );
       return;
     }
 
+    if (!this.currentUser.id) {
+      window.secureLogger?.error(
+        "❌ currentUser.id es undefined, no se puede configurar listener",
+        this.currentUser
+      );
+      return;
+    }
+
     try {
+      window.secureLogger?.debug(
+        "🔄 Configurando listener para terapeuta:",
+        this.currentUser.id
+      );
+
       // Listen for new reservations for this therapist
       const reservationsRef = window.firebaseManager.firestore.collection(
         window.firebaseManager.db,
@@ -1929,12 +2049,17 @@ class TherapistPanel {
   }
 
   async showNewReservationModal() {
-    console.log("🔍 showNewReservationModal called");
-    console.log("🔍 currentUser:", this.currentUser);
+    secureLogger.log("🔍 showNewReservationModal called");
+    secureLogger.log(
+      "🔍 currentUser status:",
+      this.currentUser ? "authenticated" : "not authenticated"
+    );
 
     // Verificar que el usuario esté autenticado - con verificación múltiple
     if (!this.currentUser) {
-      console.log("❌ No hay currentUser, intentando verificación múltiple...");
+      secureLogger.log(
+        "❌ No hay currentUser, intentando verificación múltiple..."
+      );
       this.tryMultipleAuthSources();
 
       // Verificar de nuevo después de la verificación múltiple
