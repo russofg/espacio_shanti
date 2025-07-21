@@ -114,14 +114,18 @@ class TherapistPanel {
 
     try {
       // 1. Verificar therapist_session (usado por therapist-auth.js)
-      const therapistSession = window.secureStorage?.getSecureItem("therapist_session") || localStorage.getItem("therapist_session");
+      const therapistSession =
+        window.secureStorage?.getSecureItem("therapist_session") ||
+        localStorage.getItem("therapist_session");
       window.secureLogger?.debug(
         "🔍 therapist_session disponible:",
         !!therapistSession
       );
 
       // 2. Verificar currentTherapist (usado antes)
-      const currentTherapist = window.secureStorage?.getSecureItem("currentTherapist") || localStorage.getItem("currentTherapist");
+      const currentTherapist =
+        window.secureStorage?.getSecureItem("currentTherapist") ||
+        localStorage.getItem("currentTherapist");
       window.secureLogger?.debug(
         "🔍 currentTherapist disponible:",
         !!currentTherapist
@@ -189,7 +193,10 @@ class TherapistPanel {
 
       // Sincronizar con localStorage seguro usando ambas claves
       if (window.secureStorage) {
-        window.secureStorage.setSecureItem("currentTherapist", this.currentUser);
+        window.secureStorage.setSecureItem(
+          "currentTherapist",
+          this.currentUser
+        );
         window.secureStorage.setSecureItem("therapist_session", {
           email: firebaseUser.email,
           uid: firebaseUser.uid,
@@ -231,11 +238,17 @@ class TherapistPanel {
         uid: sessionData.uid,
       };
 
-      window.secureLogger?.info("✅ currentUser set from session:", this.currentUser.name);
+      window.secureLogger?.info(
+        "✅ currentUser set from session:",
+        this.currentUser.name
+      );
 
       // Sincronizar localStorage de forma segura
       if (window.secureStorage) {
-        window.secureStorage.setSecureItem("currentTherapist", this.currentUser);
+        window.secureStorage.setSecureItem(
+          "currentTherapist",
+          this.currentUser
+        );
       } else {
         localStorage.setItem(
           "currentTherapist",
@@ -401,11 +414,11 @@ class TherapistPanel {
 
   tryLocalAuth(email, password) {
     window.secureLogger?.debug("🔧 Verificando autenticación Firebase");
-    
+
     // SEGURIDAD: Removidas credenciales hardcodeadas por seguridad
     // Solo se permite autenticación a través de Firebase Auth
     // Para desarrollo, usar Firebase Console para crear usuarios
-    
+
     // Verificar si el email está en la lista de terapeutas autorizados
     const authorizedTherapists = [
       {
@@ -414,7 +427,7 @@ class TherapistPanel {
         id: "lorena",
       },
       {
-        email: "betsabe@espacioshanti.com", 
+        email: "betsabe@espacioshanti.com",
         name: "Betsabé Murua Bosquero",
         id: "betsabe",
       },
@@ -431,7 +444,9 @@ class TherapistPanel {
     }
 
     // Solo mostrar mensaje - la autenticación real debe ser por Firebase
-    window.secureLogger?.error("❌ Para seguridad, use Firebase Authentication");
+    window.secureLogger?.error(
+      "❌ Para seguridad, use Firebase Authentication"
+    );
     alert("Por favor, use la autenticación de Firebase para acceder al panel");
     return false;
   }
@@ -453,22 +468,34 @@ class TherapistPanel {
   handleLogout() {
     window.secureLogger?.info("🔓 Cerrando sesión de terapeuta");
 
+    // Remover listener de Firebase en tiempo real si existe
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+      window.secureLogger?.debug("🔇 Listener de Firebase removido");
+    }
+
     // Limpiar todas las fuentes de autenticación de forma segura
     if (window.secureStorage) {
       window.secureStorage.removeItem("currentTherapist");
       window.secureStorage.removeItem("therapist_session");
     }
-    
+
     // También limpiar localStorage tradicional por compatibilidad
     localStorage.removeItem("currentTherapist");
     localStorage.removeItem("therapist_session");
-    
+
+    // Limpiar estado de la aplicación
     this.currentUser = null;
+    this.reservations = [];
 
     // También cerrar sesión de Firebase si está disponible
     if (window.firebaseManager && window.firebaseManager.auth) {
       window.firebaseManager.signOut().catch((err) => {
-        window.secureLogger?.error("Error al cerrar sesión de Firebase:", err.message);
+        window.secureLogger?.error(
+          "Error al cerrar sesión de Firebase:",
+          err.message
+        );
       });
     }
 
@@ -1082,19 +1109,6 @@ class TherapistPanel {
   }
 
   // Clean up listener when logging out
-  handleLogout() {
-    // Remove real-time listener if it exists
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-    }
-
-    localStorage.removeItem("currentTherapist");
-    this.currentUser = null;
-    this.reservations = [];
-    this.showLoginModal();
-  }
-
   updateTodayReservations() {
     const today = this.getLocalDateString(new Date());
 
