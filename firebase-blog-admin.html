@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Firebase Blog - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <!-- Firebase Scripts -->
+    <script src="js/firebase.js"></script>
+    <script src="js/firebase-init.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        🔧 Admin Firebase Blog
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Control Firebase</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            onclick="loadFirebaseEntries()"
+            class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
+          >
+            📥 Cargar de Firebase
+          </button>
+
+          <button
+            onclick="deleteAllFirebaseEntries()"
+            class="bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600"
+          >
+            🗑️ Eliminar Todas
+          </button>
+
+          <button
+            onclick="createSampleFirebaseEntries()"
+            class="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600"
+          >
+            ✨ Crear Ejemplos
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Estado de Firebase</h2>
+        <div id="firebase-status" class="bg-gray-100 p-4 rounded">
+          <p class="text-gray-600">Iniciando conexión con Firebase...</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Entradas de Firebase</h2>
+        <div id="entries-container" class="space-y-4">
+          <p class="text-gray-600 italic">
+            Haz clic en "Cargar de Firebase" para ver las entradas
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let firebaseManager = null;
+
+      // Esperar a que Firebase se inicialice
+      document.addEventListener("DOMContentLoaded", async function () {
+        updateStatus("🔄 Inicializando Firebase...", "info");
+
+        // Esperar a que Firebase esté disponible
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        while (!window.firebaseManager && attempts < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          attempts++;
+        }
+
+        if (window.firebaseManager) {
+          firebaseManager = window.firebaseManager;
+          updateStatus("✅ Firebase conectado correctamente", "success");
+        } else {
+          updateStatus("❌ No se pudo conectar con Firebase", "error");
+        }
+      });
+
+      function updateStatus(message, type = "info") {
+        const statusContainer = document.getElementById("firebase-status");
+        const timestamp = new Date().toLocaleTimeString();
+        const colors = {
+          info: "text-blue-600",
+          success: "text-green-600",
+          error: "text-red-600",
+          warning: "text-yellow-600",
+        };
+
+        statusContainer.innerHTML += `<div class="${colors[type]} mb-1">[${timestamp}] ${message}</div>`;
+        statusContainer.scrollTop = statusContainer.scrollHeight;
+      }
+
+      async function loadFirebaseEntries() {
+        if (!firebaseManager) {
+          updateStatus("❌ Firebase no está disponible", "error");
+          return;
+        }
+
+        updateStatus("📥 Cargando entradas de Firebase...", "info");
+
+        try {
+          const entries = await firebaseManager.getBlogEntries();
+          updateStatus(
+            `📊 Se encontraron ${entries.length} entradas`,
+            "success"
+          );
+
+          displayEntries(entries);
+        } catch (error) {
+          updateStatus(
+            `❌ Error al cargar entradas: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      async function deleteAllFirebaseEntries() {
+        if (!firebaseManager) {
+          updateStatus("❌ Firebase no está disponible", "error");
+          return;
+        }
+
+        if (
+          !confirm(
+            "¿Estás seguro de que quieres eliminar TODAS las entradas del blog de Firebase?"
+          )
+        ) {
+          return;
+        }
+
+        updateStatus("🗑️ Eliminando todas las entradas...", "warning");
+
+        try {
+          // Primero cargar todas las entradas
+          const entries = await firebaseManager.getBlogEntries();
+
+          // Eliminar una por una
+          for (const entry of entries) {
+            await firebaseManager.deleteBlogEntry(entry.id);
+            updateStatus(`🗑️ Eliminada: "${entry.title}"`, "warning");
+          }
+
+          updateStatus("✅ Todas las entradas eliminadas", "success");
+
+          // Limpiar la vista
+          document.getElementById("entries-container").innerHTML =
+            '<p class="text-gray-600 italic">No hay entradas</p>';
+        } catch (error) {
+          updateStatus(
+            `❌ Error al eliminar entradas: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      async function createSampleFirebaseEntries() {
+        if (!firebaseManager) {
+          updateStatus("❌ Firebase no está disponible", "error");
+          return;
+        }
+
+        updateStatus("✨ Creando entradas de ejemplo...", "info");
+
+        const now = new Date();
+
+        const sampleEntries = [
+          {
+            title: "Beneficios de la Meditación Diaria",
+            content:
+              "La meditación diaria puede transformar tu vida de maneras increíbles. Desde reducir el estrés hasta mejorar la concentración, esta práctica milenaria ofrece beneficios respaldados por la ciencia. En Espacio Shanti te guiamos para que puedas incorporar la meditación en tu rutina diaria y experimentar una mayor paz interior y bienestar. Comienza con solo 5 minutos al día y observa cómo tu mente se vuelve más clara y tranquila.",
+            summary:
+              "Descubre cómo la meditación diaria puede transformar tu bienestar y reducir el estrés de forma natural.",
+            author: "maria.garcia@espacioshanti.com",
+            createdAt: new Date(now.getTime() - 86400000).toISOString(),
+            date: new Date(now.getTime() - 86400000).toLocaleDateString(
+              "es-ES",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            category: "meditacion",
+            emoji: "🧘‍♀️",
+            tips: [
+              "Comienza con 5 minutos diarios",
+              "Encuentra un lugar tranquilo",
+              "Sé constante",
+            ],
+          },
+          {
+            title: "Reiki: Sanación Energética para el Alma",
+            content:
+              "El Reiki es una técnica de sanación energética que utiliza la imposición de manos para canalizar energía universal y promover la curación física, emocional y espiritual. En nuestras sesiones, experimentarás una profunda relajación mientras la energía Reiki fluye a través de ti, liberando bloqueos y restaurando el equilibrio natural de tu cuerpo. Esta práctica ancestral japonesa es segura, no invasiva y complementa cualquier tratamiento médico.",
+            summary:
+              "Experimenta la sanación energética del Reiki y restaura el equilibrio natural de tu cuerpo y mente.",
+            author: "betsabe@espacioshanti.com",
+            createdAt: new Date(now.getTime() - 172800000).toISOString(),
+            date: new Date(now.getTime() - 172800000).toLocaleDateString(
+              "es-ES",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            category: "terapias",
+            emoji: "✨",
+            tips: [
+              "Mantén una mente abierta",
+              "Viste ropa cómoda",
+              "Hidrátate después de la sesión",
+            ],
+          },
+          {
+            title: "Flores de Bach: Equilibrio Emocional Natural",
+            content:
+              "Las Flores de Bach son esencias florales que actúan de manera sutil pero profunda en nuestras emociones. Cada una de las 38 esencias está diseñada para tratar estados emocionales específicos, desde el miedo y la ansiedad hasta la tristeza y la falta de confianza. Descubre cómo estas maravillosas herramientas naturales pueden ayudarte a encontrar equilibrio emocional y bienestar interior. Son completamente naturales y no tienen efectos secundarios.",
+            summary:
+              "Las Flores de Bach ofrecen equilibrio emocional natural a través de esencias florales especializadas.",
+            author: "ana.rodriguez@espacioshanti.com",
+            createdAt: now.toISOString(),
+            date: now.toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            category: "terapias",
+            emoji: "🌸",
+            tips: [
+              "Consulta con un especialista",
+              "Sé paciente con el proceso",
+              "Combina con autoconocimiento",
+            ],
+          },
+        ];
+
+        try {
+          for (const entry of sampleEntries) {
+            const entryId = await firebaseManager.saveBlogEntry(entry);
+            updateStatus(`✅ Creada: "${entry.title}"`, "success");
+          }
+
+          updateStatus(
+            "🎉 Entradas de ejemplo creadas exitosamente",
+            "success"
+          );
+
+          // Recargar entradas
+          setTimeout(() => {
+            loadFirebaseEntries();
+          }, 1000);
+        } catch (error) {
+          updateStatus(`❌ Error al crear entradas: ${error.message}`, "error");
+        }
+      }
+
+      function displayEntries(entries) {
+        const container = document.getElementById("entries-container");
+
+        if (entries.length === 0) {
+          container.innerHTML =
+            '<p class="text-gray-600 italic">No hay entradas en Firebase</p>';
+          return;
+        }
+
+        container.innerHTML = entries
+          .map((entry, index) => {
+            // Analizar cada campo - mejorado para Firebase Timestamps
+            const hasCreatedAt =
+              entry.createdAt &&
+              (typeof entry.createdAt === "string" ||
+                (typeof entry.createdAt === "object" &&
+                  entry.createdAt.seconds));
+            const hasDate = entry.date && typeof entry.date === "string";
+            const hasValidEmoji =
+              entry.emoji &&
+              entry.emoji !== "undefined" &&
+              typeof entry.emoji === "string";
+            const hasValidAuthor =
+              entry.author &&
+              entry.author !== "undefined" &&
+              typeof entry.author === "string";
+
+            // Format createdAt for display
+            let createdAtDisplay = "NO DEFINIDO";
+            if (entry.createdAt) {
+              if (typeof entry.createdAt === "string") {
+                createdAtDisplay = entry.createdAt;
+              } else if (entry.createdAt.seconds) {
+                const date = new Date(entry.createdAt.seconds * 1000);
+                createdAtDisplay =
+                  date.toLocaleDateString("es-ES") +
+                  " " +
+                  date.toLocaleTimeString("es-ES");
+              }
+            }
+
+            return `
+                    <div class="border border-gray-200 rounded-lg p-4 ${
+                      hasCreatedAt && hasDate && hasValidEmoji
+                        ? "bg-green-50"
+                        : "bg-red-50"
+                    }">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-semibold text-lg">${
+                              entry.title || "Sin título"
+                            }</h3>
+                            <button onclick="deleteEntry('${entry.id}', '${
+              entry.title
+            }')" 
+                                    class="text-red-600 hover:text-red-800 text-sm">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <strong>ID:</strong> ${entry.id}<br>
+                                <strong>Categoría:</strong> ${
+                                  entry.category || "N/A"
+                                }<br>
+                                <strong>Emoji:</strong> <span class="${
+                                  hasValidEmoji
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }">${entry.emoji || "N/A"}</span><br>
+                                <strong>Autor:</strong> <span class="${
+                                  hasValidAuthor
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }">${entry.author || "N/A"}</span>
+                            </div>
+                            <div>
+                                <strong>createdAt:</strong> <span class="${
+                                  hasCreatedAt
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }">${createdAtDisplay}</span><br>
+                                <strong>date:</strong> <span class="${
+                                  hasDate ? "text-green-600" : "text-red-600"
+                                }">${entry.date || "NO DEFINIDO"}</span><br>
+                                <strong>Estado:</strong> <span class="${
+                                  hasCreatedAt && hasDate && hasValidEmoji
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }">
+                                    ${
+                                      hasCreatedAt && hasDate && hasValidEmoji
+                                        ? "✅ Correcto"
+                                        : "❌ Necesita corrección"
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-gray-600">
+                            <strong>Contenido:</strong> ${(
+                              entry.content || ""
+                            ).substring(0, 100)}...
+                        </div>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      async function deleteEntry(entryId, entryTitle) {
+        if (!firebaseManager) {
+          updateStatus("❌ Firebase no está disponible", "error");
+          return;
+        }
+
+        if (
+          !confirm(`¿Estás seguro de que quieres eliminar "${entryTitle}"?`)
+        ) {
+          return;
+        }
+
+        try {
+          await firebaseManager.deleteBlogEntry(entryId);
+          updateStatus(`🗑️ Eliminada: "${entryTitle}"`, "warning");
+
+          // Recargar entradas
+          loadFirebaseEntries();
+        } catch (error) {
+          updateStatus(
+            `❌ Error al eliminar "${entryTitle}": ${error.message}`,
+            "error"
+          );
+        }
+      }
+    </script>
+  </body>
+</html>

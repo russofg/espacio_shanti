@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Nueva Entrada - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        🧪 Test Nueva Entrada de Blog
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Crear Nueva Entrada</h2>
+        <div class="space-y-4">
+          <button
+            onclick="createNewEntry()"
+            class="w-full bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
+          >
+            ➕ Crear Entrada con Fecha Actual
+          </button>
+
+          <button
+            onclick="testDateFormats()"
+            class="w-full bg-purple-500 text-white px-6 py-3 rounded hover:bg-purple-600"
+          >
+            🧪 Probar Diferentes Formatos de Fecha
+          </button>
+
+          <button
+            onclick="debugExistingDates()"
+            class="w-full bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600"
+          >
+            🔍 Debug Fechas Existentes
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Debug de Fechas</h2>
+        <div id="date-debug" class="bg-gray-100 p-4 rounded">
+          <p class="text-gray-600 italic">
+            Los resultados del debug aparecerán aquí...
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Entradas Actuales</h2>
+        <div id="current-entries" class="space-y-4">
+          <!-- Las entradas aparecerán aquí -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function createNewEntry() {
+        // Crear entrada con fecha actual en formato correcto
+        const now = new Date();
+        const isoString = now.toISOString();
+
+        const newEntry = {
+          id: "new-entry-" + Date.now(),
+          title: "Nueva Entrada de Prueba - " + now.toLocaleDateString(),
+          content:
+            "Esta es una entrada creada el " +
+            now.toLocaleString() +
+            ' para probar si las fechas se muestran correctamente. La fecha debe aparecer como "' +
+            now.toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }) +
+            '".',
+          author: "nuevo.usuario@espacioshanti.com",
+          createdAt: isoString,
+          category: "prueba",
+          emoji: "🆕",
+          summary: "Entrada para probar fechas",
+        };
+
+        // Obtener entradas existentes
+        let entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+
+        // Agregar la nueva entrada
+        entries.unshift(newEntry); // Agregar al principio
+
+        // Guardar
+        localStorage.setItem("blogEntries", JSON.stringify(entries));
+
+        // Debug de la fecha creada
+        debugDate(isoString, "Nueva entrada creada");
+
+        // Actualizar vista
+        updateCurrentEntries();
+
+        alert("✅ Nueva entrada creada con fecha: " + isoString);
+      }
+
+      function testDateFormats() {
+        const now = new Date();
+        const formats = [
+          {
+            name: "ISO String (correcto)",
+            value: now.toISOString(),
+          },
+          {
+            name: "Date String",
+            value: now.toString(),
+          },
+          {
+            name: "Timestamp",
+            value: now.getTime(),
+          },
+          {
+            name: "Custom ISO",
+            value: "2025-07-21T15:30:00.000Z",
+          },
+        ];
+
+        let debugOutput =
+          '<h3 class="font-bold mb-2">Test de Formatos de Fecha:</h3>';
+
+        formats.forEach((format) => {
+          try {
+            const date = new Date(format.value);
+            const isValid = !isNaN(date.getTime());
+            const formatted = isValid
+              ? date.toLocaleDateString("es-ES", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "FECHA INVÁLIDA";
+
+            debugOutput += `
+                        <div class="border-l-4 ${
+                          isValid ? "border-green-500" : "border-red-500"
+                        } pl-4 mb-2">
+                            <strong>${format.name}:</strong><br>
+                            <code class="text-xs bg-gray-200 px-1">${
+                              format.value
+                            }</code><br>
+                            <span class="${
+                              isValid ? "text-green-600" : "text-red-600"
+                            }">${formatted}</span>
+                        </div>
+                    `;
+          } catch (e) {
+            debugOutput += `
+                        <div class="border-l-4 border-red-500 pl-4 mb-2">
+                            <strong>${format.name}:</strong><br>
+                            <code class="text-xs bg-gray-200 px-1">${format.value}</code><br>
+                            <span class="text-red-600">ERROR: ${e.message}</span>
+                        </div>
+                    `;
+          }
+        });
+
+        document.getElementById("date-debug").innerHTML = debugOutput;
+      }
+
+      function debugExistingDates() {
+        const entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+
+        let debugOutput =
+          '<h3 class="font-bold mb-2">Debug de Fechas Existentes:</h3>';
+
+        if (entries.length === 0) {
+          debugOutput +=
+            '<p class="text-red-500">No hay entradas en localStorage</p>';
+        } else {
+          entries.forEach((entry, index) => {
+            debugOutput += `
+                        <div class="border border-gray-300 rounded p-3 mb-2">
+                            <h4 class="font-semibold">Entrada ${index + 1}: ${
+              entry.title || "Sin título"
+            }</h4>
+                            <div class="text-sm space-y-1">
+                                <div><strong>createdAt original:</strong> <code class="bg-gray-200 px-1">${
+                                  entry.createdAt
+                                }</code></div>
+                                <div><strong>Tipo:</strong> ${typeof entry.createdAt}</div>
+                                ${debugDate(
+                                  entry.createdAt,
+                                  `Entrada ${index + 1}`
+                                )}
+                            </div>
+                        </div>
+                    `;
+          });
+        }
+
+        document.getElementById("date-debug").innerHTML = debugOutput;
+      }
+
+      function debugDate(dateValue, label) {
+        let result = "";
+
+        try {
+          if (!dateValue) {
+            result = `<div><strong>Resultado:</strong> <span class="text-red-500">Valor vacío o nulo</span></div>`;
+          } else {
+            const date = new Date(dateValue);
+            const isValid = !isNaN(date.getTime());
+
+            if (isValid) {
+              const formatted = date.toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+              result = `<div><strong>Resultado:</strong> <span class="text-green-600">${formatted}</span></div>`;
+            } else {
+              result = `<div><strong>Resultado:</strong> <span class="text-red-500">Fecha inválida</span></div>`;
+            }
+          }
+        } catch (e) {
+          result = `<div><strong>Resultado:</strong> <span class="text-red-500">Error: ${e.message}</span></div>`;
+        }
+
+        return result;
+      }
+
+      function updateCurrentEntries() {
+        const entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+        const container = document.getElementById("current-entries");
+
+        if (entries.length === 0) {
+          container.innerHTML =
+            '<p class="text-gray-500 italic">No hay entradas</p>';
+          return;
+        }
+
+        container.innerHTML = entries
+          .map((entry, index) => {
+            // Aplicar la misma lógica de validación que usa el código principal
+            let formattedDate = "Fecha no disponible";
+            if (entry.createdAt && typeof entry.createdAt === "string") {
+              try {
+                const date = new Date(entry.createdAt);
+                if (!isNaN(date.getTime())) {
+                  formattedDate = date.toLocaleDateString("es-ES", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  });
+                }
+              } catch (e) {
+                console.warn(
+                  "Error formatting date:",
+                  entry.createdAt,
+                  e.message
+                );
+              }
+            }
+
+            return `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-semibold">${
+                              entry.title || "Sin título"
+                            }</h3>
+                            <span class="text-sm ${
+                              formattedDate === "Fecha no disponible"
+                                ? "text-red-500"
+                                : "text-green-600"
+                            }">${formattedDate}</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <div><strong>ID:</strong> ${entry.id}</div>
+                            <div><strong>createdAt:</strong> <code class="bg-gray-100 px-1">${
+                              entry.createdAt
+                            }</code></div>
+                            <div><strong>Autor:</strong> ${
+                              entry.author || "Sin autor"
+                            }</div>
+                            <div><strong>Emoji:</strong> ${
+                              entry.emoji || "Sin emoji"
+                            }</div>
+                        </div>
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      // Inicializar al cargar la página
+      document.addEventListener("DOMContentLoaded", function () {
+        updateCurrentEntries();
+      });
+    </script>
+  </body>
+</html>

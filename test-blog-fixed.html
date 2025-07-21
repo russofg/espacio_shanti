@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Blog Fixed - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link href="css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="bg-gray-50">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        Test Blog System - Fixed Version
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Actions</h2>
+        <div class="space-x-4">
+          <button
+            onclick="loadValidData()"
+            class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+          >
+            Load Valid Test Data
+          </button>
+          <button
+            onclick="clearAllData()"
+            class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+          >
+            Clear All Data
+          </button>
+          <button
+            onclick="refreshBlog()"
+            class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+          >
+            Refresh Blog
+          </button>
+        </div>
+      </div>
+
+      <!-- Blog Section (same as index.html) -->
+      <section class="bg-white rounded-lg shadow-md">
+        <div class="p-8">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              <span
+                class="bg-gradient-to-r from-sage-600 to-lavender-600 bg-clip-text text-transparent"
+              >
+                Blog
+              </span>
+            </h2>
+            <p class="text-lg text-gray-600">
+              Prueba del sistema de blog con datos válidos
+            </p>
+          </div>
+
+          <!-- Blog Loading Message -->
+          <div id="blog-loading" class="text-center py-12 hidden">
+            <div class="inline-flex items-center space-x-2">
+              <div
+                class="animate-spin rounded-full h-6 w-6 border-b-2 border-sage-600"
+              ></div>
+              <span class="text-gray-600">Cargando entradas del blog...</span>
+            </div>
+          </div>
+
+          <!-- Blog Container -->
+          <div
+            id="blog-container"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            <!-- Blog posts will be dynamically loaded here -->
+          </div>
+
+          <!-- No blog posts message -->
+          <div id="blog-empty" class="text-center py-12 hidden">
+            <div
+              class="bg-gradient-to-br from-sage-50 to-lavender-50 rounded-2xl p-8 max-w-md mx-auto"
+            >
+              <i class="fas fa-pen-alt text-4xl text-sage-400 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                Sin entradas
+              </h3>
+              <p class="text-gray-600">No hay entradas de blog para mostrar</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Debug info -->
+      <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+        <h2 class="text-xl font-semibold mb-4">Debug Info</h2>
+        <div class="space-y-2">
+          <p>
+            <strong>Total entries:</strong> <span id="total-entries">0</span>
+          </p>
+          <p>
+            <strong>Last updated:</strong> <span id="last-updated">Never</span>
+          </p>
+        </div>
+        <details class="mt-4">
+          <summary class="cursor-pointer font-medium">Raw Data</summary>
+          <pre
+            id="raw-data"
+            class="bg-gray-100 p-4 rounded mt-2 text-sm overflow-auto max-h-64"
+          ></pre>
+        </details>
+      </div>
+    </div>
+
+    <!-- Include the main app.js -->
+    <script src="js/app.js"></script>
+
+    <script>
+      function loadValidData() {
+        // Clear existing data
+        localStorage.removeItem("blogEntries");
+
+        // Create valid test entries
+        const validEntries = [
+          {
+            id: "valid-reiki",
+            title: "Beneficios del Reiki",
+            content:
+              "El Reiki es una técnica japonesa de sanación que utiliza la energía universal para promover la relajación y el bienestar. Esta práctica milenaria nos ayuda a equilibrar nuestro cuerpo, mente y espíritu a través de la imposición de manos y la canalización de energía positiva.",
+            author: "ana.martinez@espacioshanti.com",
+            createdAt: "2025-07-20T10:30:00.000Z",
+            category: "terapias",
+            emoji: "✨",
+            summary: "Descubre cómo el Reiki puede transformar tu bienestar",
+          },
+          {
+            id: "valid-meditation",
+            title: "Técnicas de Meditación para Principiantes",
+            content:
+              "La meditación es una herramienta poderosa para encontrar la paz interior y reducir el estrés. En esta guía completa aprenderás técnicas simples que puedes practicar desde casa, sin necesidad de experiencia previa. Comenzaremos con ejercicios de respiración básicos.",
+            author: "Dr. Carlos Mendoza",
+            createdAt: "2025-07-19T14:15:00.000Z",
+            category: "meditacion",
+            emoji: "🧘",
+            summary: "Comienza tu viaje hacia la serenidad",
+          },
+          {
+            id: "valid-crystals",
+            title: "El Poder de los Cristales",
+            content:
+              "Los cristales han sido utilizados durante milenios por sus propiedades energéticas únicas. Cada cristal vibra en una frecuencia específica que puede ayudarnos a sanar diferentes aspectos de nuestra vida. Aprende cómo elegir y usar cristales en tu práctica espiritual.",
+            author: "lucia.sanchez@espacioshanti.com",
+            createdAt: "2025-07-18T09:45:00.000Z",
+            category: "espiritualidad",
+            emoji: "💎",
+            summary: "Conecta con la energía de la naturaleza",
+          },
+        ];
+
+        // Save to localStorage
+        localStorage.setItem("blogEntries", JSON.stringify(validEntries));
+
+        // Update debug info
+        updateDebugInfo();
+
+        // Refresh the blog display
+        refreshBlog();
+
+        alert("✅ Datos válidos cargados correctamente");
+      }
+
+      function clearAllData() {
+        localStorage.removeItem("blogEntries");
+        updateDebugInfo();
+        refreshBlog();
+        alert("🗑️ Todos los datos eliminados");
+      }
+
+      function refreshBlog() {
+        if (typeof generateBlogCards === "function") {
+          generateBlogCards();
+        } else {
+          console.warn("generateBlogCards function not available");
+        }
+        updateDebugInfo();
+      }
+
+      function updateDebugInfo() {
+        const entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+        document.getElementById("total-entries").textContent = entries.length;
+        document.getElementById("last-updated").textContent =
+          new Date().toLocaleString();
+        document.getElementById("raw-data").textContent = JSON.stringify(
+          entries,
+          null,
+          2
+        );
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 Test page loaded");
+        updateDebugInfo();
+
+        // Auto-load test data if no entries exist
+        const entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+        if (entries.length === 0) {
+          console.log("📝 No entries found, loading test data...");
+          loadValidData();
+        } else {
+          refreshBlog();
+        }
+      });
+    </script>
+  </body>
+</html>

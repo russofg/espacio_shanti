@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Panel Blog - Espacio Shanti</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+        font-size: 16px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .button.clear {
+        background: #dc3545;
+      }
+      .button.clear:hover {
+        background: #c82333;
+      }
+      .output {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        min-height: 100px;
+      }
+      .success {
+        color: green;
+      }
+      .info {
+        color: blue;
+      }
+      .warning {
+        color: orange;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Test Panel de Blog</h1>
+
+      <div class="output">
+        <h3>📝 Test de Creación de Entradas</h3>
+        <p>
+          Esta página te permite probar la creación de entradas directamente,
+          sin usar el panel de terapeutas.
+        </p>
+      </div>
+
+      <div>
+        <button class="button" onclick="createTestEntryNew()">
+          ✨ Crear Entrada con Nuevo Formato
+        </button>
+        <button class="button" onclick="viewEntries()">👀 Ver Entradas</button>
+        <button class="button clear" onclick="clearEntries()">
+          🗑️ Limpiar Entradas
+        </button>
+      </div>
+
+      <div id="output" class="output">
+        Haz clic en "Crear Entrada con Nuevo Formato" para probar...
+      </div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const output = document.getElementById("output");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "success"
+            ? "success"
+            : type === "info"
+            ? "info"
+            : type === "warning"
+            ? "warning"
+            : "";
+        output.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+      }
+
+      function clearOutput() {
+        document.getElementById("output").innerHTML = "";
+      }
+
+      function createTestEntryNew() {
+        clearOutput();
+        log("✨ Creando entrada con el NUEVO formato...", "info");
+
+        const currentDate = new Date();
+
+        // Simular exactamente lo que hace el nuevo código del panel
+        const testEntry = {
+          title: "Test Nueva Entrada - " + currentDate.toLocaleTimeString(),
+          category: "terapias",
+          emoji: "💆‍♀️", // Emoji válido
+          summary:
+            "Esta es una entrada de prueba creada con el nuevo formato que incluye tanto createdAt como date.",
+          content:
+            'Esta entrada se creó usando el formato corregido que incluye tanto el campo createdAt (en formato ISO) como el campo date (en formato español). Esto debería resolver los problemas de "Fecha no disponible" que estábamos viendo antes. El contenido tiene más de 200 caracteres para cumplir con la validación.',
+          tips: ["Tip de prueba 1", "Tip de prueba 2"],
+          author: "test.user@espacioshanti.com",
+          createdAt: currentDate.toISOString(), // ✅ Campo createdAt en formato ISO
+          date: currentDate.toLocaleDateString("es-ES", {
+            // ✅ Campo date en español
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          id: "test-new-format-" + Date.now(),
+        };
+
+        try {
+          // Obtener entradas existentes
+          let entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+
+          // Agregar la nueva entrada al principio
+          entries.unshift(testEntry);
+
+          // Guardar
+          localStorage.setItem("blogEntries", JSON.stringify(entries));
+
+          log("🎉 ¡Entrada creada exitosamente!", "success");
+          log("📊 Datos de la nueva entrada:", "info");
+          log(`  • Título: "${testEntry.title}"`, "info");
+          log(`  • Emoji: ${testEntry.emoji}`, "info");
+          log(`  • createdAt: ${testEntry.createdAt}`, "info");
+          log(`  • date: ${testEntry.date}`, "info");
+          log(`  • Autor: ${testEntry.author}`, "info");
+          log(`  • Categoría: ${testEntry.category}`, "info");
+
+          log("", "info");
+          log("✅ Esta entrada debería mostrar correctamente:", "success");
+          log('  • Fecha: "' + testEntry.date + '"', "success");
+          log("  • Emoji: " + testEntry.emoji, "success");
+          log("  • Autor: extraído del email", "success");
+
+          log("", "info");
+          log(
+            "🔄 Ve a index.html para verificar que se muestre correctamente",
+            "info"
+          );
+        } catch (error) {
+          log(`❌ Error al crear entrada: ${error.message}`, "error");
+        }
+      }
+
+      function viewEntries() {
+        clearOutput();
+        log("👀 Visualizando entradas actuales...", "info");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            log("❌ No hay entradas en localStorage", "warning");
+          } else {
+            log(`📊 Se encontraron ${entries.length} entradas:`, "success");
+
+            entries.forEach((entry, index) => {
+              log(`\n📄 Entrada ${index + 1}:`, "info");
+              log(`  • Título: "${entry.title || "SIN TÍTULO"}"`, "info");
+              log(
+                `  • Emoji: "${entry.emoji || "SIN EMOJI"}"`,
+                entry.emoji && entry.emoji !== "undefined"
+                  ? "success"
+                  : "warning"
+              );
+              log(
+                `  • createdAt: "${entry.createdAt || "NO DEFINIDO"}"`,
+                entry.createdAt ? "success" : "warning"
+              );
+              log(
+                `  • date: "${entry.date || "NO DEFINIDO"}"`,
+                entry.date ? "success" : "warning"
+              );
+              log(
+                `  • Autor: "${entry.author || "SIN AUTOR"}"`,
+                entry.author && entry.author !== "undefined"
+                  ? "success"
+                  : "warning"
+              );
+            });
+          }
+        } catch (error) {
+          log(`❌ Error al ver entradas: ${error.message}`, "error");
+        }
+      }
+
+      function clearEntries() {
+        if (
+          confirm("¿Estás seguro de que quieres eliminar todas las entradas?")
+        ) {
+          localStorage.removeItem("blogEntries");
+          clearOutput();
+          log("🗑️ Todas las entradas han sido eliminadas", "warning");
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        log("🚀 Test panel cargado", "success");
+      });
+    </script>
+  </body>
+</html>

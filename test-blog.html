@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Blog - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6">Test Blog System</h1>
+
+      <div class="bg-white rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">1. Add Test Blog Entries</h2>
+        <div class="space-x-2">
+          <button
+            onclick="addTestEntry()"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Add Test Entry (Email Author)
+          </button>
+          <button
+            onclick="addTestEntryName()"
+            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Add Test Entry (Name Author)
+          </button>
+          <button
+            onclick="addTestEntryNoEmoji()"
+            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+          >
+            Add Test Entry (No Emoji)
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">2. View Blog Section</h2>
+        <div
+          id="blog-container"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Blog posts will be loaded here -->
+        </div>
+        <div id="blog-loading" class="text-center py-8">
+          <span class="text-gray-600">Loading blog entries...</span>
+        </div>
+        <div id="blog-empty" class="text-center py-8 hidden">
+          <span class="text-gray-600">No blog entries found</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">3. localStorage Content</h2>
+        <pre
+          id="localStorage-content"
+          class="bg-gray-100 p-4 rounded text-sm overflow-auto"
+        ></pre>
+        <button
+          onclick="showLocalStorage()"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4"
+        >
+          Show localStorage
+        </button>
+        <button
+          onclick="clearLocalStorage()"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mt-4 ml-2"
+        >
+          Clear localStorage
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function addTestEntry() {
+        const testEntry = {
+          id: "test-" + Date.now(),
+          title: "Entrada de Prueba del Blog",
+          content:
+            "Este es el contenido de una entrada de prueba para verificar que el sistema de blog funciona correctamente. Aquí se puede escribir todo el contenido que los terapeutas quieran compartir con los visitantes del sitio web.\n\nEste contenido incluye saltos de línea para probar el formato.\n\n¡Y emojis también! 🌟✨",
+          author: "terapeuta.test@espacioshanti.com",
+          createdAt: new Date().toISOString(),
+          category: "bienestar",
+          emoji: "🧘",
+          summary:
+            "Una entrada de prueba para verificar el funcionamiento del blog",
+        };
+
+        let blogEntries = JSON.parse(
+          localStorage.getItem("blogEntries") || "[]"
+        );
+        blogEntries.push(testEntry);
+        localStorage.setItem("blogEntries", JSON.stringify(blogEntries));
+
+        alert("✅ Test entry added to localStorage");
+        showLocalStorage();
+        loadBlogEntries();
+      }
+
+      function addTestEntryName() {
+        const testEntry = {
+          id: "test-name-" + Date.now(),
+          title: "Meditación para Principiantes",
+          content:
+            "La meditación es una práctica milenaria que nos ayuda a encontrar la paz interior y reducir el estrés del día a día.\n\nEn esta entrada aprenderás:\n• Técnicas básicas de respiración\n• Posturas adecuadas para meditar\n• Cómo crear un espacio de meditación en casa\n\nRecuerda que la constancia es clave. Comienza con solo 5 minutos al día y verás grandes cambios en tu bienestar. 🌟",
+          author: "Ana María González",
+          createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+          category: "meditacion",
+          emoji: "🧘‍♀️",
+          summary: "Guía básica para comenzar tu práctica de meditación",
+        };
+
+        let blogEntries = JSON.parse(
+          localStorage.getItem("blogEntries") || "[]"
+        );
+        blogEntries.push(testEntry);
+        localStorage.setItem("blogEntries", JSON.stringify(blogEntries));
+
+        alert("✅ Test entry with name author added");
+        showLocalStorage();
+        loadBlogEntries();
+      }
+
+      function addTestEntryNoEmoji() {
+        const testEntry = {
+          id: "test-no-emoji-" + Date.now(),
+          title: "Beneficios de las Terapias Alternativas",
+          content:
+            "Las terapias alternativas han ganado popularidad en los últimos años debido a su enfoque holístico del bienestar.\n\nAlgunos beneficios incluyen:\n\n1. Reducción del estrés y la ansiedad\n2. Mejora del equilibrio emocional\n3. Fortalecimiento del sistema inmunológico\n4. Mayor conexión con uno mismo\n\nEn Espacio Shanti ofrecemos una variedad de terapias diseñadas para tu bienestar integral.",
+          author: "Dr. Carlos Mendoza",
+          createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+          category: "terapias",
+          // No emoji property
+          summary:
+            "Descubre cómo las terapias alternativas pueden mejorar tu calidad de vida",
+        };
+
+        let blogEntries = JSON.parse(
+          localStorage.getItem("blogEntries") || "[]"
+        );
+        blogEntries.push(testEntry);
+        localStorage.setItem("blogEntries", JSON.stringify(blogEntries));
+
+        alert("✅ Test entry without emoji added");
+        showLocalStorage();
+        loadBlogEntries();
+      }
+
+      function showLocalStorage() {
+        const content = localStorage.getItem("blogEntries") || "[]";
+        document.getElementById("localStorage-content").textContent =
+          JSON.stringify(JSON.parse(content), null, 2);
+      }
+
+      function clearLocalStorage() {
+        localStorage.removeItem("blogEntries");
+        alert("🗑️ localStorage cleared");
+        showLocalStorage();
+        loadBlogEntries();
+      }
+
+      function loadBlogEntries() {
+        const blogContainer = document.getElementById("blog-container");
+        const blogLoading = document.getElementById("blog-loading");
+        const blogEmpty = document.getElementById("blog-empty");
+
+        // Show loading
+        blogLoading.classList.remove("hidden");
+        blogContainer.classList.add("hidden");
+        blogEmpty.classList.add("hidden");
+
+        setTimeout(() => {
+          const blogEntries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          // Hide loading
+          blogLoading.classList.add("hidden");
+
+          if (blogEntries.length === 0) {
+            blogEmpty.classList.remove("hidden");
+            return;
+          }
+
+          // Show blog container
+          blogContainer.classList.remove("hidden");
+
+          // Generate blog cards
+          blogContainer.innerHTML = blogEntries
+            .map((entry) => {
+              const date = new Date(entry.createdAt);
+              const formattedDate = date.toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+
+              const previewContent =
+                entry.content.length > 120
+                  ? entry.content.substring(0, 120) + "..."
+                  : entry.content;
+
+              return `
+                        <article class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        ${entry.emoji || "📝"} ${
+                entry.category || "General"
+              }
+                                    </span>
+                                    <time class="text-sm text-gray-500" datetime="${
+                                      entry.createdAt
+                                    }">
+                                        ${formattedDate}
+                                    </time>
+                                </div>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">
+                                    ${entry.title}
+                                </h3>
+
+                                <p class="text-gray-600 mb-4 leading-relaxed">
+                                    ${previewContent}
+                                </p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-700 font-medium">
+                                            ${
+                                              entry.author ||
+                                              "Equipo Espacio Shanti"
+                                            }
+                                        </span>
+                                    </div>
+                                    <button 
+                                        onclick="alert('Blog ID: ${entry.id}')"
+                                        class="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                                    >
+                                        Ver más
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+            })
+            .join("");
+        }, 500);
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        showLocalStorage();
+        loadBlogEntries();
+      });
+    </script>
+  </body>
+</html>

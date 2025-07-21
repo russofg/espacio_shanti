@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Debug - Blog</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .output {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        min-height: 100px;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+      .warning {
+        color: orange;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Debug Simple del Blog</h1>
+
+      <div>
+        <button class="button" onclick="checkLocalStorage()">
+          📦 Ver localStorage
+        </button>
+        <button class="button" onclick="testDateFormat()">
+          📅 Test Fechas
+        </button>
+        <button class="button" onclick="createTestEntry()">
+          ✨ Crear Test
+        </button>
+        <button class="button" onclick="clearAll()">🗑️ Limpiar Todo</button>
+      </div>
+
+      <div id="output" class="output">
+        Haz clic en algún botón para comenzar el debug...
+      </div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const output = document.getElementById("output");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "error"
+            ? "error"
+            : type === "success"
+            ? "success"
+            : type === "warning"
+            ? "warning"
+            : "";
+        output.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+      }
+
+      function clearOutput() {
+        document.getElementById("output").innerHTML = "";
+      }
+
+      function checkLocalStorage() {
+        clearOutput();
+        log("🔍 Verificando localStorage...", "info");
+
+        try {
+          const entries = localStorage.getItem("blogEntries");
+
+          if (!entries) {
+            log("❌ No hay datos en localStorage (blogEntries)", "error");
+            return;
+          }
+
+          log("✅ Datos encontrados en localStorage", "success");
+          log(`📊 Tamaño de datos: ${entries.length} caracteres`, "info");
+
+          const parsed = JSON.parse(entries);
+          log(`📈 Número de entradas: ${parsed.length}`, "info");
+
+          if (parsed.length > 0) {
+            log("📋 Analizando primera entrada:", "info");
+            const first = parsed[0];
+
+            log(
+              `  • ID: ${first.id || "NO DEFINIDO"}`,
+              first.id ? "success" : "error"
+            );
+            log(
+              `  • Título: "${first.title || "NO DEFINIDO"}"`,
+              first.title ? "success" : "error"
+            );
+            log(
+              `  • Fecha: "${
+                first.createdAt || "NO DEFINIDO"
+              }" (tipo: ${typeof first.createdAt})`,
+              first.createdAt ? "success" : "error"
+            );
+            log(
+              `  • Emoji: "${
+                first.emoji || "NO DEFINIDO"
+              }" (tipo: ${typeof first.emoji})`,
+              first.emoji && first.emoji !== "undefined" ? "success" : "error"
+            );
+            log(
+              `  • Autor: "${
+                first.author || "NO DEFINIDO"
+              }" (tipo: ${typeof first.author})`,
+              first.author && first.author !== "undefined" ? "success" : "error"
+            );
+            log(
+              `  • Categoría: "${
+                first.category || "NO DEFINIDO"
+              }" (tipo: ${typeof first.category})`,
+              first.category && first.category !== "undefined"
+                ? "success"
+                : "error"
+            );
+
+            log("📄 Datos completos de la primera entrada:", "info");
+            log(`<pre>${JSON.stringify(first, null, 2)}</pre>`, "info");
+          }
+        } catch (error) {
+          log(`❌ Error al leer localStorage: ${error.message}`, "error");
+        }
+      }
+
+      function testDateFormat() {
+        clearOutput();
+        log("📅 Probando formatos de fecha...", "info");
+
+        const testDates = [
+          new Date().toISOString(),
+          "2025-07-21T12:00:00Z",
+          "2025-07-21",
+          Date.now(),
+          "invalid-date",
+          null,
+          undefined,
+          "",
+        ];
+
+        testDates.forEach((testDate, index) => {
+          try {
+            log(
+              `\n🧪 Test ${
+                index + 1
+              }: "${testDate}" (tipo: ${typeof testDate})`,
+              "info"
+            );
+
+            if (!testDate) {
+              log(
+                "  → Resultado: Fecha no disponible (valor vacío)",
+                "warning"
+              );
+              return;
+            }
+
+            const date = new Date(testDate);
+            const isValid = !isNaN(date.getTime());
+
+            if (isValid) {
+              const formatted = date.toLocaleDateString("es-ES", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+              log(`  → Resultado: "${formatted}" ✅`, "success");
+            } else {
+              log("  → Resultado: Fecha inválida ❌", "error");
+            }
+          } catch (error) {
+            log(`  → Error: ${error.message} ❌`, "error");
+          }
+        });
+      }
+
+      function createTestEntry() {
+        clearOutput();
+        log("✨ Creando entrada de prueba...", "info");
+
+        const now = new Date();
+        const testEntry = {
+          id: "test-simple-" + Date.now(),
+          title: "Entrada de Prueba Simple",
+          content: "Esta es una entrada creada para probar el sistema de blog.",
+          author: "test.user@espacioshanti.com",
+          createdAt: now.toISOString(),
+          category: "prueba",
+          emoji: "🔧",
+          summary: "Entrada de prueba",
+        };
+
+        try {
+          // Obtener entradas existentes
+          let entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+
+          // Agregar la nueva entrada
+          entries.unshift(testEntry);
+
+          // Guardar
+          localStorage.setItem("blogEntries", JSON.stringify(entries));
+
+          log("✅ Entrada creada exitosamente", "success");
+          log(`📊 Total de entradas ahora: ${entries.length}`, "info");
+          log("📄 Datos de la nueva entrada:", "info");
+          log(`<pre>${JSON.stringify(testEntry, null, 2)}</pre>`, "info");
+
+          // Verificar que se guardó correctamente
+          const saved = JSON.parse(localStorage.getItem("blogEntries"));
+          if (saved[0].id === testEntry.id) {
+            log("✅ Verificación: Entrada guardada correctamente", "success");
+          } else {
+            log("❌ Verificación: Error al guardar entrada", "error");
+          }
+        } catch (error) {
+          log(`❌ Error al crear entrada: ${error.message}`, "error");
+        }
+      }
+
+      function clearAll() {
+        if (
+          confirm(
+            "¿Estás seguro de que quieres eliminar todas las entradas del blog?"
+          )
+        ) {
+          localStorage.removeItem("blogEntries");
+          clearOutput();
+          log("🗑️ Todas las entradas han sido eliminadas", "warning");
+          log("📊 localStorage limpio", "info");
+        }
+      }
+
+      // Información inicial
+      document.addEventListener("DOMContentLoaded", function () {
+        log("🚀 Debug tool cargado correctamente", "success");
+        log("💡 Usa los botones de arriba para diagnosticar problemas", "info");
+      });
+    </script>
+  </body>
+</html>

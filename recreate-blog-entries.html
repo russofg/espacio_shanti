@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recrear Entradas Blog - Espacio Shanti</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+        font-size: 16px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .button.success {
+        background: #28a745;
+      }
+      .button.success:hover {
+        background: #218838;
+      }
+      .output {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        min-height: 100px;
+      }
+      .success {
+        color: green;
+      }
+      .info {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔄 Recrear Entradas del Blog</h1>
+
+      <div class="output">
+        <h3>ℹ️ Información</h3>
+        <p>
+          Esta herramienta creará entradas de ejemplo para probar el sistema de
+          blog con datos correctos.
+        </p>
+      </div>
+
+      <div>
+        <button class="button success" onclick="createSampleEntries()">
+          ✨ Crear Entradas de Ejemplo
+        </button>
+        <button class="button" onclick="checkEntries()">
+          👀 Ver Entradas Actuales
+        </button>
+      </div>
+
+      <div id="output" class="output">
+        Haz clic en "Crear Entradas de Ejemplo" para comenzar...
+      </div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const output = document.getElementById("output");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "success" ? "success" : type === "info" ? "info" : "";
+        output.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+      }
+
+      function clearOutput() {
+        document.getElementById("output").innerHTML = "";
+      }
+
+      function createSampleEntries() {
+        clearOutput();
+        log("✨ Creando entradas de ejemplo...", "info");
+
+        const now = new Date();
+
+        const sampleEntries = [
+          {
+            id: "entry-" + Date.now() + "-1",
+            title: "Beneficios de la Meditación Diaria",
+            content:
+              "La meditación diaria puede transformar tu vida de maneras increíbles. Desde reducir el estrés hasta mejorar la concentración, esta práctica milenaria ofrece beneficios respaldados por la ciencia. En Espacio Shanti te guiamos para que puedas incorporar la meditación en tu rutina diaria y experimentar una mayor paz interior y bienestar.",
+            summary:
+              "Descubre cómo la meditación diaria puede transformar tu bienestar y reducir el estrés de forma natural.",
+            author: "maria.garcia@espacioshanti.com",
+            createdAt: new Date(now.getTime() - 86400000).toISOString(), // 1 día atrás
+            date: new Date(now.getTime() - 86400000).toLocaleDateString(
+              "es-ES",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            category: "meditacion",
+            emoji: "🧘‍♀️",
+            tips: [
+              "Comienza con 5 minutos diarios",
+              "Encuentra un lugar tranquilo",
+              "Sé constante",
+            ],
+          },
+          {
+            id: "entry-" + Date.now() + "-2",
+            title: "Reiki: Sanación Energética para el Alma",
+            content:
+              "El Reiki es una técnica de sanación energética que utiliza la imposición de manos para canalizar energía universal y promover la curación física, emocional y espiritual. En nuestras sesiones, experimentarás una profunda relajación mientras la energía Reiki fluye a través de ti, liberando bloqueos y restaurando el equilibrio natural de tu cuerpo.",
+            summary:
+              "Experimenta la sanación energética del Reiki y restaura el equilibrio natural de tu cuerpo y mente.",
+            author: "betsabe@espacioshanti.com",
+            createdAt: new Date(now.getTime() - 172800000).toISOString(), // 2 días atrás
+            date: new Date(now.getTime() - 172800000).toLocaleDateString(
+              "es-ES",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            category: "terapias",
+            emoji: "✨",
+            tips: [
+              "Mantén una mente abierta",
+              "Viste ropa cómoda",
+              "Hidrátate después de la sesión",
+            ],
+          },
+          {
+            id: "entry-" + Date.now() + "-3",
+            title: "Yoga: Unión de Cuerpo, Mente y Espíritu",
+            content:
+              "El yoga es mucho más que ejercicio físico; es una práctica integral que une cuerpo, mente y espíritu. A través de asanas (posturas), pranayama (respiración) y meditación, el yoga nos ayuda a desarrollar flexibilidad, fuerza, equilibrio y una profunda conexión con nuestro ser interior. Cada clase es una oportunidad de crecimiento personal.",
+            summary:
+              "Descubre el yoga como práctica integral para unir cuerpo, mente y espíritu en armonía.",
+            author: "ana.rodriguez@espacioshanti.com",
+            createdAt: new Date(now.getTime() - 259200000).toISOString(), // 3 días atrás
+            date: new Date(now.getTime() - 259200000).toLocaleDateString(
+              "es-ES",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            category: "yoga",
+            emoji: "🧘‍♂️",
+            tips: [
+              "Respeta los límites de tu cuerpo",
+              "Concéntrate en la respiración",
+              "Practica con regularidad",
+            ],
+          },
+          {
+            id: "entry-" + Date.now() + "-4",
+            title: "Flores de Bach: Equilibrio Emocional Natural",
+            content:
+              "Las Flores de Bach son esencias florales que actúan de manera sutil pero profunda en nuestras emociones. Cada una de las 38 esencias está diseñada para tratar estados emocionales específicos, desde el miedo y la ansiedad hasta la tristeza y la falta de confianza. Descubre cómo estas maravillosas herramientas naturales pueden ayudarte a encontrar equilibrio emocional.",
+            summary:
+              "Las Flores de Bach ofrecen equilibrio emocional natural a través de esencias florales especializadas.",
+            author: "carlos.mendez@espacioshanti.com",
+            createdAt: now.toISOString(), // Hoy
+            date: now.toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            category: "terapias",
+            emoji: "🌸",
+            tips: [
+              "Consulta con un especialista",
+              "Sé paciente con el proceso",
+              "Combina con autoconocimiento",
+            ],
+          },
+        ];
+
+        try {
+          // Guardar las entradas
+          localStorage.setItem("blogEntries", JSON.stringify(sampleEntries));
+
+          log("🎉 ¡Entradas de ejemplo creadas exitosamente!", "success");
+          log(`📊 Se crearon ${sampleEntries.length} entradas`, "info");
+
+          sampleEntries.forEach((entry, index) => {
+            log(
+              `${index + 1}. "${entry.title}" - ${entry.emoji} ${
+                entry.category
+              }`,
+              "info"
+            );
+          });
+
+          log("", "info");
+          log("✅ Todas las entradas tienen:", "success");
+          log("  • Fechas correctas (createdAt + date)", "info");
+          log("  • Emojis válidos", "info");
+          log("  • Autores con emails", "info");
+          log("  • Categorías definidas", "info");
+          log("  • Contenido completo", "info");
+
+          log("", "info");
+          log(
+            "🔄 Ahora puedes ir a index.html para ver las entradas",
+            "success"
+          );
+        } catch (error) {
+          log(`❌ Error al crear entradas: ${error.message}`, "error");
+        }
+      }
+
+      function checkEntries() {
+        clearOutput();
+        log("👀 Verificando entradas actuales...", "info");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            log("❌ No hay entradas en localStorage", "info");
+          } else {
+            log(`📊 Se encontraron ${entries.length} entradas`, "success");
+
+            entries.forEach((entry, index) => {
+              log(
+                `${index + 1}. "${entry.title}" - ${entry.emoji || "❓"} ${
+                  entry.category || "sin categoría"
+                }`,
+                "info"
+              );
+            });
+          }
+        } catch (error) {
+          log(`❌ Error al verificar entradas: ${error.message}`, "error");
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        log("🚀 Herramienta de recreación cargada", "success");
+      });
+    </script>
+  </body>
+</html>

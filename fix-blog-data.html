@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fix Blog Data - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center text-red-600">
+        🔧 Blog Data Fixer
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4 text-orange-600">
+          ⚠️ Problema Detectado
+        </h2>
+        <p class="text-gray-700 mb-4">
+          Los datos en localStorage están mal formados (títulos como "df",
+          emojis "undefined", fechas inválidas). Usa los botones de abajo para
+          solucionarlo:
+        </p>
+
+        <div class="space-y-4">
+          <button
+            onclick="clearBadData()"
+            class="w-full bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600 transition-colors"
+          >
+            🗑️ Limpiar Datos Problemáticos
+          </button>
+
+          <button
+            onclick="loadGoodData()"
+            class="w-full bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600 transition-colors"
+          >
+            ✅ Cargar Datos Correctos
+          </button>
+
+          <button
+            onclick="testBlog()"
+            class="w-full bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 transition-colors"
+          >
+            🔄 Probar Blog
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Estado Actual</h2>
+        <div class="space-y-2">
+          <p>
+            <strong>Entradas en localStorage:</strong>
+            <span id="entry-count" class="text-blue-600">0</span>
+          </p>
+          <p>
+            <strong>Última actualización:</strong>
+            <span id="last-update" class="text-gray-600">Nunca</span>
+          </p>
+        </div>
+
+        <details class="mt-4">
+          <summary class="cursor-pointer font-medium text-gray-700">
+            Ver Datos Raw
+          </summary>
+          <pre
+            id="raw-data"
+            class="bg-gray-100 p-4 rounded mt-2 text-xs overflow-auto max-h-64 whitespace-pre-wrap"
+          ></pre>
+        </details>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Vista Previa del Blog</h2>
+        <div id="blog-preview" class="space-y-4">
+          <p class="text-gray-500 italic">
+            Los datos del blog aparecerán aquí...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function clearBadData() {
+        localStorage.removeItem("blogEntries");
+        updateStatus();
+        alert("🗑️ Datos problemáticos eliminados");
+      }
+
+      function loadGoodData() {
+        const correctData = [
+          {
+            id: "meditation-benefits",
+            title: "Beneficios de la Meditación",
+            content:
+              "La meditación diaria puede transformar tu vida de manera profunda. Esta práctica ancestral nos ayuda a encontrar equilibrio mental, reducir el estrés y conectar con nuestro ser interior. En tan solo 10 minutos al día puedes experimentar cambios significativos en tu bienestar general.",
+            author: "ana.maria@espacioshanti.com",
+            createdAt: "2025-07-21T10:30:00.000Z",
+            category: "meditacion",
+            emoji: "🧘‍♀️",
+            summary: "Descubre cómo 10 minutos diarios pueden cambiar tu vida",
+          },
+          {
+            id: "reiki-healing",
+            title: "El Poder Sanador del Reiki",
+            content:
+              "El Reiki es una técnica de sanación energética que utiliza la imposición de manos para canalizar energía universal. Esta práctica japonesa milenaria puede ayudarte a liberar bloqueos emocionales, reducir el dolor físico y promover un estado de relajación profunda.",
+            author: "Dr. Carlos Mendoza",
+            createdAt: "2025-07-20T14:15:00.000Z",
+            category: "terapias",
+            emoji: "✨",
+            summary: "Experimenta la sanación a través de la energía universal",
+          },
+          {
+            id: "crystal-energy",
+            title: "Cristales y su Energía Transformadora",
+            content:
+              "Los cristales son herramientas poderosas que nos conectan con las energías de la Tierra. Cada cristal vibra en una frecuencia única que puede ayudarnos a sanar diferentes aspectos de nuestra vida física, emocional y espiritual. Aprende a elegir y usar cristales.",
+            author: "lucia.gonzalez@espacioshanti.com",
+            createdAt: "2025-07-19T09:45:00.000Z",
+            category: "espiritualidad",
+            emoji: "💎",
+            summary: "Descubre el poder energético de los minerales sagrados",
+          },
+        ];
+
+        localStorage.setItem("blogEntries", JSON.stringify(correctData));
+        updateStatus();
+        alert("✅ Datos correctos cargados exitosamente");
+      }
+
+      function testBlog() {
+        // Intentar regenerar el blog si la función está disponible
+        if (typeof generateBlogCards === "function") {
+          generateBlogCards();
+          alert("🔄 Blog regenerado (función disponible)");
+        } else {
+          alert("ℹ️ Ve a la página principal para ver los cambios");
+          // Abrir el index en una nueva pestaña
+          window.open("/index.html#blog", "_blank");
+        }
+        updateStatus();
+      }
+
+      function updateStatus() {
+        const entries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+        document.getElementById("entry-count").textContent = entries.length;
+        document.getElementById("last-update").textContent =
+          new Date().toLocaleString();
+        document.getElementById("raw-data").textContent = JSON.stringify(
+          entries,
+          null,
+          2
+        );
+
+        // Mostrar vista previa
+        const preview = document.getElementById("blog-preview");
+        if (entries.length === 0) {
+          preview.innerHTML = '<p class="text-red-500">❌ No hay entradas</p>';
+        } else {
+          preview.innerHTML = entries
+            .map(
+              (entry) => `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="text-lg">${entry.emoji || "❓"}</span>
+                            <span class="text-sm bg-blue-100 px-2 py-1 rounded">${
+                              entry.category || "Sin categoría"
+                            }</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800">${
+                          entry.title || "Sin título"
+                        }</h3>
+                        <p class="text-sm text-gray-600 mt-1">${(
+                          entry.content || ""
+                        ).substring(0, 100)}...</p>
+                        <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
+                            <span>👤 ${entry.author || "Sin autor"}</span>
+                            <span>📅 ${
+                              entry.createdAt
+                                ? new Date(entry.createdAt).toLocaleDateString()
+                                : "Sin fecha"
+                            }</span>
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        }
+      }
+
+      // Inicializar al cargar la página
+      document.addEventListener("DOMContentLoaded", function () {
+        updateStatus();
+      });
+    </script>
+  </body>
+</html>

@@ -11,9 +11,11 @@ class EmailService {
     try {
       // Obtener configuración segura
       this.config = window.getEmailJSConfig?.() || null;
-      
+
       if (!this.config) {
-        window.secureLogger?.error("❌ No se pudo cargar configuración EmailJS segura");
+        window.secureLogger?.error(
+          "❌ No se pudo cargar configuración EmailJS segura"
+        );
         return;
       }
 
@@ -23,15 +25,25 @@ class EmailService {
       }
 
       // Inicializar con public key segura
-      if (this.config.publicKey && this.config.publicKey !== "YOUR_PUBLIC_KEY") {
+      if (
+        this.config.publicKey &&
+        this.config.publicKey !== "YOUR_PUBLIC_KEY"
+      ) {
         window.emailjs.init(this.config.publicKey);
         this.isConfigured = true;
-        window.secureLogger?.system("✅ EmailJS configurado correctamente con credenciales seguras");
+        window.secureLogger?.info(
+          "✅ EmailJS configurado correctamente con credenciales seguras"
+        );
       } else {
-        window.secureLogger?.warn("⚠️ EmailJS no configurado. Verificar configuración en production-config.js");
+        window.secureLogger?.warn(
+          "⚠️ EmailJS no configurado. Verificar configuración en production-config.js"
+        );
       }
     } catch (error) {
-      window.secureLogger?.error("❌ Error inicializando EmailJS:", error.message);
+      window.secureLogger?.error(
+        "❌ Error inicializando EmailJS:",
+        error.message
+      );
     }
   }
 
@@ -49,7 +61,9 @@ class EmailService {
   async sendConfirmationEmail(reservationData) {
     // Verificar configuración antes del envío
     if (!this.isConfigured || !this.config) {
-      window.secureLogger?.error("❌ EmailJS no configurado para envío de confirmación");
+      window.secureLogger?.error(
+        "❌ EmailJS no configurado para envío de confirmación"
+      );
       return false;
     }
 
@@ -76,10 +90,15 @@ class EmailService {
         this.config.templates.confirmacion,
         templateParams
       );
-      window.secureLogger?.info("✅ Email de confirmación enviado exitosamente");
+      window.secureLogger?.info(
+        "✅ Email de confirmación enviado exitosamente"
+      );
       return true;
     } catch (error) {
-      window.secureLogger?.error("❌ Error enviando email de confirmación:", error.message);
+      window.secureLogger?.error(
+        "❌ Error enviando email de confirmación:",
+        error.message
+      );
       return false;
     }
   }
@@ -87,7 +106,9 @@ class EmailService {
   async sendReminderEmail(reservationData, reminderType = "24h") {
     // Verificar configuración antes del envío
     if (!this.isConfigured || !this.config) {
-      window.secureLogger?.error("❌ EmailJS no configurado para envío de recordatorio");
+      window.secureLogger?.error(
+        "❌ EmailJS no configurado para envío de recordatorio"
+      );
       return false;
     }
 
@@ -131,19 +152,25 @@ class EmailService {
 
     try {
       // Usar el template específico para el tipo de recordatorio
-      const templateId = reminderType === "24h" 
-        ? this.config.templates.recordatorio_24h 
-        : this.config.templates.recordatorio_2h;
+      const templateId =
+        reminderType === "24h"
+          ? this.config.templates.recordatorio_24h
+          : this.config.templates.recordatorio_2h;
 
       const result = await window.emailjs.send(
         this.config.serviceId,
         templateId,
         templateParams
       );
-      window.secureLogger?.info(`✅ Email recordatorio ${reminderType} enviado exitosamente`);
+      window.secureLogger?.info(
+        `✅ Email recordatorio ${reminderType} enviado exitosamente`
+      );
       return true;
     } catch (error) {
-      window.secureLogger?.error(`❌ Error enviando recordatorio ${reminderType}:`, error.message);
+      window.secureLogger?.error(
+        `❌ Error enviando recordatorio ${reminderType}:`,
+        error.message
+      );
       return false;
     }
   }
@@ -387,27 +414,35 @@ class EmailService {
   // Método para reconfigurar EmailJS (ahora usa configuración segura)
   reconfigure() {
     this.config = window.getEmailJSConfig?.() || null;
-    
+
     if (!this.config) {
-      window.secureLogger?.error("❌ No se pudo recargar configuración EmailJS");
+      window.secureLogger?.error(
+        "❌ No se pudo recargar configuración EmailJS"
+      );
       return false;
     }
 
     if (window.emailjs && this.config.publicKey) {
       window.emailjs.init(this.config.publicKey);
       this.isConfigured = true;
-      window.secureLogger?.system("✅ EmailJS reconfigurado con credenciales seguras");
+      window.secureLogger?.info(
+        "✅ EmailJS reconfigurado con credenciales seguras"
+      );
       return true;
     }
-    
+
     return false;
   }
 
   // Función de prueba para diagnóstico (ahora segura)
   async testEmail() {
     if (!this.isConfigured || !this.config) {
-      window.secureLogger?.error("❌ EmailJS no configurado. No se puede realizar prueba.");
-      alert("EmailJS no está configurado. Verificar configuración en production-config.js");
+      window.secureLogger?.error(
+        "❌ EmailJS no configurado. No se puede realizar prueba."
+      );
+      alert(
+        "EmailJS no está configurado. Verificar configuración en production-config.js"
+      );
       return;
     }
 
@@ -430,7 +465,7 @@ class EmailService {
 
     // Probar confirmación
     const result = await this.sendConfirmationEmail(testData);
-    
+
     if (result) {
       alert(`✅ Email de prueba enviado exitosamente a: ${testEmail}`);
     } else {
@@ -441,40 +476,62 @@ class EmailService {
   // Función de diagnóstico segura
   diagnoseConfiguration() {
     window.secureLogger?.info("🔍 DIAGNÓSTICO EMAILJS - MODO SEGURO");
-    
+
     const isProduction = window.PRODUCTION_MODE || false;
-    const environment = isProduction ? 'PRODUCCIÓN' : 'DESARROLLO';
-    
+    const environment = isProduction ? "PRODUCCIÓN" : "DESARROLLO";
+
     if (!this.config) {
       window.secureLogger?.error("❌ Configuración no cargada");
       return {
         configured: false,
         environment: environment,
-        error: "Configuración no disponible"
+        error: "Configuración no disponible",
       };
     }
 
     // En producción, no mostrar credenciales
     if (isProduction) {
       window.secureLogger?.info(`🔒 Entorno: ${environment}`);
-      window.secureLogger?.info(`✅ Configurado: ${this.isConfigured ? "SÍ" : "NO"}`);
-      window.secureLogger?.info(`📦 EmailJS cargado: ${window.emailjs ? "SÍ" : "NO"}`);
+      window.secureLogger?.info(
+        `✅ Configurado: ${this.isConfigured ? "SÍ" : "NO"}`
+      );
+      window.secureLogger?.info(
+        `📦 EmailJS cargado: ${window.emailjs ? "SÍ" : "NO"}`
+      );
     } else {
       // En desarrollo, mostrar información limitada
       window.secureLogger?.info(`🔧 Entorno: ${environment}`);
-      window.secureLogger?.info(`📧 Service ID: ${this.config.serviceId?.substring(0, 12)}...`);
-      window.secureLogger?.info(`📧 Templates disponibles: ${Object.keys(this.config.templates || {}).join(', ')}`);
-      window.secureLogger?.info(`📧 Public Key: ${this.config.publicKey?.substring(0, 12)}...`);
-      window.secureLogger?.info(`✅ Configurado: ${this.isConfigured ? "SÍ" : "NO"}`);
-      window.secureLogger?.info(`📦 EmailJS cargado: ${window.emailjs ? "SÍ" : "NO"}`);
+      window.secureLogger?.info(
+        `📧 Service ID: ${this.config.serviceId?.substring(0, 12)}...`
+      );
+      window.secureLogger?.info(
+        `📧 Templates disponibles: ${Object.keys(
+          this.config.templates || {}
+        ).join(", ")}`
+      );
+      window.secureLogger?.info(
+        `📧 Public Key: ${this.config.publicKey?.substring(0, 12)}...`
+      );
+      window.secureLogger?.info(
+        `✅ Configurado: ${this.isConfigured ? "SÍ" : "NO"}`
+      );
+      window.secureLogger?.info(
+        `📦 EmailJS cargado: ${window.emailjs ? "SÍ" : "NO"}`
+      );
     }
 
     if (this.isConfigured) {
-      window.secureLogger?.success("🎯 Sistema EmailJS funcionando correctamente");
-      window.secureLogger?.info("💡 Ejecuta: testEmails() para probar el envío");
+      window.secureLogger?.success(
+        "🎯 Sistema EmailJS funcionando correctamente"
+      );
+      window.secureLogger?.info(
+        "💡 Ejecuta: testEmails() para probar el envío"
+      );
     } else {
       window.secureLogger?.warn("❌ Problema con la configuración EmailJS");
-      window.secureLogger?.info("🔧 Verificar configuración en production-config.js");
+      window.secureLogger?.info(
+        "🔧 Verificar configuración en production-config.js"
+      );
     }
 
     return {
@@ -498,7 +555,9 @@ window.diagnoseEmailJS = function () {
   return window.emailService.diagnoseConfiguration();
 };
 
-window.secureLogger?.system("✅ Servicio de Email cargado con configuración segura");
+window.secureLogger?.info(
+  "✅ Servicio de Email cargado con configuración segura"
+);
 window.secureLogger?.info("🧪 Funciones de diagnóstico disponibles:");
 window.secureLogger?.info("  - testEmails() - Probar sistema con tu email");
 window.secureLogger?.info("  - diagnoseEmailJS() - Verificar configuración");
@@ -506,9 +565,9 @@ window.secureLogger?.info("  - diagnoseEmailJS() - Verificar configuración");
 // Mensaje de estado del sistema
 const isProduction = window.PRODUCTION_MODE || false;
 if (isProduction) {
-  window.secureLogger?.system("🔒 SISTEMA EMAILJS - MODO PRODUCCIÓN ACTIVADO");
+  window.secureLogger?.info("🔒 SISTEMA EMAILJS - MODO PRODUCCIÓN ACTIVADO");
 } else {
-  window.secureLogger?.system(`
+  window.secureLogger?.info(`
 📧 SISTEMA DE EMAILS CONFIGURADO (DESARROLLO):
 
 ✅ EmailJS configurado con credenciales seguras

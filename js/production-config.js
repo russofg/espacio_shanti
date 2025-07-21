@@ -43,24 +43,24 @@ window.SITE_CONFIG = {
   emailjs: {
     production: {
       // PRODUCCIÓN: Configurar con valores reales antes del deploy
-      serviceId: process.env.EMAILJS_SERVICE_ID || "service_PROD_ID",
-      publicKey: process.env.EMAILJS_PUBLIC_KEY || "PROD_PUBLIC_KEY",
+      serviceId: "service_PROD_ID", // TODO: Configurar valor real
+      publicKey: "PROD_PUBLIC_KEY", // TODO: Configurar valor real
       templates: {
-        confirmacion: process.env.EMAILJS_TEMPLATE_CONFIRM || "template_PROD_CONFIRM",
-        recordatorio_24h: process.env.EMAILJS_TEMPLATE_24H || "template_PROD_24H",
-        recordatorio_2h: process.env.EMAILJS_TEMPLATE_2H || "template_PROD_2H",
-      }
+        confirmacion: "template_PROD_CONFIRM", // TODO: Configurar valor real
+        recordatorio_24h: "template_PROD_24H", // TODO: Configurar valor real
+        recordatorio_2h: "template_PROD_2H", // TODO: Configurar valor real
+      },
     },
     development: {
       // DESARROLLO: Valores actuales (cambiar antes de producción)
       serviceId: "service_6gdc5d9",
-      publicKey: "coMY9H78vxBJ2e8AV", 
+      publicKey: "coMY9H78vxBJ2e8AV",
       templates: {
         confirmacion: "template_fc7edbq",
         recordatorio_24h: "template_fc7edbq",
         recordatorio_2h: "template_fc7edbq",
-      }
-    }
+      },
+    },
   },
 
   // Configuración de logging por nivel
@@ -78,26 +78,29 @@ window.SITE_CONFIG = {
 
 // FUNCIÓN PARA OBTENER CONFIGURACIÓN EMAILJS SEGURA
 // ==================================================
-window.getEmailJSConfig = function() {
+window.getEmailJSConfig = function () {
   const isProduction = window.PRODUCTION_MODE || false;
-  const environment = isProduction ? 'production' : 'development';
-  
+  const environment = isProduction ? "production" : "development";
+
   const config = window.SITE_CONFIG?.emailjs?.[environment];
-  
+
   if (!config) {
-    window.secureLogger?.error('❌ No se pudo obtener configuración EmailJS');
+    window.secureLogger?.error("❌ No se pudo obtener configuración EmailJS");
     return null;
   }
 
   // En producción, ocultar las credenciales de los logs
   if (isProduction) {
-    window.secureLogger?.debug('📧 Configuración EmailJS cargada (PRODUCCIÓN)');
+    window.secureLogger?.debug("📧 Configuración EmailJS cargada (PRODUCCIÓN)");
   } else {
-    window.secureLogger?.debug('📧 Configuración EmailJS cargada (DESARROLLO)', {
-      serviceId: config.serviceId?.substring(0, 8) + '...',
-      publicKey: config.publicKey?.substring(0, 8) + '...',
-      templates: Object.keys(config.templates || {})
-    });
+    window.secureLogger?.debug(
+      "📧 Configuración EmailJS cargada (DESARROLLO)",
+      {
+        serviceId: config.serviceId?.substring(0, 8) + "...",
+        publicKey: config.publicKey?.substring(0, 8) + "...",
+        templates: Object.keys(config.templates || {}),
+      }
+    );
   }
 
   return config;

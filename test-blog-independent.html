@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Blog Independiente - Espacio Shanti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        🧪 Test Blog Independiente
+      </h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Control de Datos</h2>
+        <div class="space-y-4">
+          <button
+            onclick="clearAndCreateTest()"
+            class="w-full bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600"
+          >
+            🗑️ Limpiar TODO y Crear Entrada de Prueba
+          </button>
+
+          <button
+            onclick="viewCurrentData()"
+            class="w-full bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
+          >
+            👀 Ver Datos Actuales
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Vista Previa del Blog</h2>
+        <div id="blog-preview" class="space-y-4">
+          <!-- Las tarjetas aparecerán aquí -->
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Debug Log</h2>
+        <div
+          id="debug-log"
+          class="bg-gray-100 p-4 rounded min-h-[200px] font-mono text-sm"
+        >
+          <p class="text-gray-600">Los logs aparecerán aquí...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Función de logging independiente
+      function debugLog(message, type = "info") {
+        const logContainer = document.getElementById("debug-log");
+        const timestamp = new Date().toLocaleTimeString();
+        const colors = {
+          info: "text-blue-600",
+          success: "text-green-600",
+          error: "text-red-600",
+          warning: "text-yellow-600",
+        };
+
+        const logEntry = document.createElement("div");
+        logEntry.className = colors[type] || "text-gray-600";
+        logEntry.innerHTML = `[${timestamp}] ${message}`;
+
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      function clearAndCreateTest() {
+        // Limpiar log
+        document.getElementById("debug-log").innerHTML = "";
+
+        debugLog("🗑️ Limpiando datos existentes...", "warning");
+
+        // Limpiar localStorage
+        localStorage.removeItem("blogEntries");
+
+        debugLog("✅ localStorage limpio", "success");
+
+        // Crear entrada de prueba con formato PERFECTO
+        const now = new Date();
+        const testEntry = {
+          id: "test-perfect-" + Date.now(),
+          title: "Entrada de Prueba Perfecta",
+          content:
+            "Esta es una entrada creada específicamente para probar que las fechas, emojis y autores se muestren correctamente. Tiene más de 200 caracteres para cumplir con todas las validaciones del sistema. Debería mostrar la fecha actual, un emoji válido y el nombre del autor extraído del email.",
+          summary:
+            "Entrada de prueba con formato perfecto para verificar fechas, emojis y autores.",
+          author: "maria.garcia@espacioshanti.com",
+          createdAt: now.toISOString(),
+          date: now.toLocaleDateString("es-ES", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          category: "terapias",
+          emoji: "💆‍♀️",
+          tips: ["Tip de prueba 1", "Tip de prueba 2"],
+        };
+
+        debugLog("✨ Creando entrada de prueba...", "info");
+        debugLog(`📝 Título: "${testEntry.title}"`, "info");
+        debugLog(`📅 createdAt: ${testEntry.createdAt}`, "info");
+        debugLog(`📅 date: ${testEntry.date}`, "info");
+        debugLog(`😀 emoji: ${testEntry.emoji}`, "info");
+        debugLog(`👤 author: ${testEntry.author}`, "info");
+        debugLog(`🏷️ category: ${testEntry.category}`, "info");
+
+        // Guardar en localStorage
+        localStorage.setItem("blogEntries", JSON.stringify([testEntry]));
+
+        debugLog("💾 Entrada guardada en localStorage", "success");
+
+        // Generar vista previa
+        generateBlogPreview();
+      }
+
+      function viewCurrentData() {
+        document.getElementById("debug-log").innerHTML = "";
+
+        debugLog("👀 Verificando datos actuales...", "info");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            debugLog("❌ No hay entradas en localStorage", "error");
+          } else {
+            debugLog(`📊 Encontradas ${entries.length} entradas`, "success");
+
+            entries.forEach((entry, index) => {
+              debugLog(`\n📄 Entrada ${index + 1}:`, "info");
+              debugLog(`  • ID: ${entry.id}`, "info");
+              debugLog(`  • Título: "${entry.title}"`, "info");
+              debugLog(
+                `  • createdAt: ${entry.createdAt || "NO DEFINIDO"}`,
+                entry.createdAt ? "success" : "error"
+              );
+              debugLog(
+                `  • date: ${entry.date || "NO DEFINIDO"}`,
+                entry.date ? "success" : "error"
+              );
+              debugLog(
+                `  • emoji: "${entry.emoji || "NO DEFINIDO"}"`,
+                entry.emoji && entry.emoji !== "undefined" ? "success" : "error"
+              );
+              debugLog(
+                `  • author: ${entry.author || "NO DEFINIDO"}`,
+                entry.author ? "success" : "error"
+              );
+            });
+          }
+
+          // Generar vista previa
+          generateBlogPreview();
+        } catch (error) {
+          debugLog(`❌ Error al leer datos: ${error.message}`, "error");
+        }
+      }
+
+      function generateBlogPreview() {
+        debugLog("\n🎨 Generando vista previa del blog...", "info");
+
+        const blogContainer = document.getElementById("blog-preview");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            blogContainer.innerHTML =
+              '<p class="text-gray-500 italic">No hay entradas para mostrar</p>';
+            return;
+          }
+
+          debugLog(`📊 Procesando ${entries.length} entradas...`, "info");
+
+          blogContainer.innerHTML = entries
+            .map((entry, index) => {
+              debugLog(
+                `\n🔄 Procesando entrada ${index + 1}: "${entry.title}"`,
+                "info"
+              );
+
+              // Validar y formatear fecha - EXACTAMENTE como en app.js
+              let formattedDate = "Fecha no disponible";
+              const dateValue = entry.createdAt || entry.date;
+
+              if (dateValue && typeof dateValue === "string") {
+                try {
+                  // Si ya es una fecha formateada en español
+                  if (dateValue.includes("de") && dateValue.includes("de")) {
+                    formattedDate = dateValue;
+                    debugLog(
+                      `  ✅ Fecha en español: ${formattedDate}`,
+                      "success"
+                    );
+                  } else {
+                    // Intentar parsear como Date
+                    const date = new Date(dateValue);
+                    if (!isNaN(date.getTime())) {
+                      formattedDate = date.toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      });
+                      debugLog(
+                        `  ✅ Fecha parseada: ${formattedDate}`,
+                        "success"
+                      );
+                    } else {
+                      debugLog(`  ❌ Fecha inválida: ${dateValue}`, "error");
+                    }
+                  }
+                } catch (e) {
+                  debugLog(
+                    `  ❌ Error al formatear fecha: ${e.message}`,
+                    "error"
+                  );
+                }
+              } else {
+                debugLog(`  ❌ Sin fecha válida: ${dateValue}`, "error");
+              }
+
+              // Validar emoji
+              let emoji = "📝";
+              if (
+                entry.emoji &&
+                typeof entry.emoji === "string" &&
+                entry.emoji.trim() !== "" &&
+                entry.emoji !== "undefined" &&
+                entry.emoji.toLowerCase() !== "undefined"
+              ) {
+                emoji = entry.emoji;
+                debugLog(`  ✅ Emoji válido: ${emoji}`, "success");
+              } else {
+                debugLog(
+                  `  ❌ Emoji inválido: "${entry.emoji}", usando fallback: ${emoji}`,
+                  "warning"
+                );
+              }
+
+              // Validar categoría
+              let category = "general";
+              if (
+                entry.category &&
+                typeof entry.category === "string" &&
+                entry.category.trim() !== "" &&
+                entry.category !== "undefined"
+              ) {
+                category = entry.category;
+                debugLog(`  ✅ Categoría válida: ${category}`, "success");
+              } else {
+                debugLog(
+                  `  ❌ Categoría inválida: "${entry.category}", usando: ${category}`,
+                  "warning"
+                );
+              }
+              const categoryDisplay =
+                category.charAt(0).toUpperCase() + category.slice(1);
+
+              // Validar y procesar autor
+              let authorName = "Equipo Espacio Shanti";
+              if (
+                entry.author &&
+                typeof entry.author === "string" &&
+                entry.author.trim() !== "" &&
+                entry.author !== "undefined"
+              ) {
+                if (entry.author.includes("@")) {
+                  const emailPart = entry.author.split("@")[0];
+                  if (emailPart && emailPart.length > 0) {
+                    authorName = emailPart.replace(/[._]/g, " ");
+                    authorName = authorName
+                      .split(" ")
+                      .map((word) =>
+                        word && word.length > 0
+                          ? word.charAt(0).toUpperCase() + word.slice(1)
+                          : word
+                      )
+                      .join(" ");
+                    debugLog(
+                      `  ✅ Autor extraído de email: ${authorName}`,
+                      "success"
+                    );
+                  }
+                } else {
+                  authorName = entry.author;
+                  debugLog(`  ✅ Autor directo: ${authorName}`, "success");
+                }
+              } else {
+                debugLog(
+                  `  ❌ Autor inválido: "${entry.author}", usando fallback: ${authorName}`,
+                  "warning"
+                );
+              }
+
+              // Validar título
+              const title =
+                entry.title &&
+                typeof entry.title === "string" &&
+                entry.title.trim() !== "" &&
+                entry.title !== "undefined"
+                  ? entry.title
+                  : "Sin título";
+
+              if (title === "Sin título") {
+                debugLog(`  ❌ Título inválido: "${entry.title}"`, "error");
+              } else {
+                debugLog(`  ✅ Título válido: ${title}`, "success");
+              }
+
+              // Validar contenido
+              const content =
+                entry.content && typeof entry.content === "string"
+                  ? entry.content
+                  : "";
+              const previewContent =
+                content.length > 120
+                  ? content.substring(0, 120) + "..."
+                  : content;
+
+              return `
+                        <article class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-700">
+                                        <span class="mr-1">${emoji}</span>
+                                        ${categoryDisplay}
+                                    </span>
+                                    <time class="text-sm text-gray-500" datetime="${
+                                      entry.createdAt || entry.date || ""
+                                    }">
+                                        ${formattedDate}
+                                    </time>
+                                </div>
+
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">
+                                    ${title}
+                                </h3>
+
+                                <p class="text-gray-600 mb-4 leading-relaxed">
+                                    ${
+                                      previewContent ||
+                                      "Sin contenido disponible"
+                                    }
+                                </p>
+
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-700 font-medium">
+                                            ${authorName}
+                                        </span>
+                                    </div>
+                                    
+                                    <button class="inline-flex items-center text-green-600 hover:text-green-700 font-medium text-sm transition-colors">
+                                        Leer más
+                                        <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+            })
+            .join("");
+
+          debugLog("\n🎉 Vista previa generada correctamente", "success");
+        } catch (error) {
+          debugLog(
+            `❌ Error al generar vista previa: ${error.message}`,
+            "error"
+          );
+          blogContainer.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        }
+      }
+
+      // Cargar al inicio
+      document.addEventListener("DOMContentLoaded", function () {
+        debugLog("🚀 Test blog independiente cargado", "success");
+        debugLog(
+          '💡 Usa "Limpiar TODO y Crear Entrada de Prueba" para empezar',
+          "info"
+        );
+      });
+    </script>
+  </body>
+</html>

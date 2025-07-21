@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Limpiar Datos Blog - Espacio Shanti</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        background: #0056b3;
+      }
+      .button.danger {
+        background: #dc3545;
+      }
+      .button.danger:hover {
+        background: #c82333;
+      }
+      .button.success {
+        background: #28a745;
+      }
+      .button.success:hover {
+        background: #218838;
+      }
+      .output {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        min-height: 100px;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+      }
+      .warning {
+        color: orange;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧹 Limpiar Datos del Blog</h1>
+
+      <div class="output">
+        <h3>⚠️ Advertencia</h3>
+        <p>
+          Esta herramienta corregirá los datos corruptos del blog que tienen:
+        </p>
+        <ul>
+          <li>❌ Emoji "undefined"</li>
+          <li>❌ Fechas en formato incorrecto</li>
+          <li>❌ Campos faltantes</li>
+        </ul>
+      </div>
+
+      <div>
+        <button class="button" onclick="analyzeData()">
+          🔍 Analizar Datos
+        </button>
+        <button class="button success" onclick="fixData()">
+          🔧 Reparar Datos
+        </button>
+        <button class="button danger" onclick="clearAll()">
+          🗑️ Eliminar Todo
+        </button>
+      </div>
+
+      <div id="output" class="output">
+        Haz clic en "Analizar Datos" para comenzar...
+      </div>
+    </div>
+
+    <script>
+      function log(message, type = "info") {
+        const output = document.getElementById("output");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "error"
+            ? "error"
+            : type === "success"
+            ? "success"
+            : type === "warning"
+            ? "warning"
+            : "";
+        output.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+      }
+
+      function clearOutput() {
+        document.getElementById("output").innerHTML = "";
+      }
+
+      function analyzeData() {
+        clearOutput();
+        log("🔍 Analizando datos del blog...", "info");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            log("❌ No hay entradas para analizar", "error");
+            return;
+          }
+
+          log(`📊 Encontradas ${entries.length} entradas`, "info");
+
+          let issuesFound = 0;
+
+          entries.forEach((entry, index) => {
+            log(
+              `\n📋 Analizando entrada ${index + 1}: "${
+                entry.title || "Sin título"
+              }"`,
+              "info"
+            );
+
+            // Check emoji
+            if (
+              !entry.emoji ||
+              entry.emoji === "undefined" ||
+              entry.emoji.toLowerCase() === "undefined"
+            ) {
+              log(`  ❌ Emoji corrupto: "${entry.emoji}"`, "error");
+              issuesFound++;
+            } else {
+              log(`  ✅ Emoji OK: ${entry.emoji}`, "success");
+            }
+
+            // Check date
+            const hasCreatedAt =
+              entry.createdAt && typeof entry.createdAt === "string";
+            const hasDate = entry.date && typeof entry.date === "string";
+
+            if (!hasCreatedAt && !hasDate) {
+              log(`  ❌ Sin fecha válida`, "error");
+              issuesFound++;
+            } else if (hasDate && !hasCreatedAt) {
+              log(`  ⚠️ Solo tiene "date", falta "createdAt"`, "warning");
+              issuesFound++;
+            } else {
+              log(`  ✅ Fecha OK`, "success");
+            }
+
+            // Check author
+            if (!entry.author || entry.author === "undefined") {
+              log(`  ❌ Autor corrupto: "${entry.author}"`, "error");
+              issuesFound++;
+            } else {
+              log(`  ✅ Autor OK: ${entry.author}`, "success");
+            }
+
+            // Check category
+            if (!entry.category || entry.category === "undefined") {
+              log(`  ❌ Categoría corrupta: "${entry.category}"`, "error");
+              issuesFound++;
+            } else {
+              log(`  ✅ Categoría OK: ${entry.category}`, "success");
+            }
+          });
+
+          if (issuesFound > 0) {
+            log(
+              `\n⚠️ Se encontraron ${issuesFound} problemas. Usa "Reparar Datos" para corregirlos.`,
+              "warning"
+            );
+          } else {
+            log(`\n✅ No se encontraron problemas en los datos`, "success");
+          }
+        } catch (error) {
+          log(`❌ Error al analizar datos: ${error.message}`, "error");
+        }
+      }
+
+      function fixData() {
+        clearOutput();
+        log("🔧 Reparando datos del blog...", "info");
+
+        try {
+          const entries = JSON.parse(
+            localStorage.getItem("blogEntries") || "[]"
+          );
+
+          if (entries.length === 0) {
+            log("❌ No hay entradas para reparar", "error");
+            return;
+          }
+
+          let fixedCount = 0;
+          const fixedEntries = entries.map((entry, index) => {
+            log(
+              `\n🔧 Reparando entrada ${index + 1}: "${
+                entry.title || "Sin título"
+              }"`,
+              "info"
+            );
+
+            const fixed = { ...entry };
+            let entryFixed = false;
+
+            // Fix emoji
+            if (
+              !fixed.emoji ||
+              fixed.emoji === "undefined" ||
+              fixed.emoji.toLowerCase() === "undefined"
+            ) {
+              // Set emoji based on category
+              const categoryEmojis = {
+                terapias: "💆‍♀️",
+                meditacion: "🧘‍♀️",
+                yoga: "🧘‍♂️",
+                reiki: "✨",
+                bienestar: "🌸",
+                consejos: "💡",
+                general: "📝",
+                debug: "🔧",
+                prueba: "🧪",
+              };
+              fixed.emoji = categoryEmojis[fixed.category] || "📝";
+              log(`  ✅ Emoji reparado: ${fixed.emoji}`, "success");
+              entryFixed = true;
+            }
+
+            // Fix date - ensure both createdAt and date exist
+            if (!fixed.createdAt) {
+              if (fixed.date && typeof fixed.date === "string") {
+                // If date is in Spanish format, convert to ISO
+                if (fixed.date.includes("de")) {
+                  // Keep the date field as is, but create a proper createdAt
+                  // For now, use current date as we can't perfectly parse Spanish dates
+                  fixed.createdAt = new Date().toISOString();
+                  log(
+                    `  ✅ createdAt añadido basado en fecha actual`,
+                    "success"
+                  );
+                } else {
+                  // Try to parse the date
+                  const parsedDate = new Date(fixed.date);
+                  if (!isNaN(parsedDate.getTime())) {
+                    fixed.createdAt = parsedDate.toISOString();
+                    log(
+                      `  ✅ createdAt añadido: ${fixed.createdAt}`,
+                      "success"
+                    );
+                  } else {
+                    fixed.createdAt = new Date().toISOString();
+                    log(
+                      `  ⚠️ createdAt añadido con fecha actual (no se pudo parsear)`,
+                      "warning"
+                    );
+                  }
+                }
+                entryFixed = true;
+              } else {
+                // No date at all, add current date
+                const now = new Date();
+                fixed.createdAt = now.toISOString();
+                fixed.date = now.toLocaleDateString("es-ES", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+                log(`  ✅ Fecha completa añadida (actual)`, "success");
+                entryFixed = true;
+              }
+            }
+
+            // Fix author
+            if (!fixed.author || fixed.author === "undefined") {
+              fixed.author = "equipo@espacioshanti.com";
+              log(`  ✅ Autor reparado: ${fixed.author}`, "success");
+              entryFixed = true;
+            }
+
+            // Fix category
+            if (!fixed.category || fixed.category === "undefined") {
+              fixed.category = "general";
+              log(`  ✅ Categoría reparada: ${fixed.category}`, "success");
+              entryFixed = true;
+            }
+
+            // Ensure summary and content exist
+            if (!fixed.summary) {
+              fixed.summary = fixed.content
+                ? fixed.content.substring(0, 100) + "..."
+                : "Sin resumen";
+              entryFixed = true;
+            }
+
+            if (!fixed.content) {
+              fixed.content = "Contenido no disponible";
+              entryFixed = true;
+            }
+
+            if (entryFixed) {
+              fixedCount++;
+              log(`  ✅ Entrada ${index + 1} reparada`, "success");
+            } else {
+              log(`  ✅ Entrada ${index + 1} ya estaba OK`, "success");
+            }
+
+            return fixed;
+          });
+
+          // Save fixed data
+          localStorage.setItem("blogEntries", JSON.stringify(fixedEntries));
+
+          log(`\n🎉 Reparación completada!`, "success");
+          log(`📊 ${fixedCount} entradas fueron reparadas`, "info");
+          log(`💾 Datos guardados en localStorage`, "success");
+          log(`\n🔄 Ahora puedes ir a index.html para ver los cambios`, "info");
+        } catch (error) {
+          log(`❌ Error al reparar datos: ${error.message}`, "error");
+        }
+      }
+
+      function clearAll() {
+        if (
+          confirm(
+            "¿Estás seguro de que quieres eliminar TODAS las entradas del blog?"
+          )
+        ) {
+          localStorage.removeItem("blogEntries");
+          clearOutput();
+          log("🗑️ Todas las entradas han sido eliminadas", "warning");
+          log("📊 localStorage limpio", "info");
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        log("🚀 Herramienta de reparación cargada", "success");
+      });
+    </script>
+  </body>
+</html>

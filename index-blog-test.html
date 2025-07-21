@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Espacio Shanti - Test Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Solo cargar los scripts esenciales del blog -->
+    <script>
+      // Configuración mínima para evitar errores
+      window.firebaseManager = null; // Usar solo localStorage
+    </script>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Header simplificado -->
+    <header class="bg-white shadow-sm">
+      <div class="container mx-auto px-4 py-4">
+        <h1 class="text-2xl font-bold text-green-600">
+          Espacio Shanti - Test Blog
+        </h1>
+      </div>
+    </header>
+
+    <!-- Sección del Blog -->
+    <section id="blog" class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-800 mb-4">Blog</h2>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Descubre consejos, reflexiones y conocimientos sobre bienestar y
+            terapias alternativas
+          </p>
+        </div>
+
+        <!-- Blog Loading State -->
+        <div id="blog-loading" class="text-center py-8 hidden">
+          <div class="inline-flex items-center space-x-2">
+            <div
+              class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"
+            ></div>
+            <span class="text-gray-600">Cargando entradas del blog...</span>
+          </div>
+        </div>
+
+        <!-- Blog Empty State -->
+        <div id="blog-empty" class="text-center py-12 hidden">
+          <div class="max-w-md mx-auto">
+            <i class="fas fa-blog text-4xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">
+              No hay entradas disponibles
+            </h3>
+            <p class="text-gray-500">
+              Las entradas del blog aparecerán aquí cuando estén disponibles.
+            </p>
+          </div>
+        </div>
+
+        <!-- Blog Grid -->
+        <div
+          id="blog-container"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <!-- Las entradas del blog se generarán aquí dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Script del blog simplificado (sin dependencias problemáticas) -->
+    <script>
+      // Función principal para generar las tarjetas del blog
+      async function generateBlogCards() {
+        console.log("🔄 Generating blog cards for public display...");
+
+        const blogContainer = document.getElementById("blog-container");
+        const blogLoading = document.getElementById("blog-loading");
+        const blogEmpty = document.getElementById("blog-empty");
+
+        if (!blogContainer) {
+          console.log("❌ Blog container not found");
+          return;
+        }
+
+        try {
+          // Show loading state
+          if (blogLoading) blogLoading.classList.remove("hidden");
+          if (blogContainer) blogContainer.classList.add("hidden");
+          if (blogEmpty) blogEmpty.classList.add("hidden");
+
+          let blogEntries = [];
+
+          // Solo usar localStorage (sin Firebase para evitar errores)
+          blogEntries = JSON.parse(localStorage.getItem("blogEntries") || "[]");
+
+          console.log(`📊 Found ${blogEntries.length} blog entries`);
+
+          // Hide loading state
+          if (blogLoading) blogLoading.classList.add("hidden");
+
+          if (blogEntries.length === 0) {
+            // Show empty state
+            if (blogEmpty) blogEmpty.classList.remove("hidden");
+            return;
+          }
+
+          // Sort entries by date (newest first)
+          blogEntries.sort(
+            (a, b) =>
+              new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)
+          );
+
+          // Show only the first 6 entries for the main page
+          const displayEntries = blogEntries.slice(0, 6);
+
+          // Generate HTML for blog cards
+          blogContainer.innerHTML = displayEntries
+            .map((entry) => {
+              // Validate entry exists and has minimum required properties
+              if (!entry || typeof entry !== "object") {
+                console.warn("⚠️ Invalid entry found:", entry);
+                return "";
+              }
+
+              // Validate and format date - check both createdAt and date fields
+              let formattedDate = "Fecha no disponible";
+              const dateValue = entry.createdAt || entry.date;
+
+              if (dateValue && typeof dateValue === "string") {
+                try {
+                  // If it's already a formatted date string (like "21 de julio de 2025"), use it directly
+                  if (dateValue.includes("de") && dateValue.includes("de")) {
+                    formattedDate = dateValue;
+                  } else {
+                    // Otherwise, try to parse it as a Date
+                    const date = new Date(dateValue);
+                    if (!isNaN(date.getTime())) {
+                      formattedDate = date.toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      });
+                    }
+                  }
+                } catch (e) {
+                  console.warn("Error formatting date:", dateValue, e.message);
+                }
+              }
+
+              // Validate and process content
+              const content =
+                entry.content && typeof entry.content === "string"
+                  ? entry.content
+                  : "";
+              const previewContent =
+                content.length > 120
+                  ? content.substring(0, 120) + "..."
+                  : content;
+
+              // Get emoji with fallback - ensure it's a valid string and not "undefined"
+              let emoji = "📝"; // Default fallback
+              if (
+                entry.emoji &&
+                typeof entry.emoji === "string" &&
+                entry.emoji.trim() !== "" &&
+                entry.emoji !== "undefined" &&
+                entry.emoji.toLowerCase() !== "undefined"
+              ) {
+                emoji = entry.emoji;
+              }
+
+              // Get category with fallback - ensure it's a valid string
+              let category = "general";
+              if (
+                entry.category &&
+                typeof entry.category === "string" &&
+                entry.category.trim() !== "" &&
+                entry.category !== "undefined"
+              ) {
+                category = entry.category;
+              }
+              const categoryDisplay =
+                category.charAt(0).toUpperCase() + category.slice(1);
+
+              // Get author name (extract name from email if needed) - ensure it's a valid string
+              let authorName = "Equipo Espacio Shanti";
+              if (
+                entry.author &&
+                typeof entry.author === "string" &&
+                entry.author.trim() !== "" &&
+                entry.author !== "undefined"
+              ) {
+                if (entry.author.includes("@")) {
+                  // Extract name from email (part before @)
+                  const emailPart = entry.author.split("@")[0];
+                  if (emailPart && emailPart.length > 0) {
+                    authorName = emailPart.replace(/[._]/g, " ");
+                    // Capitalize first letter of each word
+                    authorName = authorName
+                      .split(" ")
+                      .map((word) =>
+                        word && word.length > 0
+                          ? word.charAt(0).toUpperCase() + word.slice(1)
+                          : word
+                      )
+                      .join(" ");
+                  }
+                } else {
+                  authorName = entry.author;
+                }
+              }
+
+              // Validate title - ensure it's a valid string
+              const title =
+                entry.title &&
+                typeof entry.title === "string" &&
+                entry.title.trim() !== "" &&
+                entry.title !== "undefined"
+                  ? entry.title
+                  : "Sin título";
+
+              return `
+                        <article class="bg-white rounded-2xl shadow-elegant hover:shadow-premium transition-all duration-300 overflow-hidden group transform hover:scale-[1.02]">
+                            <div class="p-6">
+                                <!-- Blog Header -->
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-700">
+                                        <span class="mr-1">${emoji}</span>
+                                        ${categoryDisplay}
+                                    </span>
+                                    <time class="text-sm text-gray-500" datetime="${
+                                      entry.createdAt || entry.date || ""
+                                    }">
+                                        ${formattedDate}
+                                    </time>
+                                </div>
+
+                                <!-- Blog Title -->
+                                <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-green-600 transition-colors">
+                                    ${title}
+                                </h3>
+
+                                <!-- Blog Preview -->
+                                <p class="text-gray-600 mb-4 leading-relaxed">
+                                    ${
+                                      previewContent ||
+                                      "Sin contenido disponible"
+                                    }
+                                </p>
+
+                                <!-- Blog Author and Actions -->
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-700 font-medium">
+                                            ${authorName}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Read more button -->
+                                        <button 
+                                            onclick="alert('Modal del blog - Funcionalidad en desarrollo')"
+                                            class="inline-flex items-center text-green-600 hover:text-green-700 font-medium text-sm transition-colors"
+                                        >
+                                            Leer más
+                                            <i class="fas fa-arrow-right ml-1 text-xs transform group-hover:translate-x-1 transition-transform"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+            })
+            .join("");
+
+          // Show the blog container
+          if (blogContainer) blogContainer.classList.remove("hidden");
+
+          console.log("✅ Blog cards generated successfully");
+        } catch (error) {
+          console.error("❌ Error generating blog cards:", error);
+
+          // Hide loading and show empty state on error
+          if (blogLoading) blogLoading.classList.add("hidden");
+          if (blogEmpty) blogEmpty.classList.remove("hidden");
+        }
+      }
+
+      // Initialize blog when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 Initializing blog system...");
+        generateBlogCards();
+      });
+    </script>
+  </body>
+</html>
